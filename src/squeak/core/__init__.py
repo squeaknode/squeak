@@ -173,6 +173,7 @@ def EncryptContent(data_key, iv, content):
     enc_public_key is an instance of ...
 
     data_key (bytes)
+    iv (bytes)
     squeak (Squeak)
     """
     return encrypt_content(data_key, iv, content)
