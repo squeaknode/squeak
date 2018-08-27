@@ -60,6 +60,7 @@ docs/_build
 .cache
 .pytest
 .pytest_cache/
+.pytest_cache
 .mypy_cache/
 .bootstrap
 .appveyor.token
