@@ -149,7 +149,6 @@ class CSqueak(CSqueakHeader):
 
 def SignSqueak(privkey, squeak):
     """Generate a signature for the given squeak
-    privkey is an instance of CKey
 
     privkey (CKey)
     squeak (Squeak)
@@ -170,7 +169,6 @@ def VerifySqueak(squeak, sig):
 
 def EncryptContent(data_key, iv, content):
     """Return the ciphertext from the given content.
-    enc_public_key is an instance of ...
 
     data_key (bytes)
     iv (bytes)
@@ -181,7 +179,6 @@ def EncryptContent(data_key, iv, content):
 
 def DecryptContent(squeak, enc_private_key):
     """Return the decrypted content.
-    enc_private_key is an instance of ...
 
     squeak (Squeak)
     enc_private_key (RSAPrivateKey)
@@ -195,7 +192,6 @@ def DecryptContent(squeak, enc_private_key):
 
 def EncryptDataKey(enc_public_key, data_key):
     """Return the ciphertext from the given content.
-    enc_public_key is an instance of ...
 
     enc_public_key (RSAPublicKey)
     data_key (bytes)
