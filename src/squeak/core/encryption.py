@@ -56,11 +56,10 @@ def deserialize_public_key(public_der_data):
 
 
 def _create_data_cipher(key, iv):
-    backend = default_backend()
     return Cipher(
         algorithms.AES(key),
         modes.CBC(iv),
-        backend=backend,
+        backend=default_backend(),
     )
 
 
