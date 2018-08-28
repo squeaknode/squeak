@@ -15,7 +15,7 @@ from squeak.core.signing import verify
 
 
 # Core definitions
-MAX_SQUEAK_SIZE = 288  # This is the length of cipher text when content length is 280.
+MAX_SQUEAK_SIZE = 1136  # This is the length of cipher text when content length is 280*4.
 PUB_KEY_LENGTH = 33
 ENCRYPTION_PUB_KEY_LENGTH = 162
 ENCRYPTED_DATA_KEY_LENGTH = 128

@@ -152,10 +152,10 @@ class TestCSqueak(object):
 
         assert hello.GetHash() == hello.get_header().GetHash()
 
-    def test_content_too_long(self):
+    def test_encrypted_content_too_long(self):
         with pytest.raises(AssertionError):
             self._build_with_params(
-                strEncContent=b'hello'*100,
+                strEncContent=b'X'*1137,
             )
 
     def test_sign_verify(self, signing_key):
@@ -178,7 +178,7 @@ class TestCSqueak(object):
         assert decrypted_content == content
 
     def test_content_length(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b"X"*280
+        content = b"X" * 280 * 4
         encrypted_content = EncryptContent(data_key, iv, content)
         data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
         self._build_with_params(
@@ -189,7 +189,7 @@ class TestCSqueak(object):
         assert True
 
     def test_content_length_too_long(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b"X"*290
+        content = b"X" * 284 * 4
         encrypted_content = EncryptContent(data_key, iv, content)
         data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
         with pytest.raises(AssertionError):
