@@ -13,7 +13,7 @@ PROTO_VERSION = 1
 class CSqueakLocator(Serializable):
     """Used for locating desired squeaks.
 
-    Contains a list of signing keys, each with a block height range.
+    Contains a list of verifying keys, each with a block height range.
     """
     def __init__(self, protover=PROTO_VERSION):
         self.nVersion = protover
@@ -36,7 +36,7 @@ class CSqueakLocator(Serializable):
 
 
 class CInterested(Serializable):
-    """Contains a signing key together with a block range.
+    """Contains a verifying key together with a block range.
 
     """
     def __init__(self, protover=PROTO_VERSION):
@@ -61,3 +61,29 @@ class CInterested(Serializable):
     def __repr__(self):
         return "CInterested(vchPubkey=lx(%s) nMinBlockHeight=%s nMaxBlockHeight=%s)" % \
             (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight))
+
+
+class CInv(Serializable):
+    typemap = {
+        0: "Error",
+        1: "Squeak",
+        3: "FilteredSqueak",
+    }
+
+    def __init__(self):
+        self.type = 0
+        self.hash = 0
+
+    @classmethod
+    def stream_deserialize(cls, f):
+        c = cls()
+        c.type = struct.unpack(b"<i", ser_read(f, 4))[0]
+        c.hash = ser_read(f, 32)
+        return c
+
+    def stream_serialize(self, f):
+        f.write(struct.pack(b"<i", self.type))
+        f.write(self.hash)
+
+    def __repr__(self):
+        return "CInv(type=%s hash=%s)" % (self.typemap[self.type], b2lx(self.hash))
