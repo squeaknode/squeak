@@ -15,7 +15,7 @@ from squeak.core.signing import verify
 
 
 # Core definitions
-MAX_SQUEAK_SIZE = 288  # This is the length of cipher text when content length is 280.
+MAX_SQUEAK_SIZE = 1136  # This is the length of cipher text when content length is 280*4.
 PUB_KEY_LENGTH = 33
 ENCRYPTION_PUB_KEY_LENGTH = 162
 ENCRYPTED_DATA_KEY_LENGTH = 128
@@ -96,6 +96,7 @@ class CSqueak(CSqueakHeader):
     def __init__(self, nVersion=1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*INITIALIZATION_VECTOR_LENGTH, nBlockHeight=-1, hashBlock=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, nTime=0, nNonce=0, strEncContent=b''):
         """Create a new squeak"""
         super(CSqueak, self).__init__(nVersion, vchPubkey, vchEncPubkey, vchEncDatakey, vchIv, nBlockHeight, hashBlock, hashReplySqk, nTime, nNonce)
+        print(len(strEncContent))
         assert len(strEncContent) <= MAX_SQUEAK_SIZE
         object.__setattr__(self, 'strEncContent', strEncContent)
 
