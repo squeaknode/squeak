@@ -4,18 +4,13 @@
 from setuptools import find_packages
 from setuptools import setup
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
-requires = []
-
 setup(
-    name='squeak',
+    name='squeaklib',
     version='0.1.0',
     license='MIT',
     author='Jonathan Zernik',
-    description='Squeak network',
-    long_description=long_description,
+    description='Squeak library',
+    long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -27,5 +22,5 @@ setup(
     keywords=[
         'squeak',
     ],
-    install_requires=requires,
+    install_requires=[],
 )
