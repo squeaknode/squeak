@@ -3,13 +3,15 @@ import struct
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
-from bitcoin.core.key import CPubKey
 from bitcoin.core import b2lx
 
 from squeak.core.encryption import encrypt_assymetric
 from squeak.core.encryption import decrypt_assymetric
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
+from squeak.core.signing import deserialize_verifying_key
+from squeak.core.signing import sign
+from squeak.core.signing import verify
 
 
 # Core definitions
@@ -147,24 +149,23 @@ class CSqueak(CSqueakHeader):
             return _cached_GetHash
 
 
-def SignSqueak(privkey, squeak):
+def SignSqueak(signing_key, squeak):
     """Generate a signature for the given squeak
 
-    privkey (CKey)
+    signing_key (CKey)
     squeak (Squeak)
     """
-    return privkey.sign(squeak.GetHash())
+    return sign(squeak.GetHash(), signing_key)
 
 
-def VerifySqueak(squeak, sig):
+def VerifySqueak(squeak, signature):
     """Return True iff the given signature is valid
 
     squeak (Squeak)
-    sig (bytes)
+    signature (bytes)
     """
-    pubkey = CPubKey(squeak.vchPubkey)
-    hash = squeak.GetHash()
-    return pubkey.verify(hash, sig)
+    verifying_key = deserialize_verifying_key(squeak.vchPubkey)
+    return verify(squeak.GetHash(), signature, verifying_key)
 
 
 def EncryptContent(data_key, iv, content):
@@ -177,26 +178,26 @@ def EncryptContent(data_key, iv, content):
     return encrypt_content(data_key, iv, content)
 
 
-def DecryptContent(squeak, enc_private_key):
+def DecryptContent(squeak, decryption_key):
     """Return the decrypted content.
 
     squeak (Squeak)
-    enc_private_key (RSAPrivateKey)
+    decryption_key (RSAPrivateKey)
     """
     data_key_cipher = squeak.vchEncDatakey
+    data_key = decrypt_assymetric(data_key_cipher, decryption_key)
     iv = squeak.vchIv
     ciphertext = squeak.strEncContent
-    data_key = decrypt_assymetric(data_key_cipher, enc_private_key)
     return decrypt_content(data_key, iv, ciphertext)
 
 
-def EncryptDataKey(enc_public_key, data_key):
+def EncryptDataKey(encryption_key, data_key):
     """Return the ciphertext from the given content.
 
-    enc_public_key (RSAPublicKey)
+    encryption_key (RSAPublicKey)
     data_key (bytes)
     """
-    return encrypt_assymetric(data_key, enc_public_key)
+    return encrypt_assymetric(data_key, encryption_key)
 
 
 def CheckSqueakHeader(squeak_header):
