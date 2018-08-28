@@ -128,14 +128,6 @@ class CSqueak(CSqueakHeader):
             nNonce=self.nNonce,
         )
 
-    def get_content(self, private_decryption_key):
-        """Get the unencrypted content from the encrypted content.
-        Return None or a string
-        """
-        if not len(self.strEncContent):
-            raise ValueError('Squeak contains no content')
-        # TODO: Implement
-
     def GetHash(self):
         """Return the squeak hash
         Note that this is the hash of the header, not the entire serialized
