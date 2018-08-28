@@ -3,7 +3,6 @@ import hashlib
 
 from io import BytesIO as _BytesIO
 
-
 import bitcoin
 from bitcoin.messages import msg_version as MsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
