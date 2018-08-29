@@ -11,6 +11,8 @@ from squeak.core import VerifySqueak
 from squeak.core import EncryptContent
 from squeak.core import DecryptContent
 from squeak.core import EncryptDataKey
+from squeak.core import INITIALIZATION_VECTOR_LENGTH
+from squeak.core import DATA_KEY_LENGTH
 from squeak.core.encryption import generate_assymetric_keys
 from squeak.core.encryption import serialize_public_key
 from squeak.core.signing import generate_signing_key
@@ -39,12 +41,12 @@ def rsa_public_key(rsa_private_key):
 
 @pytest.fixture
 def data_key():
-    return os.urandom(32)
+    return os.urandom(DATA_KEY_LENGTH)
 
 
 @pytest.fixture
 def iv():
-    return os.urandom(16)
+    return os.urandom(INITIALIZATION_VECTOR_LENGTH)
 
 
 @pytest.fixture
@@ -98,6 +100,13 @@ class TestCSqueakHeader(object):
 
         assert hello == hello2
 
+    def test_serialization_no_params(self):
+        hello = CSqueakHeader()
+        serialized = hello.serialize()
+        hello2 = CSqueakHeader.deserialize(serialized)
+
+        assert hello == hello2
+
     def test_GetHash(self):
         hello = self._build_with_params()
 
@@ -142,6 +151,13 @@ class TestCSqueak(object):
 
     def test_serialization(self):
         hello = self._build_with_params()
+        serialized = hello.serialize()
+        hello2 = CSqueak.deserialize(serialized)
+
+        assert hello == hello2
+
+    def test_serialization_no_params(self):
+        hello = CSqueak()
         serialized = hello.serialize()
         hello2 = CSqueak.deserialize(serialized)
 

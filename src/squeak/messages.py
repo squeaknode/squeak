@@ -242,11 +242,15 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         c = cls()
-        # TODO
+        c.squeak = CSqueak.stream_deserialize(f)
+        c.signature = VarStringSerializer.stream_deserialize(f)
+        c.price = struct.unpack(b"<i", ser_read(f, 4))[0]
         return c
 
     def msg_ser(self, f):
-        # TODO
+        self.squeak.stream_serialize(f)
+        VarStringSerializer.stream_serialize(self.signature, f)
+        f.write(struct.pack(b"<i", self.price))
         pass
 
     def __repr__(self):

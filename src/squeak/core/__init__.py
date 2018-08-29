@@ -53,7 +53,7 @@ class CSqueakHeader(ImmutableSerializable):
         vchEncPubkey = ser_read(f,ENCRYPTION_PUB_KEY_LENGTH)
         vchEncDatakey = ser_read(f,ENCRYPTED_DATA_KEY_LENGTH)
         vchIv = ser_read(f,INITIALIZATION_VECTOR_LENGTH)
-        nBlockHeight = struct.unpack(b"<I", ser_read(f,4))[0]
+        nBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashBlock = ser_read(f,HASH_LENGTH)
         hashReplySqk = ser_read(f,HASH_LENGTH)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
@@ -70,7 +70,7 @@ class CSqueakHeader(ImmutableSerializable):
         f.write(self.vchEncDatakey)
         assert len(self.vchIv) == INITIALIZATION_VECTOR_LENGTH
         f.write(self.vchIv)
-        f.write(struct.pack(b"<I", self.nBlockHeight))
+        f.write(struct.pack(b"<i", self.nBlockHeight))
         assert len(self.hashBlock) == HASH_LENGTH
         f.write(self.hashBlock)
         assert len(self.hashReplySqk) == HASH_LENGTH
