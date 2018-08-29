@@ -4,6 +4,7 @@ from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
+from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import PUB_KEY_LENGTH
 
@@ -13,7 +14,7 @@ PROTO_VERSION = 1
 class CSqueakLocator(Serializable):
     """Used for locating desired squeaks.
 
-    Contains a list of signing keys, each with a block height range.
+    Contains a list of public keys, each with a block height range.
     """
     def __init__(self, protover=PROTO_VERSION):
         self.nVersion = protover
@@ -36,7 +37,7 @@ class CSqueakLocator(Serializable):
 
 
 class CInterested(Serializable):
-    """Contains a signing key together with a block range.
+    """Contains a public key together with a block range.
 
     """
     def __init__(self, protover=PROTO_VERSION):
@@ -61,3 +62,11 @@ class CInterested(Serializable):
     def __repr__(self):
         return "CInterested(vchPubkey=lx(%s) nMinBlockHeight=%s nMaxBlockHeight=%s)" % \
             (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight))
+
+
+class CInv(BitcoinCInv):
+    typemap = {
+        0: "Error",
+        1: "Squeak",
+        3: "FilteredSqueak",
+    }
