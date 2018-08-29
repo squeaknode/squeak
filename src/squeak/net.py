@@ -4,7 +4,7 @@ from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
-from bitcoin.net import CInv
+from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import PUB_KEY_LENGTH
 
@@ -64,7 +64,7 @@ class CInterested(Serializable):
             (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight))
 
 
-class CInv(CInv):
+class CInv(BitcoinCInv):
     typemap = {
         0: "Error",
         1: "Squeak",
