@@ -25,7 +25,6 @@ from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
 from squeak.core import ENCRYPTED_DATA_KEY_LENGTH
-from squeak.core import ENCRYPTION_PRIV_KEY_LENGTH
 from squeak.core import DATA_KEY_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
@@ -316,20 +315,19 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     def __init__(self, protover=PROTO_VERSION):
         super(msg_fulfill, self).__init__(protover)
         self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.encryption_key = b'\x00'*ENCRYPTION_PRIV_KEY_LENGTH
+        self.encryption_key = b''
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         c = cls()
         c.squeak_hash = ser_read(f, HASH_LENGTH)
-        c.encryption_key = ser_read(f, ENCRYPTION_PRIV_KEY_LENGTH)
+        c.encryption_key = VarStringSerializer.stream_deserialize(f)
         return c
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
         f.write(self.squeak_hash)
-        assert len(self.encryption_key) == ENCRYPTION_PRIV_KEY_LENGTH
-        f.write(self.encryption_key)
+        VarStringSerializer.stream_serialize(self.encryption_key, f)
 
     def __repr__(self):
         return "msg_fulfill(squeakhash=lx(%s) encryption_key=lx(%s))" % \

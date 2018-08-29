@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import load_der_public_key
+from cryptography.hazmat.primitives.serialization import load_der_private_key
 
 
 KEY_SIZE = 1024
@@ -52,6 +53,22 @@ def deserialize_public_key(public_der_data):
     return load_der_public_key(
         public_der_data,
         backend=default_backend(),
+    )
+
+
+def serialize_private_key(private_key):
+    return private_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+
+
+def deserialize_private_key(private_der_data):
+    return load_der_private_key(
+        private_der_data,
+        backend=default_backend(),
+        password=None,
     )
 
 
