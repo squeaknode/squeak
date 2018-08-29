@@ -18,7 +18,6 @@ from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2x
 from bitcoin.core import b2lx
-from bitcoin.net import PROTO_VERSION
 
 import squeak
 from squeak.core import CSqueak
@@ -28,6 +27,7 @@ from squeak.core import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core import DATA_KEY_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
+from squeak.net import PROTO_VERSION
 
 
 USER_AGENT = (b'/python-squeak:' +

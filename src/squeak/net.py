@@ -8,7 +8,7 @@ from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import PUB_KEY_LENGTH
 
-PROTO_VERSION = 1
+PROTO_VERSION = 60002
 
 
 class CSqueakLocator(Serializable):
