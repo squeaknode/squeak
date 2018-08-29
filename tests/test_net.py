@@ -29,6 +29,7 @@ class TestCSqueakLocator(object):
         locator.nVersion = 1
         locator.vInterested = [interested1, interested2]
 
+        print(locator)
         print(interested1)
         print(interested2)
 
@@ -37,9 +38,8 @@ class TestCSqueakLocator(object):
         locator.stream_serialize(stream)
         serialized = _BytesIO(stream.getvalue())
 
-        deserialized = CInterested.stream_deserialize(serialized)
+        deserialized = CSqueakLocator.stream_deserialize(serialized)
         assert deserialized == locator
-
 
     def _make_interested(self, start, end):
         vk = get_verifying_key(generate_signing_key())

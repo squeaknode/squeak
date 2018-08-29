@@ -5,7 +5,7 @@ from io import BytesIO
 from squeak.messages import msg_getheaders
 from squeak.messages import msg_version
 from squeak.messages import msg_verack
-from squeak.messages import SqueakMsgSerializable
+from squeak.messages import MsgSerializable
 
 
 class MessageTestCase(unittest.TestCase):
@@ -15,6 +15,7 @@ class MessageTestCase(unittest.TestCase):
         mDeserialzed = cls.from_bytes(mSerialized)
         mSerialzedTwice = mDeserialzed.to_bytes()
         self.assertEqual(mSerialized, mSerialzedTwice)
+        self.assertTrue(isinstance(mDeserialzed, MsgSerializable))
 
 
 class Test_msg_version(MessageTestCase):
@@ -36,16 +37,16 @@ class Test_messages(unittest.TestCase):
 
     def test_read_msg_verack(self):
         f = BytesIO(self.verackbytes)
-        m = SqueakMsgSerializable.stream_deserialize(f)
+        m = MsgSerializable.stream_deserialize(f)
         self.assertEqual(m.command, msg_verack.command)
         print(m)
-        self.assertTrue(isinstance(m, SqueakMsgSerializable))
+        self.assertTrue(isinstance(m, MsgSerializable))
 
     def test_fail_invalid_message(self):
         bad_verack_bytes = b'\xf8' + self.verackbytes[1:]
         f = BytesIO(bad_verack_bytes)
         with self.assertRaises(ValueError):
-            SqueakMsgSerializable.stream_deserialize(f)
+            MsgSerializable.stream_deserialize(f)
 
     def test_msg_verack_to_bytes(self):
         m = msg_verack()

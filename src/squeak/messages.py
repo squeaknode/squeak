@@ -4,7 +4,7 @@ import hashlib
 from io import BytesIO as _BytesIO
 
 import bitcoin
-from bitcoin.messages import msg_version as MsgSerializable
+from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
@@ -30,12 +30,12 @@ USER_AGENT = (b'/python-squeak:' +
               squeak.__version__.encode('ascii') + b'/')
 
 
-class SqueakMsgSerializable(object):
+class MsgSerializable(object):
 
     @classmethod
     def from_bytes(cls, b, protover=PROTO_VERSION):
         f = _BytesIO(b)
-        return SqueakMsgSerializable.stream_deserialize(f, protover=protover)
+        return MsgSerializable.stream_deserialize(f, protover=protover)
 
     @classmethod
     def stream_deserialize(cls, f, protover=PROTO_VERSION):
@@ -69,38 +69,38 @@ class SqueakMsgSerializable(object):
             return None
 
 
-class msg_version(SqueakMsgSerializable, bitcoin_msg_version):
+class msg_version(MsgSerializable, bitcoin_msg_version):
 
     def __init__(self, protover=PROTO_VERSION, user_agent=USER_AGENT):
         super(msg_version, self).__init__(protover=protover)
         self.strSubVer = user_agent
 
 
-class msg_verack(SqueakMsgSerializable, bitcoin_msg_verack):
+class msg_verack(MsgSerializable, bitcoin_msg_verack):
     pass
 
 
-class msg_addr(SqueakMsgSerializable, bitcoin_msg_addr):
+class msg_addr(MsgSerializable, bitcoin_msg_addr):
     pass
 
 
-class msg_alert(SqueakMsgSerializable, bitcoin_msg_alert):
+class msg_alert(MsgSerializable, bitcoin_msg_alert):
     pass
 
 
-class msg_inv(SqueakMsgSerializable, bitcoin_msg_inv):
+class msg_inv(MsgSerializable, bitcoin_msg_inv):
     pass
 
 
-class msg_getdata(SqueakMsgSerializable, bitcoin_msg_getdata):
+class msg_getdata(MsgSerializable, bitcoin_msg_getdata):
     pass
 
 
-class msg_notfound(SqueakMsgSerializable, bitcoin_msg_notfound):
+class msg_notfound(MsgSerializable, bitcoin_msg_notfound):
     pass
 
 
-class msg_getheaders(SqueakMsgSerializable, MsgSerializable):
+class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
     command = b"getheaders"
 
     def __init__(self, protover=PROTO_VERSION):
@@ -121,7 +121,7 @@ class msg_getheaders(SqueakMsgSerializable, MsgSerializable):
         return "msg_getheaders(locator=%s)" % (repr(666))
 
 
-class msg_getsqueaks(SqueakMsgSerializable, MsgSerializable):
+class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
     command = b"getsqueaks"
 
     def __init__(self, protover=PROTO_VERSION):
@@ -141,7 +141,7 @@ class msg_getsqueaks(SqueakMsgSerializable, MsgSerializable):
         return "msg_getsqueaks(locator=%s)" % (repr(self.locator))
 
 
-class msg_headers(SqueakMsgSerializable, MsgSerializable):
+class msg_headers(MsgSerializable, BitcoinMsgSerializable):
     command = b"headers"
 
     def __init__(self, protover=PROTO_VERSION):
@@ -161,19 +161,19 @@ class msg_headers(SqueakMsgSerializable, MsgSerializable):
         return "msg_headers(headers=%s)" % (repr(self.headers))
 
 
-class msg_getaddr(SqueakMsgSerializable, bitcoin_msg_getaddr):
+class msg_getaddr(MsgSerializable, bitcoin_msg_getaddr):
     pass
 
 
-class msg_ping(SqueakMsgSerializable, bitcoin_msg_ping):
+class msg_ping(MsgSerializable, bitcoin_msg_ping):
     pass
 
 
-class msg_pong(SqueakMsgSerializable, bitcoin_msg_pong):
+class msg_pong(MsgSerializable, bitcoin_msg_pong):
     pass
 
 
-class msg_reject(SqueakMsgSerializable, bitcoin_msg_reject):
+class msg_reject(MsgSerializable, bitcoin_msg_reject):
     pass
 
 
