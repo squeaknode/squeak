@@ -4,6 +4,7 @@ from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
+from bitcoin.net import CInv
 
 from squeak.core import PUB_KEY_LENGTH
 
@@ -63,27 +64,9 @@ class CInterested(Serializable):
             (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight))
 
 
-class CInv(Serializable):
+class CInv(CInv):
     typemap = {
         0: "Error",
         1: "Squeak",
         3: "FilteredSqueak",
     }
-
-    def __init__(self):
-        self.type = 0
-        self.hash = 0
-
-    @classmethod
-    def stream_deserialize(cls, f):
-        c = cls()
-        c.type = struct.unpack(b"<i", ser_read(f, 4))[0]
-        c.hash = ser_read(f, 32)
-        return c
-
-    def stream_serialize(self, f):
-        f.write(struct.pack(b"<i", self.type))
-        f.write(self.hash)
-
-    def __repr__(self):
-        return "CInv(type=%s hash=%s)" % (self.typemap[self.type], b2lx(self.hash))
