@@ -9,7 +9,6 @@ from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
 from bitcoin.messages import msg_alert as bitcoin_msg_alert
-from bitcoin.messages import msg_inv as bitcoin_msg_inv
 from bitcoin.messages import msg_getdata as bitcoin_msg_getdata
 from bitcoin.messages import msg_notfound as bitcoin_msg_notfound
 from bitcoin.messages import msg_getaddr as bitcoin_msg_getaddr
@@ -23,6 +22,7 @@ from bitcoin.net import PROTO_VERSION
 
 import squeak
 from squeak.core import CSqueakHeader
+from squeak.net import CInv
 from squeak.net import CSqueakLocator
 
 
@@ -88,16 +88,64 @@ class msg_alert(MsgSerializable, bitcoin_msg_alert):
     pass
 
 
-class msg_inv(MsgSerializable, bitcoin_msg_inv):
-    pass
+class msg_inv(MsgSerializable, BitcoinMsgSerializable):
+    command = b"inv"
+
+    def __init__(self, protover=PROTO_VERSION):
+        super(msg_inv, self).__init__(protover)
+        self.inv = []
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        c = cls()
+        c.inv = VectorSerializer.stream_deserialize(CInv, f)
+        return c
+
+    def msg_ser(self, f):
+        VectorSerializer.stream_serialize(CInv, self.inv, f)
+
+    def __repr__(self):
+        return "msg_inv(inv=%s)" % (repr(self.inv))
 
 
 class msg_getdata(MsgSerializable, bitcoin_msg_getdata):
-    pass
+    command = b"getdata"
+
+    def __init__(self, protover=PROTO_VERSION):
+        super(msg_getdata, self).__init__(protover)
+        self.inv = []
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        c = cls()
+        c.inv = VectorSerializer.stream_deserialize(CInv, f)
+        return c
+
+    def msg_ser(self, f):
+        VectorSerializer.stream_serialize(CInv, self.inv, f)
+
+    def __repr__(self):
+        return "msg_getdata(inv=%s)" % (repr(self.inv))
 
 
 class msg_notfound(MsgSerializable, bitcoin_msg_notfound):
-    pass
+    command = b"notfound"
+
+    def __init__(self, protover=PROTO_VERSION):
+        super(msg_notfound, self).__init__(protover)
+        self.inv = []
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        c = cls()
+        c.inv = VectorSerializer.stream_deserialize(CInv, f)
+        return c
+
+    def msg_ser(self, f):
+        VectorSerializer.stream_serialize(CInv, self.inv, f)
+
+    def __repr__(self):
+        return "msg_notfound(inv=%s)" % (repr(self.inv))
 
 
 class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
@@ -125,7 +173,7 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
     command = b"getsqueaks"
 
     def __init__(self, protover=PROTO_VERSION):
-        super(msg_getheaders, self).__init__(protover)
+        super(msg_getsqueaks, self).__init__(protover)
         self.locator = CSqueakLocator()
 
     @classmethod
@@ -136,6 +184,7 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
 
     def msg_ser(self, f):
         self.locator.stream_serialize(f)
+        pass
 
     def __repr__(self):
         return "msg_getsqueaks(locator=%s)" % (repr(self.locator))
