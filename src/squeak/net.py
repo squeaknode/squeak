@@ -14,7 +14,7 @@ PROTO_VERSION = 1
 class CSqueakLocator(Serializable):
     """Used for locating desired squeaks.
 
-    Contains a list of verifying keys, each with a block height range.
+    Contains a list of public keys, each with a block height range.
     """
     def __init__(self, protover=PROTO_VERSION):
         self.nVersion = protover
@@ -37,7 +37,7 @@ class CSqueakLocator(Serializable):
 
 
 class CInterested(Serializable):
-    """Contains a verifying key together with a block range.
+    """Contains a public key together with a block range.
 
     """
     def __init__(self, protover=PROTO_VERSION):
