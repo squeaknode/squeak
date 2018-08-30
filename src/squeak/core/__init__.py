@@ -145,7 +145,7 @@ class CSqueak(CSqueakHeader):
 def SignSqueak(signing_key, squeak):
     """Generate a signature for the given squeak
 
-    signing_key (CKey)
+    signing_key (PrivateKey)
     squeak (Squeak)
     """
     return sign(squeak.GetHash(), signing_key)

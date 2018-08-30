@@ -30,6 +30,7 @@ class TestSignVerify(object):
         signature = sign(data, signing_key)
 
         assert verify(data, signature, deserialized_verifying_key)
+        assert len(key_data) == 33
 
     def test_sign_verify_other_data(self):
         signing_key = generate_signing_key()
