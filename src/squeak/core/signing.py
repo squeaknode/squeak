@@ -24,3 +24,11 @@ def sign(data, signing_key):
 
 def verify(data, signature, verifying_key):
     return verifying_key.ecdsa_verify(data, signature)
+
+
+def serialize_signature(signature):
+    return PrivateKey().ecdsa_serialize_compact(signature)
+
+
+def deserialize_signature(signature_data):
+    return PrivateKey().ecdsa_deserialize_compact(signature_data)

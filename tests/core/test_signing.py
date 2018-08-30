@@ -1,9 +1,11 @@
 import os
 
 from squeak.core.signing import deserialize_verifying_key
+from squeak.core.signing import deserialize_signature
 from squeak.core.signing import generate_signing_key
 from squeak.core.signing import get_verifying_key
 from squeak.core.signing import serialize_verifying_key
+from squeak.core.signing import serialize_signature
 from squeak.core.signing import sign
 from squeak.core.signing import verify
 
@@ -29,8 +31,14 @@ class TestSignVerify(object):
         data = os.urandom(32)
         signature = sign(data, signing_key)
 
+        sig_data = serialize_signature(signature)
+        deserialized_sig = deserialize_signature(sig_data)
+
+        assert verify(data, signature, verifying_key)
         assert verify(data, signature, deserialized_verifying_key)
+        assert verify(data, deserialized_sig, deserialized_verifying_key)
         assert len(key_data) == 33
+        assert len(sig_data) == 64
 
     def test_sign_verify_other_data(self):
         signing_key = generate_signing_key()
