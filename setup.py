@@ -22,5 +22,9 @@ setup(
     keywords=[
         'squeak',
     ],
-    install_requires=[],
+    install_requires=[
+        "cryptography",
+        "python-bitcoinlib",
+        "secp256k1",
+    ],
 )
