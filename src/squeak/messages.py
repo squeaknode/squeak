@@ -25,6 +25,7 @@ from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
 from squeak.core import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core import DATA_KEY_LENGTH
+from squeak.core import SIGNATURE_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
@@ -260,24 +261,25 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
     def __init__(self, protover=PROTO_VERSION):
         super(msg_offer, self).__init__(protover)
         self.squeak = CSqueak()
-        self.signature = b''
         self.proof = b'\x00'*DATA_KEY_LENGTH
+        self.signature = b'\x00'*SIGNATURE_LENGTH
         self.price = 0
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         c = cls()
         c.squeak = CSqueak.stream_deserialize(f)
-        c.signature = VarStringSerializer.stream_deserialize(f)
         c.proof = ser_read(f, DATA_KEY_LENGTH)
+        c.signature = ser_read(f, SIGNATURE_LENGTH)
         c.price = struct.unpack(b"<i", ser_read(f, 4))[0]
         return c
 
     def msg_ser(self, f):
         self.squeak.stream_serialize(f)
-        VarStringSerializer.stream_serialize(self.signature, f)
         assert len(self.proof) == DATA_KEY_LENGTH
         f.write(self.proof)
+        assert len(self.signature) == SIGNATURE_LENGTH
+        f.write(self.signature)
         f.write(struct.pack(b"<i", self.price))
 
     def __repr__(self):

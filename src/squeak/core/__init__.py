@@ -22,6 +22,7 @@ DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
 INITIALIZATION_VECTOR_LENGTH = 16
 HASH_LENGTH = 32
+SIGNATURE_LENGTH = 64
 
 
 class CSqueakHeader(ImmutableSerializable):
@@ -145,7 +146,7 @@ class CSqueak(CSqueakHeader):
 def SignSqueak(signing_key, squeak):
     """Generate a signature for the given squeak
 
-    signing_key (CKey)
+    signing_key (PrivateKey)
     squeak (Squeak)
     """
     return sign(squeak.GetHash(), signing_key)
