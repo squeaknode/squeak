@@ -17,6 +17,7 @@ from squeak.messages import msg_getaddr
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
 from squeak.messages import msg_reject
+from squeak.messages import msg_getoffer
 from squeak.messages import msg_offer
 from squeak.messages import msg_acceptoffer
 from squeak.messages import msg_invoice
@@ -32,6 +33,9 @@ class MessageTestCase(unittest.TestCase):
         self.assertEqual(mSerialized, mSerialzedTwice)
         self.assertTrue(isinstance(mDeserialzed, MsgSerializable))
         self.assertTrue(isinstance(str(mDeserialzed), str))
+
+        msg_name = 'msg_' + m.command.decode("utf-8")
+        self.assertTrue(msg_name in str(m))
 
 
 class Test_msg_version(MessageTestCase):
@@ -106,6 +110,11 @@ class Test_msg_pong(MessageTestCase):
 class Test_msg_reject(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_reject, self).serialization_test(msg_reject)
+
+
+class Test_msg_getoffer(MessageTestCase):
+    def test_serialization(self):
+        super(Test_msg_getoffer, self).serialization_test(msg_getoffer)
 
 
 class Test_msg_offer(MessageTestCase):
