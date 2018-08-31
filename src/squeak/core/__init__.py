@@ -143,23 +143,23 @@ class CSqueak(CSqueakHeader):
             return _cached_GetHash
 
 
-def SignSqueak(signing_key, squeak):
-    """Generate a signature for the given squeak
+def SignSqueak(signing_key, squeak_header):
+    """Generate a signature for the given squeak header
 
     signing_key (PrivateKey)
-    squeak (Squeak)
+    squeak_header (CSqueakHeader)
     """
-    return sign(squeak.GetHash(), signing_key)
+    return sign(squeak_header.GetHash(), signing_key)
 
 
-def VerifySqueak(squeak, signature):
+def VerifySqueak(squeak_header, signature):
     """Return True iff the given signature is valid
 
-    squeak (Squeak)
+    squeak_header (CSqueakHeader)
     signature (bytes)
     """
-    verifying_key = deserialize_verifying_key(squeak.vchPubkey)
-    return verify(squeak.GetHash(), signature, verifying_key)
+    verifying_key = deserialize_verifying_key(squeak_header.vchPubkey)
+    return verify(squeak_header.GetHash(), signature, verifying_key)
 
 
 def EncryptContent(data_key, iv, content):
