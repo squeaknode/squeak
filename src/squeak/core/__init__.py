@@ -24,9 +24,9 @@ SQUEAK_VERSION = 1
 
 
 class ValidationError(Exception):
-    """Base class for all blockchain validation errors
-    Everything that is related to validating the blockchain, blocks,
-    transactions, scripts, etc. is derived from this class.
+    """Base class for all squeak validation errors
+    Everything that is related to validating the squeak,
+    content, signature, etc. is derived from this class.
     """
 
 

@@ -11,9 +11,7 @@ from squeak.core import CSqueakEncContent
 from squeak.core import SignSqueak
 from squeak.core import CheckSqueak
 from squeak.core import VerifySqueak
-from squeak.core import EncryptContent
 from squeak.core import DecryptContent
-from squeak.core import EncryptDataKey
 from squeak.core import MakeSqueak
 from squeak.core import ENC_CONTENT_LENGTH
 from squeak.core.encryption import CDecryptionKey
