@@ -9,6 +9,7 @@ from squeak.core import CSqueakHeader
 from squeak.core import CSqueak
 from squeak.core import CSqueakEncContent
 from squeak.core import SignSqueak
+from squeak.core import CheckSqueak
 from squeak.core import VerifySqueak
 from squeak.core import EncryptContent
 from squeak.core import DecryptContent
@@ -136,7 +137,7 @@ class TestCSqueakHeader(object):
         hello = self._build_with_params()
         signature = SignSqueak(signing_key, hello)
 
-        assert VerifySqueak(hello, signature)
+        VerifySqueak(hello, signature)
 
 
 @pytest.mark.usefixtures("squeak_header_params")
@@ -190,7 +191,7 @@ class TestCSqueak(object):
         signature = SignSqueak(signing_key, hello)
 
         assert signature is not None
-        assert VerifySqueak(hello, signature)
+        VerifySqueak(hello, signature)
 
     def test_encrypt_decrypt(self, rsa_private_key, rsa_public_key, data_key, iv):
         # content = b"hello world!"
@@ -260,7 +261,8 @@ class TestMakeSqueak(object):
 
         assert squeak is not None
         assert isinstance(squeak, CSqueak)
-        assert VerifySqueak(squeak, signature)
+        CheckSqueak(squeak)
+        VerifySqueak(squeak, signature)
 
     def test_decrypt_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
         content = b"X"*280*4
@@ -277,7 +279,7 @@ class TestMakeSqueak(object):
 
         assert squeak is not None
         assert isinstance(squeak, CSqueak)
-        assert VerifySqueak(squeak, signature)
+        VerifySqueak(squeak, signature)
 
         decrypted_content = DecryptContent(squeak, decryption_key)
 

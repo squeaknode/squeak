@@ -23,6 +23,13 @@ HASH_LENGTH = 32
 SQUEAK_VERSION = 1
 
 
+class ValidationError(Exception):
+    """Base class for all blockchain validation errors
+    Everything that is related to validating the blockchain, blocks,
+    transactions, scripts, etc. is derived from this class.
+    """
+
+
 class CSqueakHeader(ImmutableSerializable):
     """A squeak header"""
     __slots__ = ['nVersion', 'hashEncContent', 'vchPubkey', 'vchEncPubkey', 'vchEncDatakey', 'vchIv', 'nBlockHeight', 'hashBlock', 'hashReplySqk', 'nTime', 'nNonce']
@@ -169,6 +176,10 @@ class CSqueakEncContent(ImmutableSerializable):
             (self.__class__.__name__, b2lx(self.vchEncContent))
 
 
+class CheckSqueakSignatureError(ValidationError):
+    pass
+
+
 def SignSqueak(signing_key, squeak_header):
     """Generate a signature for the given squeak header
 
@@ -179,13 +190,14 @@ def SignSqueak(signing_key, squeak_header):
 
 
 def VerifySqueak(squeak_header, signature):
-    """Return True iff the given signature is valid
+    """Check if the given signature is valid
 
     squeak_header (CSqueakHeader)
     signature (bytes)
     """
     verifying_key = CVerifyingKey.deserialize(squeak_header.vchPubkey)
-    return verifying_key.verify(squeak_header.GetHash(), signature)
+    if not verifying_key.verify(squeak_header.GetHash(), signature):
+        raise CheckSqueakSignatureError("VerifySqueak() : invalid signature for the given squeak header")
 
 
 def EncryptContent(data_key, iv, content):
@@ -220,6 +232,14 @@ def EncryptDataKey(encryption_key, data_key):
     return encryption_key.encrypt(data_key)
 
 
+class CheckSqueakHeaderError(ValidationError):
+    pass
+
+
+class CheckSqueakError(CheckSqueakHeaderError):
+    pass
+
+
 def CheckSqueakHeader(squeak_header):
     """Context independent CSqueakHeader checks.
     Raises CSqueakHeaderError if squeak header is invalid.
@@ -234,8 +254,9 @@ def CheckSqueak(squeak):
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
     exception, followed the squeak tests. CheckContent() is called for content.
     """
-    # TODO: implement
-    pass
+    hash_enc_content = squeak.encContent.GetHash()
+    if not hash_enc_content == squeak.hashEncContent:
+        raise CheckSqueak("CheckSqueak() : hashEncContent does not match hash of encContent")
 
 
 def MakeSqueak(signing_key, content, reply_to, block_height, block_hash, timestamp):
