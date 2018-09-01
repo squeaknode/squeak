@@ -18,6 +18,7 @@ from squeak.core.signing import PUB_KEY_LENGTH
 
 
 # Core definitions
+CONTENT_LENGTH = 1120  # 280*4
 ENC_CONTENT_LENGTH = 1136  # This is the length of cipher text when content length is 280*4.
 HASH_LENGTH = 32
 SQUEAK_VERSION = 1
@@ -200,6 +201,10 @@ def VerifySqueak(squeak_header, signature):
         raise CheckSqueakSignatureError("VerifySqueak() : invalid signature for the given squeak header")
 
 
+class InvalidContentLengthError(ValidationError):
+    pass
+
+
 def EncryptContent(data_key, iv, content):
     """Return the ciphertext from the given content.
 
@@ -207,6 +212,9 @@ def EncryptContent(data_key, iv, content):
     iv (bytes)
     content (bytes)
     """
+    if not len(content) == CONTENT_LENGTH:
+        raise InvalidContentLengthError("EncryptContent : content length must be %i; got %i" %
+                                        (CONTENT_LENGTH, len(content)))
     return CSqueakEncContent(encrypt_content(data_key, iv, content))
 
 

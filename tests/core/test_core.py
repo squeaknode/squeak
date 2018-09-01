@@ -13,6 +13,7 @@ from squeak.core import CheckSqueak
 from squeak.core import VerifySqueak
 from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
+from squeak.core import InvalidContentLengthError
 from squeak.core import ENC_CONTENT_LENGTH
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
@@ -282,3 +283,17 @@ class TestMakeSqueak(object):
         decrypted_content = DecryptContent(squeak, decryption_key)
 
         assert decrypted_content == content
+
+    def test_make_squeak_content_too_short(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        with pytest.raises(InvalidContentLengthError):
+            content = b"X"*140*4
+            timestamp = int(time.time())
+
+            squeak, _, signature = MakeSqueak(
+                signing_key,
+                content,
+                fake_squeak_hash,
+                genesis_block_height,
+                genesis_block_hash,
+                timestamp,
+            )
