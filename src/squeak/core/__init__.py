@@ -244,7 +244,6 @@ def CheckSqueakHeader(squeak_header):
     """Context independent CSqueakHeader checks.
     Raises CSqueakHeaderError if squeak header is invalid.
     """
-    # TODO: implement
     pass
 
 
@@ -254,8 +253,15 @@ def CheckSqueak(squeak):
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
     exception, followed the squeak tests. CheckContent() is called for content.
     """
+
+    # Squeak header checks
+    CheckSqueakHeader(squeak)
+
+    # Content length check
     if not len(squeak.encContent.vchEncContent) == ENC_CONTENT_LENGTH:
         raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
+
+    # Content hash check
     hash_enc_content = squeak.encContent.GetHash()
     if not hash_enc_content == squeak.hashEncContent:
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
