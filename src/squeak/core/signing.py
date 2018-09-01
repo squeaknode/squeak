@@ -1,34 +1,61 @@
+from bitcoin.core.serialize import Serializable
+from bitcoin.core.serialize import ser_read
 from secp256k1 import PrivateKey
 from secp256k1 import PublicKey
 
-
-def generate_signing_key():
-    return PrivateKey()
-
-
-def get_verifying_key(signing_key):
-    return signing_key.pubkey
+PUB_KEY_LENGTH = 33
+SIGNATURE_LENGTH = 64
 
 
-def serialize_verifying_key(verifying_key):
-    return verifying_key.serialize()
+class CSigningKey(Serializable):
+
+    def __init__(self, private_key):
+        self.private_key = private_key
+
+    @classmethod
+    def stream_deserialize(cls, f):
+        c = cls()
+        # TODO
+        # c.key =
+        return c
+
+    @classmethod
+    def generate(cls):
+        return cls(PrivateKey())
+
+    def stream_serialize(self, f):
+        # TODO
+        # f.write(struct.pack(data)
+        pass
+
+    def get_verifying_key(self):
+        return CVerifyingKey(self.private_key.pubkey)
+
+    def sign(self, data):
+        internal_signature = self.private_key.ecdsa_sign(data)
+        return self.private_key.ecdsa_serialize_compact(internal_signature)
+
+    def __repr__(self):
+        return "CSigningKey(private_key=%s)" % \
+            (repr(self.private_key))
 
 
-def deserialize_verifying_key(key_data):
-    return PublicKey(key_data, raw=True)
+class CVerifyingKey(Serializable):
 
+    def __init__(self, public_key):
+        self.public_key = public_key
 
-def sign(data, signing_key):
-    return signing_key.ecdsa_sign(data)
+    @classmethod
+    def stream_deserialize(cls, f):
+        return cls(PublicKey(ser_read(f, PUB_KEY_LENGTH), raw=True))
 
+    def stream_serialize(self, f):
+        f.write(self.public_key.serialize())
 
-def verify(data, signature, verifying_key):
-    return verifying_key.ecdsa_verify(data, signature)
+    def verify(self, data, signature):
+        internal_signature = self.public_key.ecdsa_deserialize_compact(signature)
+        return self.public_key.ecdsa_verify(data, internal_signature)
 
-
-def serialize_signature(signature):
-    return PrivateKey().ecdsa_serialize_compact(signature)
-
-
-def deserialize_signature(signature_data):
-    return PrivateKey().ecdsa_deserialize_compact(signature_data)
+    def __repr__(self):
+        return "CVerifyingKey(public_key=%s)" % \
+            (repr(self.public_key))

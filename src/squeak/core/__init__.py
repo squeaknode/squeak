@@ -9,20 +9,17 @@ from squeak.core.encryption import encrypt_assymetric
 from squeak.core.encryption import decrypt_assymetric
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
-from squeak.core.signing import deserialize_verifying_key
-from squeak.core.signing import sign
-from squeak.core.signing import verify
+from squeak.core.signing import CVerifyingKey
+from squeak.core.signing import PUB_KEY_LENGTH
 
 
 # Core definitions
 MAX_SQUEAK_SIZE = 1136  # This is the length of cipher text when content length is 280*4.
-PUB_KEY_LENGTH = 33
 ENCRYPTION_PUB_KEY_LENGTH = 162
 DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
 INITIALIZATION_VECTOR_LENGTH = 16
 HASH_LENGTH = 32
-SIGNATURE_LENGTH = 64
 
 
 class CSqueakHeader(ImmutableSerializable):
@@ -149,7 +146,7 @@ def SignSqueak(signing_key, squeak_header):
     signing_key (PrivateKey)
     squeak_header (CSqueakHeader)
     """
-    return sign(squeak_header.GetHash(), signing_key)
+    return signing_key.sign(squeak_header.GetHash())
 
 
 def VerifySqueak(squeak_header, signature):
@@ -158,8 +155,8 @@ def VerifySqueak(squeak_header, signature):
     squeak_header (CSqueakHeader)
     signature (bytes)
     """
-    verifying_key = deserialize_verifying_key(squeak_header.vchPubkey)
-    return verify(squeak_header.GetHash(), signature, verifying_key)
+    verifying_key = CVerifyingKey.deserialize(squeak_header.vchPubkey)
+    return verifying_key.verify(squeak_header.GetHash(), signature)
 
 
 def EncryptContent(data_key, iv, content):

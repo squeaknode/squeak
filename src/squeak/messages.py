@@ -25,7 +25,7 @@ from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
 from squeak.core import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core import DATA_KEY_LENGTH
-from squeak.core import SIGNATURE_LENGTH
+from squeak.core.signing import SIGNATURE_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
