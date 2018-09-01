@@ -2,9 +2,7 @@ import pytest
 
 from io import BytesIO as _BytesIO
 
-from squeak.core.signing import generate_signing_key
-from squeak.core.signing import get_verifying_key
-from squeak.core.signing import serialize_verifying_key
+from squeak.core.signing import CSigningKey
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import CInterested
@@ -12,12 +10,12 @@ from squeak.net import CInterested
 
 @pytest.fixture
 def signing_key():
-    return generate_signing_key()
+    return CSigningKey.generate()
 
 
 @pytest.fixture
 def verifying_key(signing_key):
-    return get_verifying_key(signing_key)
+    return signing_key.get_verifying_key()
 
 
 class TestCInv(object):
@@ -52,7 +50,7 @@ class TestCSqueakLocator(object):
         assert deserialized == locator
 
     def _make_interested(self, public_key, start, end):
-        vk = serialize_verifying_key(public_key)
+        vk = public_key.serialize()
         interested = CInterested()
         interested.vchPubkey = vk
         interested.nMinBlockHeight = start

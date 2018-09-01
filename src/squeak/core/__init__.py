@@ -5,24 +5,18 @@ from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
 
-from squeak.core.encryption import encrypt_assymetric
-from squeak.core.encryption import decrypt_assymetric
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
-from squeak.core.signing import deserialize_verifying_key
-from squeak.core.signing import sign
-from squeak.core.signing import verify
+from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
+from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
+from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
+from squeak.core.signing import CVerifyingKey
+from squeak.core.signing import PUB_KEY_LENGTH
 
 
 # Core definitions
 MAX_SQUEAK_SIZE = 1136  # This is the length of cipher text when content length is 280*4.
-PUB_KEY_LENGTH = 33
-ENCRYPTION_PUB_KEY_LENGTH = 162
-DATA_KEY_LENGTH = 32
-ENCRYPTED_DATA_KEY_LENGTH = 128
-INITIALIZATION_VECTOR_LENGTH = 16
 HASH_LENGTH = 32
-SIGNATURE_LENGTH = 64
 
 
 class CSqueakHeader(ImmutableSerializable):
@@ -146,10 +140,10 @@ class CSqueak(CSqueakHeader):
 def SignSqueak(signing_key, squeak_header):
     """Generate a signature for the given squeak header
 
-    signing_key (PrivateKey)
+    signing_key (CSigningKey)
     squeak_header (CSqueakHeader)
     """
-    return sign(squeak_header.GetHash(), signing_key)
+    return signing_key.sign(squeak_header.GetHash())
 
 
 def VerifySqueak(squeak_header, signature):
@@ -158,8 +152,8 @@ def VerifySqueak(squeak_header, signature):
     squeak_header (CSqueakHeader)
     signature (bytes)
     """
-    verifying_key = deserialize_verifying_key(squeak_header.vchPubkey)
-    return verify(squeak_header.GetHash(), signature, verifying_key)
+    verifying_key = CVerifyingKey.deserialize(squeak_header.vchPubkey)
+    return verifying_key.verify(squeak_header.GetHash(), signature)
 
 
 def EncryptContent(data_key, iv, content):
@@ -167,7 +161,7 @@ def EncryptContent(data_key, iv, content):
 
     data_key (bytes)
     iv (bytes)
-    squeak (Squeak)
+    content (bytes)
     """
     return encrypt_content(data_key, iv, content)
 
@@ -176,10 +170,10 @@ def DecryptContent(squeak, decryption_key):
     """Return the decrypted content.
 
     squeak (Squeak)
-    decryption_key (RSAPrivateKey)
+    decryption_key (CDecryptionKey)
     """
     data_key_cipher = squeak.vchEncDatakey
-    data_key = decrypt_assymetric(data_key_cipher, decryption_key)
+    data_key = decryption_key.decrypt(data_key_cipher)
     iv = squeak.vchIv
     ciphertext = squeak.strEncContent
     return decrypt_content(data_key, iv, ciphertext)
@@ -188,10 +182,10 @@ def DecryptContent(squeak, decryption_key):
 def EncryptDataKey(encryption_key, data_key):
     """Return the ciphertext from the given content.
 
-    encryption_key (RSAPublicKey)
+    encryption_key (CEncryptionKey)
     data_key (bytes)
     """
-    return encrypt_assymetric(data_key, encryption_key)
+    return encryption_key.encrypt(data_key)
 
 
 def CheckSqueakHeader(squeak_header):

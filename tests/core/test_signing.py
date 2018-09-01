@@ -1,51 +1,41 @@
 import os
 
-from squeak.core.signing import deserialize_verifying_key
-from squeak.core.signing import deserialize_signature
-from squeak.core.signing import generate_signing_key
-from squeak.core.signing import get_verifying_key
-from squeak.core.signing import serialize_verifying_key
-from squeak.core.signing import serialize_signature
-from squeak.core.signing import sign
-from squeak.core.signing import verify
+from squeak.core.signing import CSigningKey
+from squeak.core.signing import CVerifyingKey
 
 
 class TestSignVerify(object):
 
     def test_sign_verify(self):
-        signing_key = generate_signing_key()
-        verifying_key = get_verifying_key(signing_key)
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
 
         data = os.urandom(32)
-        signature = sign(data, signing_key)
+        signature = signing_key.sign(data)
 
-        assert verify(data, signature, verifying_key)
+        assert verifying_key.verify(data, signature)
 
     def test_serialize_deserialize(self):
-        signing_key = generate_signing_key()
-        verifying_key = get_verifying_key(signing_key)
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
 
-        key_data = serialize_verifying_key(verifying_key)
-        deserialized_verifying_key = deserialize_verifying_key(key_data)
+        key_data = verifying_key.serialize()
+        deserialized_verifying_key = CVerifyingKey.deserialize(key_data)
 
         data = os.urandom(32)
-        signature = sign(data, signing_key)
+        signature = signing_key.sign(data)
 
-        sig_data = serialize_signature(signature)
-        deserialized_sig = deserialize_signature(sig_data)
-
-        assert verify(data, signature, verifying_key)
-        assert verify(data, signature, deserialized_verifying_key)
-        assert verify(data, deserialized_sig, deserialized_verifying_key)
+        assert verifying_key.verify(data, signature)
+        assert deserialized_verifying_key.verify(data, signature)
         assert len(key_data) == 33
-        assert len(sig_data) == 64
+        assert len(signature) == 64
 
     def test_sign_verify_other_data(self):
-        signing_key = generate_signing_key()
-        verifying_key = get_verifying_key(signing_key)
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
 
         data = os.urandom(32)
         data2 = os.urandom(32)
-        signature = sign(data, signing_key)
+        signature = signing_key.sign(data)
 
-        assert not verify(data2, signature, verifying_key)
+        assert not verifying_key.verify(data2, signature)
