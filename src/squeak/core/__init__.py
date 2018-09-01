@@ -207,7 +207,7 @@ def EncryptContent(data_key, iv, content):
     iv (bytes)
     content (bytes)
     """
-    return encrypt_content(data_key, iv, content)
+    return CSqueakEncContent(encrypt_content(data_key, iv, content))
 
 
 def DecryptContent(squeak, decryption_key):
@@ -271,8 +271,7 @@ def MakeSqueak(signing_key, content, reply_to, block_height, block_hash, timesta
     """
     data_key = generate_data_key()
     initialization_vector = generate_initialization_vector()
-    cipher_text = EncryptContent(data_key, initialization_vector, content)
-    enc_content = CSqueakEncContent(cipher_text)
+    enc_content = EncryptContent(data_key, initialization_vector, content)
     decryption_key = CDecryptionKey.generate()
     encryption_key = decryption_key.get_encryption_key()
     data_key_cipher = EncryptDataKey(encryption_key, data_key)
