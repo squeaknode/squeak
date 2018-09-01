@@ -5,8 +5,12 @@ from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
 
+from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
+from squeak.core.encryption import generate_data_key
+from squeak.core.encryption import generate_initialization_vector
+from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
@@ -17,13 +21,14 @@ from squeak.core.signing import PUB_KEY_LENGTH
 # Core definitions
 MAX_SQUEAK_SIZE = 1136  # This is the length of cipher text when content length is 280*4.
 HASH_LENGTH = 32
+SQUEAK_VERSION = 1
 
 
 class CSqueakHeader(ImmutableSerializable):
     """A squeak header"""
     __slots__ = ['nVersion', 'vchPubkey', 'vchEncPubkey', 'vchEncDatakey', 'vchIv', 'nBlockHeight', 'hashBlock', 'hashReplySqk', 'nTime', 'nNonce']
 
-    def __init__(self, nVersion=1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*INITIALIZATION_VECTOR_LENGTH, nBlockHeight=-1, hashBlock=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, nTime=0, nNonce=0):
+    def __init__(self, nVersion=SQUEAK_VERSION, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*INITIALIZATION_VECTOR_LENGTH, nBlockHeight=-1, hashBlock=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, nTime=0, nNonce=0):
         object.__setattr__(self, 'nVersion', nVersion)
         assert len(vchPubkey) == PUB_KEY_LENGTH
         object.__setattr__(self, 'vchPubkey', vchPubkey)
@@ -206,6 +211,40 @@ def CheckSqueak(squeak):
     pass
 
 
+def MakeSqueak(signing_key, content, reply_to, block_height, block_hash, timestamp):
+    """Create a new squeak.
+
+    signing_key (CSigningkey)
+    content (bytes)
+    reply_to (bytes)
+    block_height (int)
+    block_hash (bytes)
+    timestamp (int)
+    """
+    verifying_key = signing_key.get_verifying_key()
+    data_key = generate_data_key()
+    initialization_vector = generate_initialization_vector()
+    cipher_text = EncryptContent(data_key, initialization_vector, content)
+    decryption_key = CDecryptionKey.generate()
+    encryption_key = decryption_key.get_encryption_key()
+    data_key_cipher = EncryptDataKey(encryption_key, data_key)
+    nonce = generate_nonce()
+    squeak = CSqueak(
+        vchPubkey=verifying_key.serialize(),
+        vchEncPubkey=encryption_key.serialize(),
+        vchEncDatakey=data_key_cipher,
+        vchIv=initialization_vector,
+        nBlockHeight=block_height,
+        hashBlock=block_hash,
+        hashReplySqk=reply_to,
+        nTime=timestamp,
+        nNonce=nonce,
+        strEncContent=cipher_text,
+    )
+    signature = SignSqueak(signing_key, squeak)
+    return squeak, decryption_key, signature
+
+
 __all__ = (
     'MAX_SQUEAK_SIZE',
     'CSqueakHeader',
@@ -217,4 +256,5 @@ __all__ = (
     'EncryptDataKey',
     'CheckSqueakHeader',
     'CheckSqueak',
+    'MakeSqueak',
 )
