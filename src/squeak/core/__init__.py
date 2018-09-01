@@ -254,9 +254,11 @@ def CheckSqueak(squeak):
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
     exception, followed the squeak tests. CheckContent() is called for content.
     """
+    if not len(squeak.encContent.vchEncContent) == ENC_CONTENT_LENGTH:
+        raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
     hash_enc_content = squeak.encContent.GetHash()
     if not hash_enc_content == squeak.hashEncContent:
-        raise CheckSqueak("CheckSqueak() : hashEncContent does not match hash of encContent")
+        raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
 
 def MakeSqueak(signing_key, content, reply_to, block_height, block_hash, timestamp):
