@@ -47,10 +47,12 @@ class CVerifyingKey(Serializable):
 
     @classmethod
     def stream_deserialize(cls, f):
-        return cls(PublicKey(ser_read(f, PUB_KEY_LENGTH), raw=True))
+        data = ser_read(f, PUB_KEY_LENGTH)
+        return cls(PublicKey(data, raw=True))
 
     def stream_serialize(self, f):
-        f.write(self.public_key.serialize())
+        data = self.public_key.serialize()
+        f.write(data)
 
     def verify(self, data, signature):
         internal_signature = self.public_key.ecdsa_deserialize_compact(signature)

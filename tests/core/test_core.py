@@ -11,10 +11,9 @@ from squeak.core import VerifySqueak
 from squeak.core import EncryptContent
 from squeak.core import DecryptContent
 from squeak.core import EncryptDataKey
-from squeak.core import INITIALIZATION_VECTOR_LENGTH
-from squeak.core import DATA_KEY_LENGTH
-from squeak.core.encryption import generate_assymetric_keys
-from squeak.core.encryption import serialize_public_key
+from squeak.core.encryption import CDecryptionKey
+from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
+from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.core.signing import CSigningKey
 
 
@@ -30,12 +29,12 @@ def verifying_key(signing_key):
 
 @pytest.fixture
 def rsa_private_key():
-    return generate_assymetric_keys()
+    return CDecryptionKey.generate()
 
 
 @pytest.fixture
 def rsa_public_key(rsa_private_key):
-    return rsa_private_key.public_key()
+    return rsa_private_key.get_encryption_key()
 
 
 @pytest.fixture
@@ -68,7 +67,7 @@ def squeak_header_params(verifying_key, rsa_public_key, iv, genesis_block_height
     return dict(
         nVersion=1,
         vchPubkey=verifying_key.serialize(),
-        vchEncPubkey=serialize_public_key(rsa_public_key),
+        vchEncPubkey=rsa_public_key.serialize(),
         vchIv=iv,
         nBlockHeight=genesis_block_height,
         hashBlock=genesis_block_hash,
