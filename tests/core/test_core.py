@@ -177,69 +177,12 @@ class TestCSqueak(object):
 
         assert hello.GetHash() == hello.get_header().GetHash()
 
-    def test_encrypted_content_too_long(self):
-        # TODO
-        # with pytest.raises(AssertionError):
-        #     self._build_with_params(
-        #         strEncContent=b'X'*1137,
-        #     )
-        pass
-
     def test_sign_verify(self, signing_key):
         hello = self._build_with_params()
         signature = SignSqueak(signing_key, hello)
 
         assert signature is not None
         VerifySqueak(hello, signature)
-
-    def test_encrypt_decrypt(self, rsa_private_key, rsa_public_key, data_key, iv):
-        # content = b"hello world!"
-        # encrypted_content = EncryptContent(data_key, iv, content)
-        # data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        # hello = self._build_with_params(
-        #     vchEncDatakey=data_key_cipher,
-        #     strEncContent=encrypted_content,
-        # )
-        # decrypted_content = DecryptContent(hello, rsa_private_key)
-
-        # assert decrypted_content == content
-        pass
-
-    def test_content_length(self, rsa_private_key, rsa_public_key, data_key, iv):
-        # content = b"X" * 280 * 4
-        # encrypted_content = EncryptContent(data_key, iv, content)
-        # data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        # self._build_with_params(
-        #     vchEncDatakey=data_key_cipher,
-        #     strEncContent=encrypted_content,
-        # )
-
-        # assert True
-        pass
-
-    def test_content_length_too_long(self, rsa_private_key, rsa_public_key, data_key, iv):
-        # content = b"X" * 284 * 4
-        # encrypted_content = EncryptContent(data_key, iv, content)
-        # data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        # with pytest.raises(AssertionError):
-        #     self._build_with_params(
-        #         vchEncDatakey=data_key_cipher,
-        #         strEncContent=encrypted_content,
-        #     )
-        pass
-
-    def test_content_length_zero(self, rsa_private_key, rsa_public_key, data_key, iv):
-        # content = b""
-        # encrypted_content = EncryptContent(data_key, iv, content)
-        # data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        # empty_squeak = self._build_with_params(
-        #     vchEncDatakey=data_key_cipher,
-        #     strEncContent=encrypted_content,
-        # )
-        # decrypted_content = DecryptContent(empty_squeak, rsa_private_key)
-
-        # assert decrypted_content == content
-        pass
 
 
 @pytest.mark.usefixtures("squeak_header_params")
