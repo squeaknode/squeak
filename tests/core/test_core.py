@@ -249,7 +249,7 @@ class TestMakeSqueak(object):
         content = b"X"*280*4
         timestamp = int(time.time())
 
-        squeak, _, _ = MakeSqueak(
+        squeak, _, signature = MakeSqueak(
             signing_key,
             content,
             fake_squeak_hash,
@@ -260,3 +260,25 @@ class TestMakeSqueak(object):
 
         assert squeak is not None
         assert isinstance(squeak, CSqueak)
+        assert VerifySqueak(squeak, signature)
+
+    def test_decrypt_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        content = b"X"*280*4
+        timestamp = int(time.time())
+
+        squeak, decryption_key, signature = MakeSqueak(
+            signing_key,
+            content,
+            fake_squeak_hash,
+            genesis_block_height,
+            genesis_block_hash,
+            timestamp,
+        )
+
+        assert squeak is not None
+        assert isinstance(squeak, CSqueak)
+        assert VerifySqueak(squeak, signature)
+
+        decrypted_content = DecryptContent(squeak, decryption_key)
+
+        assert decrypted_content == content

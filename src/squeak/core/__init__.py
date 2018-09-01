@@ -207,7 +207,7 @@ def DecryptContent(squeak, decryption_key):
     data_key_cipher = squeak.vchEncDatakey
     data_key = decryption_key.decrypt(data_key_cipher)
     iv = squeak.vchIv
-    ciphertext = squeak.strEncContent
+    ciphertext = squeak.encContent.vchEncContent
     return decrypt_content(data_key, iv, ciphertext)
 
 
