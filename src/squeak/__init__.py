@@ -4,7 +4,7 @@ __version__ = '0.1.0'
 class MainParams():
     MESSAGE_START = b'\xb4n\x83\xfe'
     DEFAULT_PORT = 8555
-    RPC_PORT = 8332
+    RPC_PORT = 8554
     DNS_SEEDS = ()
     BASE58_PREFIXES = {'PUBKEY_ADDR':0,
                        'SCRIPT_ADDR':5,
@@ -14,7 +14,7 @@ class MainParams():
 class TestNetParams():
     MESSAGE_START = b'\x9b\xe50\x89'
     DEFAULT_PORT = 18555
-    RPC_PORT = 18332
+    RPC_PORT = 18554
     DNS_SEEDS = ()
     BASE58_PREFIXES = {'PUBKEY_ADDR':111,
                        'SCRIPT_ADDR':196,
@@ -24,7 +24,7 @@ class TestNetParams():
 class RegTestParams():
     MESSAGE_START = b'X\x85\xf4\xcb'
     DEFAULT_PORT = 18666
-    RPC_PORT = 18443
+    RPC_PORT = 18665
     DNS_SEEDS = ()
     BASE58_PREFIXES = {'PUBKEY_ADDR':111,
                        'SCRIPT_ADDR':196,

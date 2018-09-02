@@ -259,7 +259,7 @@ def CheckSqueak(squeak):
     """Context independent CSqueak checks.
 
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
-    exception, followed the squeak tests. CheckContent() is called for content.
+    exception, followed by the squeak tests.
     """
 
     # Squeak header checks
