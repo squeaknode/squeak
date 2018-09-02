@@ -57,7 +57,7 @@ b"\xa7*\x1e\x08\xddg\x8cO\xc5\x8b@\xa0\xc5\x12\xa2'\xac-V\xcb\x1c\xb0_\xf1\x7f\x
 b'Hello world!'
 ```
 
-Create a getheaders messages with a given public key, serialize it, and deserialize it:
+Create a getheaders messages with a given public key and block height range, serialize it, and deserialize it:
 
 ```
 >>> from io import BytesIO
