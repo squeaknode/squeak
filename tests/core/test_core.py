@@ -14,6 +14,7 @@ from squeak.core import VerifySqueak
 from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
 from squeak.core import InvalidContentLengthError
+from squeak.core import CONTENT_LENGTH
 from squeak.core import ENC_CONTENT_LENGTH
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
@@ -189,43 +190,41 @@ class TestCSqueak(object):
 class TestMakeSqueak(object):
 
     def test_make_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
-        content = b"X"*280*4
+        content = b"Hello world!"
+        padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
         squeak, _, signature = MakeSqueak(
             signing_key,
-            content,
-            fake_squeak_hash,
+            padded_content,
             genesis_block_height,
             genesis_block_hash,
             timestamp,
+            fake_squeak_hash,
         )
 
-        assert squeak is not None
-        assert isinstance(squeak, CSqueak)
         CheckSqueak(squeak)
         VerifySqueak(squeak, signature)
 
     def test_decrypt_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
-        content = b"X"*280*4
+        content = b"Hello world!"
+        padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
         squeak, decryption_key, signature = MakeSqueak(
             signing_key,
-            content,
-            fake_squeak_hash,
+            padded_content,
             genesis_block_height,
             genesis_block_hash,
             timestamp,
+            fake_squeak_hash,
         )
 
-        assert squeak is not None
-        assert isinstance(squeak, CSqueak)
+        CheckSqueak(squeak)
         VerifySqueak(squeak, signature)
-
         decrypted_content = DecryptContent(squeak, decryption_key)
 
-        assert decrypted_content == content
+        assert decrypted_content.rstrip(b"\00") == content
 
     def test_make_squeak_content_too_short(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
         with pytest.raises(InvalidContentLengthError):
@@ -235,8 +234,8 @@ class TestMakeSqueak(object):
             MakeSqueak(
                 signing_key,
                 content,
-                fake_squeak_hash,
                 genesis_block_height,
                 genesis_block_hash,
                 timestamp,
+                fake_squeak_hash,
             )

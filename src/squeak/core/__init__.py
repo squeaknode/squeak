@@ -275,15 +275,15 @@ def CheckSqueak(squeak):
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
 
-def MakeSqueak(signing_key, content, reply_to, block_height, block_hash, timestamp):
+def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
     """Create a new squeak.
 
     signing_key (CSigningkey)
     content (bytes)
-    reply_to (bytes)
     block_height (int)
     block_hash (bytes)
     timestamp (int)
+    reply_to (bytes)
     """
     data_key = generate_data_key()
     initialization_vector = generate_initialization_vector()
