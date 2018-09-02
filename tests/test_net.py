@@ -27,9 +27,7 @@ def fake_squeak_hash():
 
 class TestCInv(object):
     def test_serialization(self):
-        inv = CInv()
-        inv.type = 1
-        inv.hash = b"0" * 32
+        inv = CInv(1, b"0" * 32)
         stream = _BytesIO()
 
         inv.stream_serialize(stream)
@@ -43,11 +41,11 @@ class TestCInv(object):
 
 class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
-        locator = CSqueakLocator()
-        interested1 = self._make_interested(verifying_key, 5, 10, fake_squeak_hash)
-        interested2 = self._make_interested(verifying_key, 30, 2000, fake_squeak_hash)
-        locator.nVersion = 1
-        locator.vInterested = [interested1, interested2]
+        interested = [
+            CInterested(verifying_key.serialize(), 5, 10, fake_squeak_hash),
+            CInterested(verifying_key.serialize(), 30, 2000, fake_squeak_hash),
+        ]
+        locator = CSqueakLocator(interested)
         stream = _BytesIO()
 
         locator.stream_serialize(stream)
@@ -55,12 +53,4 @@ class TestCSqueakLocator(object):
 
         deserialized = CSqueakLocator.stream_deserialize(serialized)
         assert deserialized == locator
-
-    def _make_interested(self, public_key, start, end, reply_to_hash):
-        vk = public_key.serialize()
-        interested = CInterested()
-        interested.vchPubkey = vk
-        interested.nMinBlockHeight = start
-        interested.nMaxBlockHeight = end
-        interested.hashReplySqk = reply_to_hash
-        return interested
+        assert len(deserialized.vInterested) == 2
