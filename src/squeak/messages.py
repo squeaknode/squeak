@@ -1,5 +1,7 @@
+import time
 import struct
 import hashlib
+import random
 
 from io import BytesIO as _BytesIO
 
@@ -8,11 +10,10 @@ from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
-from bitcoin.messages import msg_alert as bitcoin_msg_alert
 from bitcoin.messages import msg_getaddr as bitcoin_msg_getaddr
 from bitcoin.messages import msg_ping as bitcoin_msg_ping
 from bitcoin.messages import msg_pong as bitcoin_msg_pong
-from bitcoin.messages import msg_reject as bitcoin_msg_reject
+from bitcoin.net import CAddress
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
@@ -76,9 +77,28 @@ class MsgSerializable(object):
 
 class msg_version(MsgSerializable, bitcoin_msg_version):
 
-    def __init__(self, protover=PROTO_VERSION, user_agent=USER_AGENT):
-        super(msg_version, self).__init__(protover=protover)
-        self.strSubVer = user_agent
+    def __init__(
+            self,
+            nServices=1,
+            nTime=None,
+            addrTo=None,
+            addrFrom=None,
+            nNonce=None,
+            strSubVer=USER_AGENT,
+            nStartingHeight=-1,
+            fRelay=True,
+            protover=PROTO_VERSION,
+    ):
+        super(msg_version, self).__init__(protover)
+        self.nVersion = protover
+        self.nServices = nServices
+        self.nTime = nTime or int(time.time())
+        self.addrTo = addrTo or CAddress(PROTO_VERSION)
+        self.addrFrom = addrFrom or CAddress(PROTO_VERSION)
+        self.nNonce = nNonce or random.SystemRandom().getrandbits(64)
+        self.strSubVer = strSubVer
+        self.nStartingHeight = nStartingHeight
+        self.fRelay = fRelay
 
 
 class msg_verack(MsgSerializable, bitcoin_msg_verack):
@@ -86,11 +106,10 @@ class msg_verack(MsgSerializable, bitcoin_msg_verack):
 
 
 class msg_addr(MsgSerializable, bitcoin_msg_addr):
-    pass
 
-
-class msg_alert(MsgSerializable, bitcoin_msg_alert):
-    pass
+    def __init__(self, addrs=None, protover=PROTO_VERSION):
+        super(msg_addr, self).__init__(protover)
+        self.addrs = addrs or []
 
 
 class msg_inv(MsgSerializable, BitcoinMsgSerializable):
@@ -222,10 +241,6 @@ class msg_ping(MsgSerializable, bitcoin_msg_ping):
 
 
 class msg_pong(MsgSerializable, bitcoin_msg_pong):
-    pass
-
-
-class msg_reject(MsgSerializable, bitcoin_msg_reject):
     pass
 
 
@@ -385,11 +400,10 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
             (b2lx(self.squeak_hash), b2lx(self.encryption_key))
 
 
-msg_classes = [msg_version, msg_verack, msg_addr, msg_alert, msg_inv,
-               msg_getdata, msg_notfound, msg_getsqueaks, msg_getheaders,
-               msg_headers, msg_getaddr, msg_ping, msg_pong, msg_reject,
-               msg_getoffer, msg_offer, msg_acceptoffer, msg_invoice,
-               msg_fulfill]
+msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
+               msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
+               msg_getaddr, msg_ping, msg_pong, msg_getoffer, msg_offer,
+               msg_acceptoffer, msg_invoice, msg_fulfill]
 
 messagemap = {}
 for cls in msg_classes:
