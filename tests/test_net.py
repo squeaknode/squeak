@@ -42,7 +42,7 @@ class TestCInv(object):
 class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
         interested = [
-            CInterested(verifying_key.serialize(), 5, 10, fake_squeak_hash),
+            CInterested(verifying_key.serialize(), -1, 10, fake_squeak_hash),
             CInterested(verifying_key.serialize(), 30, 2000, fake_squeak_hash),
         ]
         locator = CSqueakLocator(interested)

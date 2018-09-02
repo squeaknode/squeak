@@ -70,8 +70,8 @@ class CInterested(Serializable):
     def stream_serialize(self, f):
         assert len(self.vchPubkey) == PUB_KEY_LENGTH
         f.write(self.vchPubkey)
-        f.write(struct.pack(b"<I", self.nMinBlockHeight))
-        f.write(struct.pack(b"<I", self.nMaxBlockHeight))
+        f.write(struct.pack(b"<i", self.nMinBlockHeight))
+        f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
         f.write(self.hashReplySqk)
 
