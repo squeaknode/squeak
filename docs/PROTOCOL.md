@@ -38,9 +38,27 @@ x? | interesteds | interested[] | Interested structs
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-33 | vchPubkey | char[32] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key
+33 | vchPubkey | char[32] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key or null bytes
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
 
 ### Messages
+
+#### msg_version
+#### msg_verack
+#### msg_addr
+#### msg_inv
+#### msg_getdata
+#### msg_notfound
+#### msg_getsqueaks
+#### msg_getheaders
+#### msg_headers
+#### msg_getaddr
+#### msg_ping
+#### msg_pong
+#### msg_getoffer
+#### msg_offer
+#### msg_acceptoffer
+#### msg_invoice
+#### msg_fulfill
