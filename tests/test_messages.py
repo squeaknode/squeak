@@ -126,7 +126,7 @@ class Test_msg_fulfill(MessageTestCase):
 
 
 class Test_messages(unittest.TestCase):
-    verackbytes = b'\xf9\xbe\xb4\xd9verack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
+    verackbytes = b'\xb4n\x83\xfeverack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
 
     def test_read_msg_verack(self):
         f = BytesIO(self.verackbytes)

@@ -5,7 +5,6 @@ import random
 
 from io import BytesIO as _BytesIO
 
-import bitcoin
 from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
@@ -38,6 +37,23 @@ USER_AGENT = (b'/python-squeak:' +
 
 class MsgSerializable(object):
 
+    def to_bytes(self):
+        f = _BytesIO()
+        self.msg_ser(f)
+        body = f.getvalue()
+        res = squeak.params.MESSAGE_START
+        res += self.command
+        res += b"\x00" * (12 - len(self.command))
+        res += struct.pack(b"<I", len(body))
+
+        # add checksum
+        th = hashlib.sha256(body).digest()
+        h = hashlib.sha256(th).digest()
+        res += h[:4]
+
+        res += body
+        return res
+
     @classmethod
     def from_bytes(cls, b, protover=PROTO_VERSION):
         f = _BytesIO(b)
@@ -48,9 +64,9 @@ class MsgSerializable(object):
         recvbuf = ser_read(f, 4 + 12 + 4 + 4)
 
         # check magic
-        if recvbuf[:4] != bitcoin.params.MESSAGE_START:
+        if recvbuf[:4] != squeak.params.MESSAGE_START:
             raise ValueError("Invalid message start '%s', expected '%s'" %
-                             (b2x(recvbuf[:4]), b2x(bitcoin.params.MESSAGE_START)))
+                             (b2x(recvbuf[:4]), b2x(squeak.params.MESSAGE_START)))
 
         # remaining header fields: command, msg length, checksum
         command = recvbuf[4:4+12].split(b"\x00", 1)[0]
