@@ -27,7 +27,7 @@ def fake_squeak_hash():
 
 class TestCInv(object):
     def test_serialization(self):
-        inv = CInv(1, b"0" * 32)
+        inv = CInv(type=1)
         stream = _BytesIO()
 
         inv.stream_serialize(stream)

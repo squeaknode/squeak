@@ -87,7 +87,7 @@ class CInv(BitcoinCInv):
         3: "FilteredSqueak",
     }
 
-    def __init__(self, type=0, hash=0):
+    def __init__(self, type=0, hash=b'\x00'*HASH_LENGTH,):
         super(CInv, self).__init__()
         self.type = type
         self.hash = hash
