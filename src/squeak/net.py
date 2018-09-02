@@ -17,9 +17,13 @@ class CSqueakLocator(Serializable):
 
     Contains a list of public keys, each with a block height range and reply_to hash.
     """
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            vInterested=None,
+            protover=PROTO_VERSION,
+    ):
         self.nVersion = protover
-        self.vInterested = []
+        self.vInterested = vInterested or []
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -41,11 +45,18 @@ class CInterested(Serializable):
     """Contains a public key together with a block range and reply_to hash.
 
     """
-    def __init__(self, protover=PROTO_VERSION):
-        self.vchPubkey = b'\x00' * PUB_KEY_LENGTH
-        self.nMinBlockHeight = 0
-        self.nMaxBlockHeight = 0
-        self.hashReplySqk = b'\x00'*HASH_LENGTH
+    def __init__(
+            self,
+            vchPubkey=b'\x00' * PUB_KEY_LENGTH,
+            nMinBlockHeight=-1,
+            nMaxBlockHeight=-1,
+            hashReplySqk=b'\x00'*HASH_LENGTH,
+            protover=PROTO_VERSION,
+    ):
+        self.vchPubkey = vchPubkey
+        self.nMinBlockHeight = nMinBlockHeight
+        self.nMaxBlockHeight = nMaxBlockHeight
+        self.hashReplySqk = hashReplySqk
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -59,8 +70,8 @@ class CInterested(Serializable):
     def stream_serialize(self, f):
         assert len(self.vchPubkey) == PUB_KEY_LENGTH
         f.write(self.vchPubkey)
-        f.write(struct.pack(b"<I", self.nMinBlockHeight))
-        f.write(struct.pack(b"<I", self.nMaxBlockHeight))
+        f.write(struct.pack(b"<i", self.nMinBlockHeight))
+        f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
         f.write(self.hashReplySqk)
 
@@ -75,3 +86,8 @@ class CInv(BitcoinCInv):
         1: "Squeak",
         3: "FilteredSqueak",
     }
+
+    def __init__(self, type=0, hash=0):
+        super(CInv, self).__init__()
+        self.type = type
+        self.hash = hash

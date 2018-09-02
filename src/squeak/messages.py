@@ -1,18 +1,18 @@
+import time
 import struct
 import hashlib
+import random
 
 from io import BytesIO as _BytesIO
 
-import bitcoin
 from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
-from bitcoin.messages import msg_alert as bitcoin_msg_alert
 from bitcoin.messages import msg_getaddr as bitcoin_msg_getaddr
 from bitcoin.messages import msg_ping as bitcoin_msg_ping
 from bitcoin.messages import msg_pong as bitcoin_msg_pong
-from bitcoin.messages import msg_reject as bitcoin_msg_reject
+from bitcoin.net import CAddress
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
@@ -37,6 +37,23 @@ USER_AGENT = (b'/python-squeak:' +
 
 class MsgSerializable(object):
 
+    def to_bytes(self):
+        f = _BytesIO()
+        self.msg_ser(f)
+        body = f.getvalue()
+        res = squeak.params.MESSAGE_START
+        res += self.command
+        res += b"\x00" * (12 - len(self.command))
+        res += struct.pack(b"<I", len(body))
+
+        # add checksum
+        th = hashlib.sha256(body).digest()
+        h = hashlib.sha256(th).digest()
+        res += h[:4]
+
+        res += body
+        return res
+
     @classmethod
     def from_bytes(cls, b, protover=PROTO_VERSION):
         f = _BytesIO(b)
@@ -47,9 +64,9 @@ class MsgSerializable(object):
         recvbuf = ser_read(f, 4 + 12 + 4 + 4)
 
         # check magic
-        if recvbuf[:4] != bitcoin.params.MESSAGE_START:
+        if recvbuf[:4] != squeak.params.MESSAGE_START:
             raise ValueError("Invalid message start '%s', expected '%s'" %
-                             (b2x(recvbuf[:4]), b2x(bitcoin.params.MESSAGE_START)))
+                             (b2x(recvbuf[:4]), b2x(squeak.params.MESSAGE_START)))
 
         # remaining header fields: command, msg length, checksum
         command = recvbuf[4:4+12].split(b"\x00", 1)[0]
@@ -76,9 +93,28 @@ class MsgSerializable(object):
 
 class msg_version(MsgSerializable, bitcoin_msg_version):
 
-    def __init__(self, protover=PROTO_VERSION, user_agent=USER_AGENT):
-        super(msg_version, self).__init__(protover=protover)
-        self.strSubVer = user_agent
+    def __init__(
+            self,
+            nServices=1,
+            nTime=None,
+            addrTo=None,
+            addrFrom=None,
+            nNonce=None,
+            strSubVer=USER_AGENT,
+            nStartingHeight=-1,
+            fRelay=True,
+            protover=PROTO_VERSION,
+    ):
+        super(msg_version, self).__init__(protover)
+        self.nVersion = protover
+        self.nServices = nServices
+        self.nTime = nTime or int(time.time())
+        self.addrTo = addrTo or CAddress(PROTO_VERSION)
+        self.addrFrom = addrFrom or CAddress(PROTO_VERSION)
+        self.nNonce = nNonce or random.SystemRandom().getrandbits(64)
+        self.strSubVer = strSubVer
+        self.nStartingHeight = nStartingHeight
+        self.fRelay = fRelay
 
 
 class msg_verack(MsgSerializable, bitcoin_msg_verack):
@@ -86,19 +122,18 @@ class msg_verack(MsgSerializable, bitcoin_msg_verack):
 
 
 class msg_addr(MsgSerializable, bitcoin_msg_addr):
-    pass
 
-
-class msg_alert(MsgSerializable, bitcoin_msg_alert):
-    pass
+    def __init__(self, addrs=None, protover=PROTO_VERSION):
+        super(msg_addr, self).__init__(protover)
+        self.addrs = addrs or []
 
 
 class msg_inv(MsgSerializable, BitcoinMsgSerializable):
     command = b"inv"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_inv, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -116,9 +151,9 @@ class msg_inv(MsgSerializable, BitcoinMsgSerializable):
 class msg_getdata(MsgSerializable, BitcoinMsgSerializable):
     command = b"getdata"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_getdata, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -136,9 +171,9 @@ class msg_getdata(MsgSerializable, BitcoinMsgSerializable):
 class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
     command = b"notfound"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_notfound, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -156,9 +191,9 @@ class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
 class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
     command = b"getheaders"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, locator=None, protover=PROTO_VERSION):
         super(msg_getheaders, self).__init__(protover)
-        self.locator = CSqueakLocator()
+        self.locator = locator or CSqueakLocator()
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -176,9 +211,9 @@ class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
 class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
     command = b"getsqueaks"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, locator=None, protover=PROTO_VERSION):
         super(msg_getsqueaks, self).__init__(protover)
-        self.locator = CSqueakLocator()
+        self.locator = locator or CSqueakLocator()
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -196,9 +231,9 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
 class msg_headers(MsgSerializable, BitcoinMsgSerializable):
     command = b"headers"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, headers=None, protover=PROTO_VERSION):
         super(msg_headers, self).__init__(protover)
-        self.headers = []
+        self.headers = headers or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -225,17 +260,18 @@ class msg_pong(MsgSerializable, bitcoin_msg_pong):
     pass
 
 
-class msg_reject(MsgSerializable, bitcoin_msg_reject):
-    pass
-
-
 class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
     command = b"getoffer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            challenge=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH,
+            protover=PROTO_VERSION,
+    ):
         super(msg_getoffer, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.challenge = b'\x00'*ENCRYPTED_DATA_KEY_LENGTH
+        self.squeak_hash = squeak_hash
+        self.challenge = challenge
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -258,12 +294,19 @@ class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
 class msg_offer(MsgSerializable, BitcoinMsgSerializable):
     command = b"offer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak=None,
+            proof=b'\x00'*DATA_KEY_LENGTH,
+            signature=b'\x00'*SIGNATURE_LENGTH,
+            price=0,
+            protover=PROTO_VERSION,
+    ):
         super(msg_offer, self).__init__(protover)
-        self.squeak = CSqueak()
-        self.proof = b'\x00'*DATA_KEY_LENGTH
-        self.signature = b'\x00'*SIGNATURE_LENGTH
-        self.price = 0
+        self.squeak = squeak or CSqueak()
+        self.proof = proof
+        self.signature = signature
+        self.price = price
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -290,9 +333,13 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
     command = b"acceptoffer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            protover=PROTO_VERSION,
+    ):
         super(msg_acceptoffer, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
+        self.squeak_hash = squeak_hash
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -312,10 +359,15 @@ class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
 class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
     command = b"invoice"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            payment_info=b'',
+            protover=PROTO_VERSION,
+    ):
         super(msg_invoice, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.payment_info = b''
+        self.squeak_hash = squeak_hash
+        self.payment_info = payment_info
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -337,10 +389,15 @@ class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
 class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     command = b"fulfill"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            encryption_key=b'',
+            protover=PROTO_VERSION,
+    ):
         super(msg_fulfill, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.encryption_key = b''
+        self.squeak_hash = squeak_hash
+        self.encryption_key = encryption_key
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -359,11 +416,10 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
             (b2lx(self.squeak_hash), b2lx(self.encryption_key))
 
 
-msg_classes = [msg_version, msg_verack, msg_addr, msg_alert, msg_inv,
-               msg_getdata, msg_notfound, msg_getsqueaks, msg_getheaders,
-               msg_headers, msg_getaddr, msg_ping, msg_pong, msg_reject,
-               msg_getoffer, msg_offer, msg_acceptoffer, msg_invoice,
-               msg_fulfill]
+msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
+               msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
+               msg_getaddr, msg_ping, msg_pong, msg_getoffer, msg_offer,
+               msg_acceptoffer, msg_invoice, msg_fulfill]
 
 messagemap = {}
 for cls in msg_classes:

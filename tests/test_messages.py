@@ -6,7 +6,6 @@ from squeak.messages import MsgSerializable
 from squeak.messages import msg_version
 from squeak.messages import msg_verack
 from squeak.messages import msg_addr
-from squeak.messages import msg_alert
 from squeak.messages import msg_inv
 from squeak.messages import msg_getdata
 from squeak.messages import msg_getsqueaks
@@ -16,7 +15,6 @@ from squeak.messages import msg_headers
 from squeak.messages import msg_getaddr
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
-from squeak.messages import msg_reject
 from squeak.messages import msg_getoffer
 from squeak.messages import msg_offer
 from squeak.messages import msg_acceptoffer
@@ -55,11 +53,6 @@ class Test_msg_verack(MessageTestCase):
 class Test_msg_addr(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_addr, self).serialization_test(msg_addr)
-
-
-class Test_msg_alert(MessageTestCase):
-    def test_serialization(self):
-        super(Test_msg_alert, self).serialization_test(msg_alert)
 
 
 class Test_msg_inv(MessageTestCase):
@@ -107,11 +100,6 @@ class Test_msg_pong(MessageTestCase):
         super(Test_msg_pong, self).serialization_test(msg_pong)
 
 
-class Test_msg_reject(MessageTestCase):
-    def test_serialization(self):
-        super(Test_msg_reject, self).serialization_test(msg_reject)
-
-
 class Test_msg_getoffer(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_getoffer, self).serialization_test(msg_getoffer)
@@ -138,7 +126,7 @@ class Test_msg_fulfill(MessageTestCase):
 
 
 class Test_messages(unittest.TestCase):
-    verackbytes = b'\xf9\xbe\xb4\xd9verack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
+    verackbytes = b'\xb4n\x83\xfeverack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'
 
     def test_read_msg_verack(self):
         f = BytesIO(self.verackbytes)
