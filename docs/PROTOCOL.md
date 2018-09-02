@@ -20,7 +20,27 @@ Field Size | Description | Data type | Comments
 
 #### squeak
 
+A squeak has all of the fields of a squeak header plus the following:
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+1136 | vchEncContent | char[32] | Encrypted content
+
 #### squeak locator
 
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+4 | nVersion | uint32_t | The protocol version
+? | count | var_int | Number of interested structs
+x? | interesteds | interested[] | Interested structs
+
+#### interested
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+33 | vchPubkey | char[32] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key
+4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
+4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
+32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
 
 ### Messages
