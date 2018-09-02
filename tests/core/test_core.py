@@ -244,7 +244,7 @@ class TestMakeSqueak(object):
                 fake_squeak_hash,
             )
 
-    def test_make_squeak_invalid_content(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+    def test_make_squeak_fake_content(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
         content = b"Hello world!"
         padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
