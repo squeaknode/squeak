@@ -205,7 +205,7 @@ class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
         self.locator.stream_serialize(f)
 
     def __repr__(self):
-        return "msg_getheaders(locator=%s)" % (repr(666))
+        return "msg_getheaders(locator=%s)" % (repr(self.locator))
 
 
 class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
