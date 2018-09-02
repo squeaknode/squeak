@@ -1,7 +1,6 @@
 __version__ = '0.1.0'
 
 
-# TODO: Replace with new network params
 class MainParams():
     MESSAGE_START = b'\xb4n\x83\xfe'
     DEFAULT_PORT = 8555
