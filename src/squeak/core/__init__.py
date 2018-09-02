@@ -96,7 +96,7 @@ class CSqueakHeader(ImmutableSerializable):
         return not self.hashReplySqk == b'\x00'*HASH_LENGTH
 
     def __repr__(self):
-        return "%s(%i, lx(%s), lx(%s), lx(%s), lx(%s), lx(%s), lx(%s), lx(%s), %s, %s, 0x%08x)" % \
+        return "%s(%i, lx(%s), lx(%s), lx(%s), %s, lx(%s), lx(%s), lx(%s), lx(%s), %s, 0x%08x)" % \
             (self.__class__.__name__, self.nVersion, b2lx(self.hashEncContent), b2lx(self.hashReplySqk),
              b2lx(self.hashBlock), self.nBlockHeight, b2lx(self.vchPubkey), b2lx(self.vchEncPubkey),
              b2lx(self.vchEncDatakey), b2lx(self.vchIv), self.nTime, self.nNonce)
