@@ -77,12 +77,12 @@ def enc_content():
 def squeak_header_params(verifying_key, rsa_public_key, iv, genesis_block_height, genesis_block_hash, fake_squeak_hash):
     return dict(
         nVersion=1,
+        hashReplySqk=fake_squeak_hash,
+        hashBlock=genesis_block_hash,
+        nBlockHeight=genesis_block_height,
         vchPubkey=verifying_key.serialize(),
         vchEncPubkey=rsa_public_key.serialize(),
         vchIv=iv,
-        nBlockHeight=genesis_block_height,
-        hashBlock=genesis_block_hash,
-        hashReplySqk=fake_squeak_hash,
         nTime=1231920354,
         nNonce=2083236893,
     )

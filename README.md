@@ -1,18 +1,22 @@
-Requirements
-============
+# squeak
+
+### Requirements
 
 * python3
 
-Test
-====
+### Test
 
 ```
 make test
 ```
 
+### Install
 
-Examples
-========
+```
+pip install squeaklib
+```
+
+### Examples
 
 Create a squeak, verify the signature, and decrypt the content:
 
