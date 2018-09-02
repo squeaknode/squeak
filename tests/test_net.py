@@ -2,6 +2,8 @@ import pytest
 
 from io import BytesIO as _BytesIO
 
+from bitcoin.core import lx
+
 from squeak.core.signing import CSigningKey
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
@@ -16,6 +18,11 @@ def signing_key():
 @pytest.fixture
 def verifying_key(signing_key):
     return signing_key.get_verifying_key()
+
+
+@pytest.fixture
+def fake_squeak_hash():
+    return lx('DEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAF')
 
 
 class TestCInv(object):
@@ -35,10 +42,10 @@ class TestCInv(object):
 
 
 class TestCSqueakLocator(object):
-    def test_serialization(self, verifying_key):
+    def test_serialization(self, verifying_key, fake_squeak_hash):
         locator = CSqueakLocator()
-        interested1 = self._make_interested(verifying_key, 5, 10)
-        interested2 = self._make_interested(verifying_key, 30, 2000)
+        interested1 = self._make_interested(verifying_key, 5, 10, fake_squeak_hash)
+        interested2 = self._make_interested(verifying_key, 30, 2000, fake_squeak_hash)
         locator.nVersion = 1
         locator.vInterested = [interested1, interested2]
         stream = _BytesIO()
@@ -49,10 +56,11 @@ class TestCSqueakLocator(object):
         deserialized = CSqueakLocator.stream_deserialize(serialized)
         assert deserialized == locator
 
-    def _make_interested(self, public_key, start, end):
+    def _make_interested(self, public_key, start, end, reply_to_hash):
         vk = public_key.serialize()
         interested = CInterested()
         interested.vchPubkey = vk
         interested.nMinBlockHeight = start
         interested.nMaxBlockHeight = end
+        interested.hashReplySqk = reply_to_hash
         return interested
