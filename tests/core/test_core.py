@@ -232,7 +232,7 @@ class TestMakeSqueak(object):
             content = b"X"*140*4
             timestamp = int(time.time())
 
-            squeak, _, signature = MakeSqueak(
+            MakeSqueak(
                 signing_key,
                 content,
                 fake_squeak_hash,
