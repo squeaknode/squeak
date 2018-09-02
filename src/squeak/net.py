@@ -7,6 +7,7 @@ from bitcoin.core import b2lx
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import PUB_KEY_LENGTH
+from squeak.core import HASH_LENGTH
 
 PROTO_VERSION = 60002
 
@@ -44,6 +45,7 @@ class CInterested(Serializable):
         self.vchPubkey = b'\x00' * PUB_KEY_LENGTH
         self.nMinBlockHeight = 0
         self.nMaxBlockHeight = 0
+        self.hashReplySqk = b'\x00'*HASH_LENGTH
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -51,6 +53,7 @@ class CInterested(Serializable):
         c.vchPubkey = ser_read(f,PUB_KEY_LENGTH)
         c.nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         c.nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
+        c.hashReplySqk = ser_read(f, HASH_LENGTH)
         return c
 
     def stream_serialize(self, f):
@@ -58,10 +61,12 @@ class CInterested(Serializable):
         f.write(self.vchPubkey)
         f.write(struct.pack(b"<I", self.nMinBlockHeight))
         f.write(struct.pack(b"<I", self.nMaxBlockHeight))
+        assert len(self.hashReplySqk) == HASH_LENGTH
+        f.write(self.hashReplySqk)
 
     def __repr__(self):
-        return "CInterested(vchPubkey=lx(%s) nMinBlockHeight=%s nMaxBlockHeight=%s)" % \
-            (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight))
+        return "CInterested(vchPubkey=lx(%s) nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
+            (b2lx(self.vchPubkey), repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
 
 
 class CInv(BitcoinCInv):

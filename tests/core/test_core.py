@@ -1,4 +1,5 @@
 import os
+import time
 
 import pytest
 
@@ -6,11 +7,14 @@ from bitcoin.core import lx
 
 from squeak.core import CSqueakHeader
 from squeak.core import CSqueak
+from squeak.core import CSqueakEncContent
 from squeak.core import SignSqueak
+from squeak.core import CheckSqueak
 from squeak.core import VerifySqueak
-from squeak.core import EncryptContent
 from squeak.core import DecryptContent
-from squeak.core import EncryptDataKey
+from squeak.core import MakeSqueak
+from squeak.core import InvalidContentLengthError
+from squeak.core import ENC_CONTENT_LENGTH
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
 from squeak.core.encryption import DATA_KEY_LENGTH
@@ -60,6 +64,12 @@ def genesis_block_hash():
 @pytest.fixture
 def fake_squeak_hash():
     return lx('DEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAF')
+
+
+@pytest.fixture
+def enc_content():
+    encrypted_content = CSqueakEncContent(b'\00'*ENC_CONTENT_LENGTH)
+    return encrypted_content
 
 
 @pytest.fixture
@@ -126,23 +136,24 @@ class TestCSqueakHeader(object):
         hello = self._build_with_params()
         signature = SignSqueak(signing_key, hello)
 
-        assert VerifySqueak(hello, signature)
+        VerifySqueak(hello, signature)
 
 
 @pytest.mark.usefixtures("squeak_header_params")
 class TestCSqueak(object):
 
     @pytest.fixture(autouse=True)
-    def _params(self, squeak_header_params):
+    def _params(self, squeak_header_params, enc_content):
         self._params = squeak_header_params
+        self._enc_content = enc_content
 
     def _build_with_params(self, **extra_params):
-        random_cipher_content = {
-            'strEncContent': os.urandom(128),
+        cipher_content = {
+            'encContent': self._enc_content,
         }
         params = {
             **self._params,
-            **random_cipher_content,
+            **cipher_content,
             **extra_params,
         }
         return CSqueak(**params)
@@ -166,60 +177,66 @@ class TestCSqueak(object):
 
         assert hello.GetHash() == hello.get_header().GetHash()
 
-    def test_encrypted_content_too_long(self):
-        with pytest.raises(AssertionError):
-            self._build_with_params(
-                strEncContent=b'X'*1137,
-            )
-
     def test_sign_verify(self, signing_key):
         hello = self._build_with_params()
         signature = SignSqueak(signing_key, hello)
 
         assert signature is not None
-        assert VerifySqueak(hello, signature)
+        VerifySqueak(hello, signature)
 
-    def test_encrypt_decrypt(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b"hello world!"
-        encrypted_content = EncryptContent(data_key, iv, content)
-        data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        hello = self._build_with_params(
-            vchEncDatakey=data_key_cipher,
-            strEncContent=encrypted_content,
+
+@pytest.mark.usefixtures("squeak_header_params")
+class TestMakeSqueak(object):
+
+    def test_make_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        content = b"X"*280*4
+        timestamp = int(time.time())
+
+        squeak, _, signature = MakeSqueak(
+            signing_key,
+            content,
+            fake_squeak_hash,
+            genesis_block_height,
+            genesis_block_hash,
+            timestamp,
         )
-        decrypted_content = DecryptContent(hello, rsa_private_key)
+
+        assert squeak is not None
+        assert isinstance(squeak, CSqueak)
+        CheckSqueak(squeak)
+        VerifySqueak(squeak, signature)
+
+    def test_decrypt_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        content = b"X"*280*4
+        timestamp = int(time.time())
+
+        squeak, decryption_key, signature = MakeSqueak(
+            signing_key,
+            content,
+            fake_squeak_hash,
+            genesis_block_height,
+            genesis_block_hash,
+            timestamp,
+        )
+
+        assert squeak is not None
+        assert isinstance(squeak, CSqueak)
+        VerifySqueak(squeak, signature)
+
+        decrypted_content = DecryptContent(squeak, decryption_key)
 
         assert decrypted_content == content
 
-    def test_content_length(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b"X" * 280 * 4
-        encrypted_content = EncryptContent(data_key, iv, content)
-        data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        self._build_with_params(
-            vchEncDatakey=data_key_cipher,
-            strEncContent=encrypted_content,
-        )
+    def test_make_squeak_content_too_short(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        with pytest.raises(InvalidContentLengthError):
+            content = b"X"*140*4
+            timestamp = int(time.time())
 
-        assert True
-
-    def test_content_length_too_long(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b"X" * 284 * 4
-        encrypted_content = EncryptContent(data_key, iv, content)
-        data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        with pytest.raises(AssertionError):
-            self._build_with_params(
-                vchEncDatakey=data_key_cipher,
-                strEncContent=encrypted_content,
+            MakeSqueak(
+                signing_key,
+                content,
+                fake_squeak_hash,
+                genesis_block_height,
+                genesis_block_hash,
+                timestamp,
             )
-
-    def test_content_length_zero(self, rsa_private_key, rsa_public_key, data_key, iv):
-        content = b""
-        encrypted_content = EncryptContent(data_key, iv, content)
-        data_key_cipher = EncryptDataKey(rsa_public_key, data_key)
-        empty_squeak = self._build_with_params(
-            vchEncDatakey=data_key_cipher,
-            strEncContent=encrypted_content,
-        )
-        decrypted_content = DecryptContent(empty_squeak, rsa_private_key)
-
-        assert decrypted_content == content

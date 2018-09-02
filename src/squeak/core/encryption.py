@@ -1,3 +1,6 @@
+import os
+import struct
+
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
@@ -165,3 +168,16 @@ def decrypt_content(key, iv, cipher):
     decryptor = _create_data_cipher(key, iv).decryptor()
     padded_content = decryptor.update(cipher) + decryptor.finalize()
     return _unpad(padded_content)
+
+
+def generate_data_key():
+    return os.urandom(DATA_KEY_LENGTH)
+
+
+def generate_initialization_vector():
+    return os.urandom(INITIALIZATION_VECTOR_LENGTH)
+
+
+def generate_nonce():
+    data = os.urandom(4)
+    return struct.unpack(b"<I", data)[0]
