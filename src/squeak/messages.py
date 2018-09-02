@@ -96,9 +96,9 @@ class msg_alert(MsgSerializable, bitcoin_msg_alert):
 class msg_inv(MsgSerializable, BitcoinMsgSerializable):
     command = b"inv"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_inv, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -116,9 +116,9 @@ class msg_inv(MsgSerializable, BitcoinMsgSerializable):
 class msg_getdata(MsgSerializable, BitcoinMsgSerializable):
     command = b"getdata"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_getdata, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -136,9 +136,9 @@ class msg_getdata(MsgSerializable, BitcoinMsgSerializable):
 class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
     command = b"notfound"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, inv=None, protover=PROTO_VERSION):
         super(msg_notfound, self).__init__(protover)
-        self.inv = []
+        self.inv = inv or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -156,9 +156,9 @@ class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
 class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
     command = b"getheaders"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, locator=None, protover=PROTO_VERSION):
         super(msg_getheaders, self).__init__(protover)
-        self.locator = CSqueakLocator()
+        self.locator = locator or CSqueakLocator()
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -176,9 +176,9 @@ class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
 class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
     command = b"getsqueaks"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, locator=None, protover=PROTO_VERSION):
         super(msg_getsqueaks, self).__init__(protover)
-        self.locator = CSqueakLocator()
+        self.locator = locator or CSqueakLocator()
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -196,9 +196,9 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
 class msg_headers(MsgSerializable, BitcoinMsgSerializable):
     command = b"headers"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(self, headers=None, protover=PROTO_VERSION):
         super(msg_headers, self).__init__(protover)
-        self.headers = []
+        self.headers = headers or []
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -232,10 +232,15 @@ class msg_reject(MsgSerializable, bitcoin_msg_reject):
 class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
     command = b"getoffer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            challenge=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH,
+            protover=PROTO_VERSION,
+    ):
         super(msg_getoffer, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.challenge = b'\x00'*ENCRYPTED_DATA_KEY_LENGTH
+        self.squeak_hash = squeak_hash
+        self.challenge = challenge
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -258,12 +263,19 @@ class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
 class msg_offer(MsgSerializable, BitcoinMsgSerializable):
     command = b"offer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak=None,
+            proof=b'\x00'*DATA_KEY_LENGTH,
+            signature=b'\x00'*SIGNATURE_LENGTH,
+            price=0,
+            protover=PROTO_VERSION,
+    ):
         super(msg_offer, self).__init__(protover)
-        self.squeak = CSqueak()
-        self.proof = b'\x00'*DATA_KEY_LENGTH
-        self.signature = b'\x00'*SIGNATURE_LENGTH
-        self.price = 0
+        self.squeak = squeak or CSqueak()
+        self.proof = proof
+        self.signature = signature
+        self.price = price
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -290,9 +302,13 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
     command = b"acceptoffer"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            protover=PROTO_VERSION,
+    ):
         super(msg_acceptoffer, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
+        self.squeak_hash = squeak_hash
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -312,10 +328,15 @@ class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
 class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
     command = b"invoice"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            payment_info=b'',
+            protover=PROTO_VERSION,
+    ):
         super(msg_invoice, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.payment_info = b''
+        self.squeak_hash = squeak_hash
+        self.payment_info = payment_info
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
@@ -337,10 +358,15 @@ class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
 class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     command = b"fulfill"
 
-    def __init__(self, protover=PROTO_VERSION):
+    def __init__(
+            self,
+            squeak_hash=b'\x00'*HASH_LENGTH,
+            encryption_key=b'',
+            protover=PROTO_VERSION,
+    ):
         super(msg_fulfill, self).__init__(protover)
-        self.squeak_hash = b'\x00'*HASH_LENGTH
-        self.encryption_key = b''
+        self.squeak_hash = squeak_hash
+        self.encryption_key = encryption_key
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):

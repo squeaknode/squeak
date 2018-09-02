@@ -19,11 +19,11 @@ class CSqueakLocator(Serializable):
     """
     def __init__(
             self,
-            vInterested=[],
+            vInterested=None,
             protover=PROTO_VERSION,
     ):
         self.nVersion = protover
-        self.vInterested = vInterested
+        self.vInterested = vInterested or []
 
     @classmethod
     def stream_deserialize(cls, f):
