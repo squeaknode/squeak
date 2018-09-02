@@ -110,10 +110,10 @@ class TestMakeSqueak(object):
         assert decrypted_content.rstrip(b"\00") == content
 
     def test_make_squeak_content_too_short(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
-        with pytest.raises(InvalidContentLengthError):
-            content = b"X"*140*4
-            timestamp = int(time.time())
+        content = b"X"*140*4
+        timestamp = int(time.time())
 
+        with pytest.raises(InvalidContentLengthError):
             MakeSqueak(
                 signing_key,
                 content,

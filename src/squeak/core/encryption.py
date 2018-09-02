@@ -20,6 +20,7 @@ ENCRYPTION_PUB_KEY_LENGTH = 162
 DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
 INITIALIZATION_VECTOR_LENGTH = 16
+CIPHER_BLOCK_SIZE = 128
 
 
 class CDecryptionKey(Serializable):
@@ -146,14 +147,14 @@ def _create_data_cipher(key, iv):
 
 
 def _pad(data):
-    padder = data_padding.PKCS7(128).padder()
+    padder = data_padding.PKCS7(CIPHER_BLOCK_SIZE).padder()
     padded_data = padder.update(data)
     padded_data += padder.finalize()
     return padded_data
 
 
 def _unpad(padded_data):
-    unpadder = data_padding.PKCS7(128).unpadder()
+    unpadder = data_padding.PKCS7(CIPHER_BLOCK_SIZE).unpadder()
     data = unpadder.update(padded_data)
     return data + unpadder.finalize()
 
