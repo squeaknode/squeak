@@ -11,11 +11,15 @@ from squeak.core import CSqueakEncContent
 from squeak.core import SignSqueak
 from squeak.core import CheckSqueak
 from squeak.core import VerifySqueak
+from squeak.core import EncryptContent
 from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
 from squeak.core import InvalidContentLengthError
+from squeak.core import CheckSqueakError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import ENC_CONTENT_LENGTH
+from squeak.core.encryption import generate_data_key
+from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
 from squeak.core.encryption import DATA_KEY_LENGTH
@@ -239,3 +243,39 @@ class TestMakeSqueak(object):
                 timestamp,
                 fake_squeak_hash,
             )
+
+    def test_make_squeak_invalid_content(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        content = b"Hello world!"
+        padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
+        timestamp = int(time.time())
+
+        squeak, _, _ = MakeSqueak(
+            signing_key,
+            padded_content,
+            genesis_block_height,
+            genesis_block_hash,
+            timestamp,
+            fake_squeak_hash,
+        )
+
+        fake_enc_content = EncryptContent(
+            generate_data_key(),
+            generate_initialization_vector(),
+            b"This is fake!".ljust(CONTENT_LENGTH, b"\x00"),
+        )
+        fake_squeak = CSqueak(
+            hashEncContent=squeak.hashEncContent,
+            hashReplySqk=squeak.hashReplySqk,
+            hashBlock=squeak.hashBlock,
+            nBlockHeight=squeak.nBlockHeight,
+            vchPubkey=squeak.vchPubkey,
+            vchEncPubkey=squeak.vchEncPubkey,
+            vchEncDatakey=squeak.vchEncDatakey,
+            vchIv=squeak.vchIv,
+            nTime=squeak.nTime,
+            nNonce=squeak.nNonce,
+            encContent=fake_enc_content,
+        )
+
+        with pytest.raises(CheckSqueakError):
+            CheckSqueak(fake_squeak)
