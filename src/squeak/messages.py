@@ -137,9 +137,9 @@ class msg_inv(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.inv = VectorSerializer.stream_deserialize(CInv, f)
-        return c
+        return cls(
+            inv=VectorSerializer.stream_deserialize(CInv, f),
+        )
 
     def msg_ser(self, f):
         VectorSerializer.stream_serialize(CInv, self.inv, f)
@@ -157,9 +157,9 @@ class msg_getdata(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.inv = VectorSerializer.stream_deserialize(CInv, f)
-        return c
+        return cls(
+            inv=VectorSerializer.stream_deserialize(CInv, f),
+        )
 
     def msg_ser(self, f):
         VectorSerializer.stream_serialize(CInv, self.inv, f)
@@ -177,9 +177,9 @@ class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.inv = VectorSerializer.stream_deserialize(CInv, f)
-        return c
+        return cls(
+            inv=VectorSerializer.stream_deserialize(CInv, f),
+        )
 
     def msg_ser(self, f):
         VectorSerializer.stream_serialize(CInv, self.inv, f)
@@ -197,9 +197,9 @@ class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.locator = CSqueakLocator.stream_deserialize(f)
-        return c
+        return cls(
+            locator=CSqueakLocator.stream_deserialize(f),
+        )
 
     def msg_ser(self, f):
         self.locator.stream_serialize(f)
@@ -217,9 +217,9 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.locator = CSqueakLocator.stream_deserialize(f)
-        return c
+        return cls(
+            locator=CSqueakLocator.stream_deserialize(f),
+        )
 
     def msg_ser(self, f):
         self.locator.stream_serialize(f)
@@ -237,9 +237,9 @@ class msg_headers(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.headers = VectorSerializer.stream_deserialize(CSqueakHeader, f)
-        return c
+        return cls(
+            headers=VectorSerializer.stream_deserialize(CSqueakHeader, f),
+        )
 
     def msg_ser(self, f):
         VectorSerializer.stream_serialize(CSqueakHeader, self.headers, f)
@@ -275,10 +275,10 @@ class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.squeak_hash = ser_read(f, HASH_LENGTH)
-        c.challenge = ser_read(f, ENCRYPTED_DATA_KEY_LENGTH)
-        return c
+        return cls(
+            squeak_hash=ser_read(f, HASH_LENGTH),
+            challenge=ser_read(f, ENCRYPTED_DATA_KEY_LENGTH),
+        )
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
@@ -310,12 +310,12 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.squeak = CSqueak.stream_deserialize(f)
-        c.proof = ser_read(f, DATA_KEY_LENGTH)
-        c.signature = ser_read(f, SIGNATURE_LENGTH)
-        c.price = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return c
+        return cls(
+            squeak=CSqueak.stream_deserialize(f),
+            proof=ser_read(f, DATA_KEY_LENGTH),
+            signature=ser_read(f, SIGNATURE_LENGTH),
+            price=struct.unpack(b"<I", ser_read(f, 4))[0],
+        )
 
     def msg_ser(self, f):
         self.squeak.stream_serialize(f)
@@ -343,9 +343,9 @@ class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.squeak_hash = ser_read(f, HASH_LENGTH)
-        return c
+        return cls(
+            squeak_hash=ser_read(f, HASH_LENGTH),
+        )
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
@@ -371,10 +371,10 @@ class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.squeak_hash = ser_read(f, HASH_LENGTH)
-        c.payment_info = VarStringSerializer.stream_deserialize(f)
-        return c
+        return cls(
+            squeak_hash=ser_read(f, HASH_LENGTH),
+            payment_info=VarStringSerializer.stream_deserialize(f),
+        )
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
@@ -401,10 +401,10 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        c = cls()
-        c.squeak_hash = ser_read(f, HASH_LENGTH)
-        c.decryption_key = VarStringSerializer.stream_deserialize(f)
-        return c
+        return cls(
+            squeak_hash=ser_read(f, HASH_LENGTH),
+            decryption_key=VarStringSerializer.stream_deserialize(f),
+        )
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
