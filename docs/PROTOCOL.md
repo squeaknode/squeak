@@ -107,4 +107,4 @@ Field Size | Description | Data type | Comments
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 32 | squeak_hash | char[32] | The hash value of the squeak
-? | encryption_key | var_str | The RSA decryption key for the squeak
+? | decryption_key | var_str | The RSA private key for the squeak
