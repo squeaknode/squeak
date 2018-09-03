@@ -70,7 +70,7 @@ Create a getheaders messages with a given public key and block height range, ser
 >>> public_key = b'\x03U\xfc\xd2\xfe\x14:y\xe7\xd0n\x9asZK\xe9b\x05${\x18Z\xc7\xd4\x89vf\x1a\xdb\xf2\xc4\xd2$'
 >>>
 >>> locator = CSqueakLocator([
-...     CInterested(public_key, 10, 15)
+...     CInterested(public_key, 10, 15),
 ... ])
 >>> getheaders = msg_getheaders(locator)
 >>>
