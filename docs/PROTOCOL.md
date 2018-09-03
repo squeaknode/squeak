@@ -14,7 +14,7 @@ Field Size | Description | Data type | Comments
 33 | vchPubkey | char[33] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key
 162 | vchEncPubkey | char[162] | The RSA public key of the squeak, as an RSA-1024 key
 128 | vchEncDatakey | char[128] | The RSA-encrypted AES data key used to encrypt and decrypt the squeak content
-16 | vchIv | char[32] | Random bytes used for the initialization vector
+16 | vchIv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
 
@@ -68,7 +68,7 @@ Field Size | Description | Data type | Comments
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | count | var_int | Number of squeak header structs
-451x? | headers | squeak_header[] | Interested structs
+451x? | headers | squeak_header[] | Squeak header structs
 
 #### msg_getaddr
 #### msg_ping
