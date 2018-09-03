@@ -27,10 +27,9 @@ class CSqueakLocator(Serializable):
 
     @classmethod
     def stream_deserialize(cls, f):
-        c = cls()
-        c.nVersion = struct.unpack(b"<i", ser_read(f, 4))[0]
-        c.vInterested = VectorSerializer.stream_deserialize(CInterested, f)
-        return c
+        nVersion = struct.unpack(b"<i", ser_read(f, 4))[0]
+        vInterested = VectorSerializer.stream_deserialize(CInterested, f)
+        return cls(vInterested=vInterested, protover=nVersion)
 
     def stream_serialize(self, f):
         f.write(struct.pack(b"<i", self.nVersion))
@@ -60,12 +59,11 @@ class CInterested(Serializable):
 
     @classmethod
     def stream_deserialize(cls, f):
-        c = cls()
-        c.vchPubkey = ser_read(f,PUB_KEY_LENGTH)
-        c.nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
-        c.nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
-        c.hashReplySqk = ser_read(f, HASH_LENGTH)
-        return c
+        vchPubkey = ser_read(f,PUB_KEY_LENGTH)
+        nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
+        nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
+        hashReplySqk = ser_read(f, HASH_LENGTH)
+        return cls(vchPubkey, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
 
     def stream_serialize(self, f):
         assert len(self.vchPubkey) == PUB_KEY_LENGTH
