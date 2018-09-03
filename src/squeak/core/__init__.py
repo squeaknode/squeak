@@ -156,7 +156,7 @@ class CSqueak(CSqueakHeader):
 
 
 class CSqueakEncContent(ImmutableSerializable):
-    """A squeak header"""
+    """Squeak encrypted content"""
     __slots__ = ['vchEncContent']
 
     def __init__(self, vchEncContent=b'\x00'*ENC_CONTENT_LENGTH):
