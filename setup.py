@@ -4,9 +4,11 @@
 from setuptools import find_packages
 from setuptools import setup
 
+from src.squeak import __version__
+
 setup(
     name='squeaklib',
-    version='0.1.0',
+    version=__version__,
     license='MIT',
     author='Jonathan Zernik',
     description='Squeak library',

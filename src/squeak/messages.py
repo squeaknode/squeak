@@ -314,7 +314,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         c.squeak = CSqueak.stream_deserialize(f)
         c.proof = ser_read(f, DATA_KEY_LENGTH)
         c.signature = ser_read(f, SIGNATURE_LENGTH)
-        c.price = struct.unpack(b"<i", ser_read(f, 4))[0]
+        c.price = struct.unpack(b"<I", ser_read(f, 4))[0]
         return c
 
     def msg_ser(self, f):
@@ -323,7 +323,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         f.write(self.proof)
         assert len(self.signature) == SIGNATURE_LENGTH
         f.write(self.signature)
-        f.write(struct.pack(b"<i", self.price))
+        f.write(struct.pack(b"<I", self.price))
 
     def __repr__(self):
         return "msg_offer(squeak=%s signature=lx(%s) proof=lx(%s) price=%i)" % \
@@ -392,28 +392,28 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     def __init__(
             self,
             squeak_hash=b'\x00'*HASH_LENGTH,
-            encryption_key=b'',
+            decryption_key=b'',
             protover=PROTO_VERSION,
     ):
         super(msg_fulfill, self).__init__(protover)
         self.squeak_hash = squeak_hash
-        self.encryption_key = encryption_key
+        self.decryption_key = decryption_key
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         c = cls()
         c.squeak_hash = ser_read(f, HASH_LENGTH)
-        c.encryption_key = VarStringSerializer.stream_deserialize(f)
+        c.decryption_key = VarStringSerializer.stream_deserialize(f)
         return c
 
     def msg_ser(self, f):
         assert len(self.squeak_hash) == HASH_LENGTH
         f.write(self.squeak_hash)
-        VarStringSerializer.stream_serialize(self.encryption_key, f)
+        VarStringSerializer.stream_serialize(self.decryption_key, f)
 
     def __repr__(self):
-        return "msg_fulfill(squeakhash=lx(%s) encryption_key=lx(%s))" % \
-            (b2lx(self.squeak_hash), b2lx(self.encryption_key))
+        return "msg_fulfill(squeakhash=lx(%s) decryption_key=lx(%s))" % \
+            (b2lx(self.squeak_hash), b2lx(self.decryption_key))
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
