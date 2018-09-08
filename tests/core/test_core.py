@@ -17,7 +17,7 @@ from squeak.core import CONTENT_LENGTH
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import CDecryptionKey
-from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
+from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.core.signing import CSigningKey
 
@@ -49,7 +49,7 @@ def data_key():
 
 @pytest.fixture
 def iv():
-    return os.urandom(INITIALIZATION_VECTOR_LENGTH)
+    return os.urandom(CIPHER_BLOCK_LENGTH)
 
 
 @pytest.fixture

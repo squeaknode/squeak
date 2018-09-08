@@ -12,7 +12,7 @@ from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
-from squeak.core.encryption import INITIALIZATION_VECTOR_LENGTH
+from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.signing import CVerifyingKey
 from squeak.core.signing import PUB_KEY_LENGTH
 
@@ -35,7 +35,7 @@ class CSqueakHeader(ImmutableSerializable):
     """A squeak header"""
     __slots__ = ['nVersion', 'hashEncContent', 'hashReplySqk', 'hashBlock', 'nBlockHeight', 'vchPubkey', 'vchEncPubkey', 'vchEncDatakey', 'vchIv', 'nTime', 'nNonce']
 
-    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*INITIALIZATION_VECTOR_LENGTH, nTime=0, nNonce=0):
+    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0):
         object.__setattr__(self, 'nVersion', nVersion)
         assert len(hashEncContent) == HASH_LENGTH
         object.__setattr__(self, 'hashEncContent', hashEncContent)
@@ -50,7 +50,7 @@ class CSqueakHeader(ImmutableSerializable):
         object.__setattr__(self, 'vchEncPubkey', vchEncPubkey)
         assert len(vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
         object.__setattr__(self, 'vchEncDatakey', vchEncDatakey)
-        assert len(vchIv) == INITIALIZATION_VECTOR_LENGTH
+        assert len(vchIv) == CIPHER_BLOCK_LENGTH
         object.__setattr__(self, 'vchIv', vchIv)
         object.__setattr__(self, 'nTime', nTime)
         object.__setattr__(self, 'nNonce', nNonce)
@@ -65,7 +65,7 @@ class CSqueakHeader(ImmutableSerializable):
         vchPubkey = ser_read(f,PUB_KEY_LENGTH)
         vchEncPubkey = ser_read(f,ENCRYPTION_PUB_KEY_LENGTH)
         vchEncDatakey = ser_read(f,ENCRYPTED_DATA_KEY_LENGTH)
-        vchIv = ser_read(f,INITIALIZATION_VECTOR_LENGTH)
+        vchIv = ser_read(f,CIPHER_BLOCK_LENGTH)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
         return cls(nVersion, hashEncContent, hashReplySqk, hashBlock, nBlockHeight, vchPubkey, vchEncPubkey, vchEncDatakey, vchIv, nTime, nNonce)
@@ -85,7 +85,7 @@ class CSqueakHeader(ImmutableSerializable):
         f.write(self.vchEncPubkey)
         assert len(self.vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
         f.write(self.vchEncDatakey)
-        assert len(self.vchIv) == INITIALIZATION_VECTOR_LENGTH
+        assert len(self.vchIv) == CIPHER_BLOCK_LENGTH
         f.write(self.vchIv)
         f.write(struct.pack(b"<I", self.nTime))
         f.write(struct.pack(b"<I", self.nNonce))
@@ -106,7 +106,7 @@ class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
     __slots__ = ['encContent']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*INITIALIZATION_VECTOR_LENGTH, nTime=0, nNonce=0, encContent=None):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchPubkey=b'\x00'*PUB_KEY_LENGTH, vchEncPubkey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None):
         """Create a new squeak"""
         super(CSqueak, self).__init__(nVersion, hashEncContent, hashReplySqk, hashBlock, nBlockHeight, vchPubkey, vchEncPubkey, vchEncDatakey, vchIv, nTime, nNonce)
         if encContent is None:
