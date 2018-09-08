@@ -19,8 +19,7 @@ KEY_SIZE = 1024
 ENCRYPTION_PUB_KEY_LENGTH = 162
 DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
-INITIALIZATION_VECTOR_LENGTH = 16
-CIPHER_BLOCK_SIZE = 128
+CIPHER_BLOCK_LENGTH = 16
 
 
 class CDecryptionKey(Serializable):
@@ -147,16 +146,22 @@ def _create_data_cipher(key, iv):
 
 
 def _pad(data):
-    padder = data_padding.PKCS7(CIPHER_BLOCK_SIZE).padder()
+    block_size = _block_size_bits()
+    padder = data_padding.PKCS7(block_size).padder()
     padded_data = padder.update(data)
     padded_data += padder.finalize()
     return padded_data
 
 
 def _unpad(padded_data):
-    unpadder = data_padding.PKCS7(CIPHER_BLOCK_SIZE).unpadder()
+    block_size = _block_size_bits()
+    unpadder = data_padding.PKCS7(block_size).unpadder()
     data = unpadder.update(padded_data)
     return data + unpadder.finalize()
+
+
+def _block_size_bits():
+    return CIPHER_BLOCK_LENGTH * 8
 
 
 def encrypt_content(key, iv, content):
@@ -176,7 +181,7 @@ def generate_data_key():
 
 
 def generate_initialization_vector():
-    return os.urandom(INITIALIZATION_VECTOR_LENGTH)
+    return os.urandom(CIPHER_BLOCK_LENGTH)
 
 
 def generate_nonce():

@@ -5,7 +5,7 @@ from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import CEncryptionKey
 from squeak.core.encryption import KEY_SIZE
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
-from squeak.core.encryption import CIPHER_BLOCK_SIZE
+from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 
 
 class TestEncryptionCipher(object):
@@ -15,7 +15,7 @@ class TestEncryptionCipher(object):
         initialization_vector = generate_initialization_vector()
         cipher = _create_data_cipher(data_key, initialization_vector)
 
-        assert cipher.algorithm.block_size == CIPHER_BLOCK_SIZE
+        assert cipher.algorithm.block_size == CIPHER_BLOCK_LENGTH * 8
 
 
 class TestEncryptContent(object):
