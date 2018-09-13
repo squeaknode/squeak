@@ -190,7 +190,7 @@ def SignSqueak(signing_key, squeak_header):
     return signing_key.sign(squeak_header.GetHash())
 
 
-def VerifySqueak(squeak_header, signature):
+def VerifySqueakSignature(squeak_header, signature):
     """Check if the given signature is valid
 
     squeak_header (CSqueakHeader)
@@ -315,7 +315,7 @@ __all__ = (
     'CSqueakHeader',
     'CSqueak',
     'SignSqueak',
-    'VerifySqueak',
+    'VerifySqueakSignature',
     'EncryptContent',
     'DecryptContent',
     'EncryptDataKey',

@@ -7,7 +7,7 @@ from bitcoin.core import lx
 
 from squeak.core import CSqueak
 from squeak.core import CheckSqueak
-from squeak.core import VerifySqueak
+from squeak.core import VerifySqueakSignature
 from squeak.core import EncryptContent
 from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
@@ -84,7 +84,7 @@ class TestMakeSqueak(object):
         )
 
         CheckSqueak(squeak)
-        VerifySqueak(squeak, signature)
+        VerifySqueakSignature(squeak, signature)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
@@ -104,7 +104,7 @@ class TestMakeSqueak(object):
         )
 
         CheckSqueak(squeak)
-        VerifySqueak(squeak, signature)
+        VerifySqueakSignature(squeak, signature)
         decrypted_content = DecryptContent(squeak, decryption_key)
 
         assert decrypted_content.rstrip(b"\00") == content
