@@ -26,7 +26,7 @@ Create a squeak, verify the signature, and decrypt the content:
 >>> from bitcoin.core import lx
 >>>
 >>> from squeak.core import MakeSqueak
->>> from squeak.core import VerifySqueak
+>>> from squeak.core import VerifySqueakSignature
 >>> from squeak.core import DecryptContent
 >>> from squeak.core import CONTENT_LENGTH
 >>> from squeak.core.signing import CSigningKey
@@ -50,7 +50,7 @@ Create a squeak, verify the signature, and decrypt the content:
 >>> print(squeak.GetHash())
 b"\xa7*\x1e\x08\xddg\x8cO\xc5\x8b@\xa0\xc5\x12\xa2'\xac-V\xcb\x1c\xb0_\xf1\x7f\xc1\x04\xb28s(\xbf"
 >>>
->>> VerifySqueak(squeak, signature)
+>>> VerifySqueakSignature(squeak, signature)
 >>> decrypted_content = DecryptContent(squeak, decryption_key)
 >>>
 >>> print(decrypted_content.rstrip(b"\00"))
