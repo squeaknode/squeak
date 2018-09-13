@@ -198,7 +198,7 @@ def VerifySqueakSignature(squeak_header, signature):
     """
     verifying_key = CVerifyingKey.deserialize(squeak_header.vchPubkey)
     if not verifying_key.verify(squeak_header.GetHash(), signature):
-        raise VerifySqueakSignatureError("VerifySqueak() : invalid signature for the given squeak header")
+        raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak header")
 
 
 class InvalidContentLengthError(ValidationError):
