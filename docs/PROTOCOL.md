@@ -105,6 +105,12 @@ Field Size | Description | Data type | Comments
 4 | nOfferId | uint32_t | Unique identifier of the offer
 ? | strPaymentInfo | var_str | The lightning payment info string for the invoice
 
+#### msg_getfulfill
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+4 | nOfferId | uint32_t | Unique identifier of the offer
+
 #### msg_fulfill
 
 Field Size | Description | Data type | Comments
