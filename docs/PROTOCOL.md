@@ -84,6 +84,7 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
+4 | offer_id | uint32_t | Unique identifier of the offer
 1571 | squeak | char[1571] | The full squeak struct
 32 | proof | char[32] | The decrypted challenge string, proving ownership of the RSA private key
 64 | signature | char[64] | The DSA signature of the squeak, proving authorship of the squeak
@@ -93,18 +94,18 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-32 | squeak_hash | char[32] | The hash value of the squeak
+4 | offer_id | uint32_t | Unique identifier of the offer
 
 #### msg_invoice
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-32 | squeak_hash | char[32] | The hash value of the squeak
+4 | offer_id | uint32_t | Unique identifier of the offer
 ? | payment_info | var_str | The lightning payment info string for the invoice
 
 #### msg_fulfill
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-32 | squeak_hash | char[32] | The hash value of the squeak
+4 | offer_id | uint32_t | Unique identifier of the offer
 ? | decryption_key | var_str | The RSA private key for the squeak

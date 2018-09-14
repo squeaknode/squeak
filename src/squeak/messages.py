@@ -289,6 +289,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
+            offer_id=0,
             squeak=None,
             proof=b'\x00'*DATA_KEY_LENGTH,
             signature=b'\x00'*SIGNATURE_LENGTH,
@@ -296,6 +297,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
             protover=PROTO_VERSION,
     ):
         super(msg_offer, self).__init__(protover)
+        self.offer_id = offer_id
         self.squeak = squeak or CSqueak()
         self.proof = proof
         self.signature = signature
@@ -303,13 +305,15 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
+        offer_id = struct.unpack(b"<I", ser_read(f, 4))[0]
         squeak = CSqueak.stream_deserialize(f)
         proof = ser_read(f, DATA_KEY_LENGTH)
         signature = ser_read(f, SIGNATURE_LENGTH)
         price = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return cls(squeak, proof, signature, price)
+        return cls(offer_id, squeak, proof, signature, price)
 
     def msg_ser(self, f):
+        f.write(struct.pack(b"<I", self.offer_id))
         self.squeak.stream_serialize(f)
         assert len(self.proof) == DATA_KEY_LENGTH
         f.write(self.proof)
@@ -318,8 +322,8 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         f.write(struct.pack(b"<I", self.price))
 
     def __repr__(self):
-        return "msg_offer(squeak=%s signature=lx(%s) proof=lx(%s) price=%i)" % \
-            (repr(self.squeak), b2lx(self.signature), b2lx(self.proof), self.price)
+        return "msg_offer(offer_id=%i squeak=%s signature=lx(%s) proof=lx(%s) price=%i)" % \
+            (self.offer_id, repr(self.squeak), b2lx(self.signature), b2lx(self.proof), self.price)
 
 
 class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
@@ -327,24 +331,23 @@ class msg_acceptoffer(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
-            squeak_hash=b'\x00'*HASH_LENGTH,
+            offer_id=0,
             protover=PROTO_VERSION,
     ):
         super(msg_acceptoffer, self).__init__(protover)
-        self.squeak_hash = squeak_hash
+        self.offer_id = offer_id
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        squeak_hash = ser_read(f, HASH_LENGTH)
-        return cls(squeak_hash)
+        offer_id = struct.unpack(b"<I", ser_read(f, 4))[0]
+        return cls(offer_id)
 
     def msg_ser(self, f):
-        assert len(self.squeak_hash) == HASH_LENGTH
-        f.write(self.squeak_hash)
+        f.write(struct.pack(b"<I", self.offer_id))
 
     def __repr__(self):
-        return "msg_acceptoffer(squeakhash=lx(%s))" % \
-            (b2lx(self.squeak_hash))
+        return "msg_acceptoffer(offer_id=%i)" % \
+            (self.offer_id)
 
 
 class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
@@ -352,28 +355,27 @@ class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
-            squeak_hash=b'\x00'*HASH_LENGTH,
+            offer_id=0,
             payment_info=b'',
             protover=PROTO_VERSION,
     ):
         super(msg_invoice, self).__init__(protover)
-        self.squeak_hash = squeak_hash
+        self.offer_id = offer_id
         self.payment_info = payment_info
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        squeak_hash = ser_read(f, HASH_LENGTH)
+        offer_id = struct.unpack(b"<I", ser_read(f, 4))[0]
         payment_info = VarStringSerializer.stream_deserialize(f)
-        return cls(squeak_hash, payment_info)
+        return cls(offer_id, payment_info)
 
     def msg_ser(self, f):
-        assert len(self.squeak_hash) == HASH_LENGTH
-        f.write(self.squeak_hash)
+        f.write(struct.pack(b"<I", self.offer_id))
         VarStringSerializer.stream_serialize(self.payment_info, f)
 
     def __repr__(self):
-        return "msg_invoice(squeakhash=lx(%s) payment_info=%s)" % \
-            (b2lx(self.squeak_hash), self.payment_info)
+        return "msg_invoice(offer_id=%i payment_info=%s)" % \
+            (self.offer_id, self.payment_info)
 
 
 class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
@@ -381,28 +383,27 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
-            squeak_hash=b'\x00'*HASH_LENGTH,
+            offer_id=0,
             decryption_key=b'',
             protover=PROTO_VERSION,
     ):
         super(msg_fulfill, self).__init__(protover)
-        self.squeak_hash = squeak_hash
+        self.offer_id = offer_id
         self.decryption_key = decryption_key
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        squeak_hash = ser_read(f, HASH_LENGTH)
+        offer_id = struct.unpack(b"<I", ser_read(f, 4))[0]
         decryption_key = VarStringSerializer.stream_deserialize(f)
-        return cls(squeak_hash, decryption_key)
+        return cls(offer_id, decryption_key)
 
     def msg_ser(self, f):
-        assert len(self.squeak_hash) == HASH_LENGTH
-        f.write(self.squeak_hash)
+        f.write(struct.pack(b"<I", self.offer_id))
         VarStringSerializer.stream_serialize(self.decryption_key, f)
 
     def __repr__(self):
-        return "msg_fulfill(squeakhash=lx(%s) decryption_key=lx(%s))" % \
-            (b2lx(self.squeak_hash), b2lx(self.decryption_key))
+        return "msg_fulfill(offer_id=%i decryption_key=lx(%s))" % \
+            (self.offer_id, b2lx(self.decryption_key))
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
