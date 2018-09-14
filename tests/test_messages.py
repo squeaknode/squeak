@@ -19,6 +19,7 @@ from squeak.messages import msg_getoffer
 from squeak.messages import msg_offer
 from squeak.messages import msg_acceptoffer
 from squeak.messages import msg_invoice
+from squeak.messages import msg_getfulfill
 from squeak.messages import msg_fulfill
 
 
@@ -118,6 +119,11 @@ class Test_msg_acceptoffer(MessageTestCase):
 class Test_msg_invoice(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_invoice, self).serialization_test(msg_invoice)
+
+
+class Test_msg_getfulfill(MessageTestCase):
+    def test_serialization(self):
+        super(Test_msg_getfulfill, self).serialization_test(msg_getfulfill)
 
 
 class Test_msg_fulfill(MessageTestCase):

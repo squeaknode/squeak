@@ -386,6 +386,30 @@ class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
             (self.nOfferId, self.strPaymentInfo)
 
 
+class msg_getfulfill(MsgSerializable, BitcoinMsgSerializable):
+    command = b"getfulfill"
+
+    def __init__(
+            self,
+            nOfferId=0,
+            protover=PROTO_VERSION,
+    ):
+        super(msg_getfulfill, self).__init__(protover)
+        self.nOfferId = nOfferId
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
+        return cls(nOfferId)
+
+    def msg_ser(self, f):
+        f.write(struct.pack(b"<I", self.nOfferId))
+
+    def __repr__(self):
+        return "msg_getfulfill(nOfferId=%i)" % \
+            (self.nOfferId)
+
+
 class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     command = b"fulfill"
 
@@ -417,7 +441,7 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
                msg_getaddr, msg_ping, msg_pong, msg_getoffer, msg_offer,
-               msg_acceptoffer, msg_invoice, msg_fulfill]
+               msg_acceptoffer, msg_invoice, msg_getfulfill, msg_fulfill]
 
 messagemap = {}
 for cls in msg_classes:
