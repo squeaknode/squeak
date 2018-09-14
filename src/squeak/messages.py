@@ -260,28 +260,28 @@ class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
     def __init__(
             self,
             hashSqueak=b'\x00'*HASH_LENGTH,
-            challenge=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH,
+            vchChallenge=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH,
             protover=PROTO_VERSION,
     ):
         super(msg_getoffer, self).__init__(protover)
         self.hashSqueak = hashSqueak
-        self.challenge = challenge
+        self.vchChallenge = vchChallenge
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         hashSqueak = ser_read(f, HASH_LENGTH)
-        challenge = ser_read(f, ENCRYPTED_DATA_KEY_LENGTH)
-        return cls(hashSqueak, challenge)
+        vchChallenge = ser_read(f, ENCRYPTED_DATA_KEY_LENGTH)
+        return cls(hashSqueak, vchChallenge)
 
     def msg_ser(self, f):
         assert len(self.hashSqueak) == HASH_LENGTH
         f.write(self.hashSqueak)
-        assert len(self.challenge) == ENCRYPTED_DATA_KEY_LENGTH
-        f.write(self.challenge)
+        assert len(self.vchChallenge) == ENCRYPTED_DATA_KEY_LENGTH
+        f.write(self.vchChallenge)
 
     def __repr__(self):
-        return "msg_getoffer(squeakhash=lx(%s) challenge=lx(%s))" % \
-            (b2lx(self.hashSqueak), b2lx(self.challenge))
+        return "msg_getoffer(squeakhash=lx(%s) vchChallenge=lx(%s))" % \
+            (b2lx(self.hashSqueak), b2lx(self.vchChallenge))
 
 
 class msg_offer(MsgSerializable, BitcoinMsgSerializable):
