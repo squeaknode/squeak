@@ -92,7 +92,7 @@ Field Size | Description | Data type | Comments
 64 | vchSignature | char[64] | The DSA signature of the squeak, proving authorship of the squeak
 4 | nPrice | uint32_t | The price of the squeak in satoshis
 
-#### msg_acceptoffer
+#### msg_getinvoice
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
