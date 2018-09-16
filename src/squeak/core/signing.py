@@ -126,8 +126,3 @@ def _generate_secret():
 
 def VerifyScript(scriptSig, scriptPubKey, hash):
     return BitcoinVerifyScript(scriptSig, scriptPubKey, hash, 0)
-
-
-def _new_RawSignatureHash(script, txTo, inIdx, hashtype):
-    hash = txTo
-    return (hash, None)

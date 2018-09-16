@@ -61,8 +61,4 @@ class TestSignVerify(object):
         address = CSqueakAddress.from_verifying_key(verifying_key)
         pubkey_script = address.to_scriptPubKey()
 
-        print(address)
-        print(sig_script)
-        print(pubkey_script)
-
         VerifyScript(sig_script, pubkey_script, data)

@@ -295,9 +295,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     nonce = generate_nonce()
     verifying_key = signing_key.get_verifying_key()
     squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
-    print('squeak_address', squeak_address.address)
     pubkey_script = squeak_address.to_scriptPubKey()
-    print('pubkey_script', pubkey_script)
     squeak = CSqueak(
         hashEncContent=enc_content.GetHash(),
         hashReplySqk=reply_to,
