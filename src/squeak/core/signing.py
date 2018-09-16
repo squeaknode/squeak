@@ -12,6 +12,7 @@ from bitcoin.core.script import CScript
 from bitcoin.core.scripteval import VerifyScript as BitcoinVerifyScript
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
+from bitcoin.wallet import CBitcoinAddress
 from bitcoin.wallet import P2PKHBitcoinAddress
 
 from secp256k1 import PrivateKey
@@ -103,21 +104,11 @@ class CVerifyingKey(Serializable):
             (repr(self.public_key))
 
 
-class CSqueakAddress(Serializable):
-
-    def __init__(self, address):
-        self.address = address
+class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
     def from_verifying_key(cls, verifying_key):
-        address = P2PKHBitcoinAddress.from_pubkey(verifying_key.public_key)
-        return cls(address)
-
-    def to_scriptPubKey(self):
-        return self.address.to_scriptPubKey()
-
-    def __repr__(self):
-        return repr(self.address)
+        return cls.from_pubkey(verifying_key.public_key)
 
 
 def _generate_secret():

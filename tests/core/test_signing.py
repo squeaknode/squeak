@@ -62,3 +62,16 @@ class TestSignVerify(object):
         pubkey_script = address.to_scriptPubKey()
 
         VerifyScript(sig_script, pubkey_script, data)
+
+    def test_address_to_pubkey(self, make_hash):
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
+
+        data = make_hash()
+        sig_script = signing_key.sign_to_scriptSig(data)
+        address = CSqueakAddress.from_verifying_key(verifying_key)
+        pubkey_script = address.to_scriptPubKey()
+
+        address_from_script = CSqueakAddress.from_scriptPubKey(pubkey_script)
+
+        assert address_from_script == address
