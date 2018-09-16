@@ -31,8 +31,6 @@ class CSigningKey(Serializable):
     @classmethod
     def generate(cls):
         secret = _generate_secret()
-        print('secret', type(secret))
-        print('secret', secret)
         private_key = CECKey()
         private_key.set_secretbytes(secret)
         private_key.set_compressed(True)
@@ -77,10 +75,6 @@ class CVerifyingKey(Serializable):
         f.write(data)
 
     def verify(self, data, signature):
-        # internal_signature = self.public_key.ecdsa_deserialize_compact(signature)
-        # return self.public_key.ecdsa_verify(data, internal_signature)
-
-        print('verify:', data, signature)
         return self.public_key.verify(data, signature)
 
     def __repr__(self):
