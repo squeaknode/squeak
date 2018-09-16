@@ -4,7 +4,9 @@ import pytest
 
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
+from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CVerifyingKey
+from squeak.core.signing import VerifyScript
 from squeak.core.signing import PUB_KEY_LENGTH
 
 
@@ -49,3 +51,18 @@ class TestSignVerify(object):
         signature = signing_key.sign(data)
 
         assert not verifying_key.verify(data2, signature)
+
+    def test_sign_verify_script(self, make_hash):
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
+
+        data = make_hash()
+        sig_script = signing_key.sign_to_scriptSig(data)
+        address = CSqueakAddress.from_verifying_key(verifying_key)
+        pubkey_script = address.to_scriptPubKey()
+
+        print(address)
+        print(sig_script)
+        print(pubkey_script)
+
+        VerifyScript(sig_script, pubkey_script, data)

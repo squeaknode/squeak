@@ -14,6 +14,7 @@ from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.signing import CVerifyingKey
+from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import PUB_KEY_LENGTH
 
 
@@ -293,6 +294,10 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     data_key_cipher = EncryptDataKey(encryption_key, data_key)
     nonce = generate_nonce()
     verifying_key = signing_key.get_verifying_key()
+    squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
+    print('squeak_address', squeak_address.address)
+    pubkey_script = squeak_address.to_scriptPubKey()
+    print('pubkey_script', pubkey_script)
     squeak = CSqueak(
         hashEncContent=enc_content.GetHash(),
         hashReplySqk=reply_to,

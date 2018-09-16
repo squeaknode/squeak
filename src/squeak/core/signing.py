@@ -1,13 +1,25 @@
+import bitcoin.core.script
+
+def _new_RawSignatureHash(script, hash, _, hashtype):
+    return (hash, None)
+
+bitcoin.core.script.RawSignatureHash = _new_RawSignatureHash
+
+
 from bitcoin.core.key import CECKey
 from bitcoin.core.key import CPubKey
+from bitcoin.core.script import CScript
+from bitcoin.core.scripteval import VerifyScript as BitcoinVerifyScript
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
+from bitcoin.wallet import P2PKHBitcoinAddress
 
 from secp256k1 import PrivateKey
 
 
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64  # Only if the signature is compacted
+SIGHASH_ALL = b'\01'
 
 
 class CSigningKey(Serializable):
@@ -49,6 +61,15 @@ class CSigningKey(Serializable):
         signature = self.private_key.sign(data)
         return signature
 
+    def sign_to_scriptSig(self, data):
+        signature = self.sign(data)
+        verifying_key = self.get_verifying_key()
+        pubkey_bytes = verifying_key.serialize()
+        script = CScript()
+        script += (signature + SIGHASH_ALL)
+        script += pubkey_bytes
+        return script
+
     def __repr__(self):
         return "CSigningKey(private_key=%s)" % \
             (repr(self.private_key))
@@ -82,5 +103,31 @@ class CVerifyingKey(Serializable):
             (repr(self.public_key))
 
 
+class CSqueakAddress(Serializable):
+
+    def __init__(self, address):
+        self.address = address
+
+    @classmethod
+    def from_verifying_key(cls, verifying_key):
+        address = P2PKHBitcoinAddress.from_pubkey(verifying_key.public_key)
+        return cls(address)
+
+    def to_scriptPubKey(self):
+        return self.address.to_scriptPubKey()
+
+    def __repr__(self):
+        return repr(self.address)
+
+
 def _generate_secret():
     return PrivateKey().private_key
+
+
+def VerifyScript(scriptSig, scriptPubKey, hash):
+    return BitcoinVerifyScript(scriptSig, scriptPubKey, hash, 0)
+
+
+def _new_RawSignatureHash(script, txTo, inIdx, hashtype):
+    hash = txTo
+    return (hash, None)
