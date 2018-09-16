@@ -6,7 +6,6 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CVerifyingKey
 from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.signing import SIGNATURE_LENGTH
 
 
 @pytest.fixture
@@ -40,7 +39,6 @@ class TestSignVerify(object):
         assert verifying_key.verify(data, signature)
         assert deserialized_verifying_key.verify(data, signature)
         assert len(key_data) == PUB_KEY_LENGTH
-        assert len(signature) == SIGNATURE_LENGTH
 
     def test_sign_verify_other_data(self, make_hash):
         signing_key = CSigningKey.generate()
