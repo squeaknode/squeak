@@ -39,7 +39,7 @@ Create a squeak, verify the signature, and decrypt the content:
 >>> content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
 >>> timestamp = int(time.time())
 >>>
->>> squeak, decryption_key, signature = MakeSqueak(
+>>> squeak, decryption_key, sig_script = MakeSqueak(
 ...     signing_key,
 ...     content,
 ...     genesis_block_height,
@@ -48,9 +48,11 @@ Create a squeak, verify the signature, and decrypt the content:
 ... )
 >>>
 >>> print(squeak.GetHash())
-b"\xa7*\x1e\x08\xddg\x8cO\xc5\x8b@\xa0\xc5\x12\xa2'\xac-V\xcb\x1c\xb0_\xf1\x7f\xc1\x04\xb28s(\xbf"
+b'\x8b\xe6\x04\x87\xc0B\xb4\xf4of\x91p-\xc8Nw\xd2Z]_\x8b\x005\x0b\xb8\x19\x9b\xb0p\x98\xf6\x18'
+>>> print(squeak.GetAddress())
+1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq
 >>>
->>> VerifySqueakSignature(squeak, signature)
+>>> VerifySqueakSignature(squeak, sig_script)
 >>> decrypted_content = DecryptContent(squeak, decryption_key)
 >>>
 >>> print(decrypted_content.rstrip(b"\00"))

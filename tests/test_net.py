@@ -5,6 +5,7 @@ from io import BytesIO as _BytesIO
 from bitcoin.core import lx
 
 from squeak.core.signing import CSigningKey
+from squeak.core.signing import CSqueakAddress
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import CInterested
@@ -41,9 +42,11 @@ class TestCInv(object):
 
 class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
+        address = CSqueakAddress.from_verifying_key(verifying_key)
+        print(address)
         interested = [
-            CInterested(verifying_key.serialize(), -1, 10, fake_squeak_hash),
-            CInterested(verifying_key.serialize(), 30, 2000, fake_squeak_hash),
+            CInterested(address, -1, 10, fake_squeak_hash),
+            CInterested(address, 30, 2000, fake_squeak_hash),
         ]
         locator = CSqueakLocator(interested)
         stream = _BytesIO()

@@ -202,7 +202,6 @@ def VerifySqueakSignature(squeak_header, sig_script):
     """
     hash = squeak_header.GetHash()
     pubkey_script = squeak_header.scriptPubKey
-    print('verifyresult:', VerifyScript(sig_script, pubkey_script, hash))
     if not VerifyScript(sig_script, pubkey_script, hash):
         raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak header")
 

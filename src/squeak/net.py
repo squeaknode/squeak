@@ -8,7 +8,7 @@ from bitcoin.core import b2lx
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
-from squeak.core.script import CScript
+from squeak.core.signing import CSqueakAddress
 
 
 PROTO_VERSION = 60002
@@ -48,35 +48,35 @@ class CInterested(Serializable):
     """
     def __init__(
             self,
-            scriptPubKey=CScript(),
+            address,
             nMinBlockHeight=-1,
             nMaxBlockHeight=-1,
             hashReplySqk=b'\x00'*HASH_LENGTH,
             protover=PROTO_VERSION,
     ):
-        self.scriptPubKey = scriptPubKey
+        self.address = address
         self.nMinBlockHeight = nMinBlockHeight
         self.nMaxBlockHeight = nMaxBlockHeight
         self.hashReplySqk = hashReplySqk
 
     @classmethod
     def stream_deserialize(cls, f):
-        scriptPubKey = CScript(BytesSerializer.stream_deserialize(f))
+        address = CSqueakAddress.from_bytes(BytesSerializer.stream_deserialize(f))
         nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashReplySqk = ser_read(f, HASH_LENGTH)
-        return cls(scriptPubKey, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
+        return cls(address, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
 
     def stream_serialize(self, f):
-        BytesSerializer.stream_serialize(self.scriptPubKey, f)
+        BytesSerializer.stream_serialize(self.address, f)
         f.write(struct.pack(b"<i", self.nMinBlockHeight))
         f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
         f.write(self.hashReplySqk)
 
     def __repr__(self):
-        return "CInterested(scriptPubKey=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
-            (self.scriptPubKey, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
+        return "CInterested(address=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
+            (self.address, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
 
 
 class CInv(BitcoinCInv):
