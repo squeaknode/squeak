@@ -27,6 +27,5 @@ setup(
     install_requires=[
         "cryptography",
         "python-bitcoinlib",
-        "secp256k1",
     ],
 )

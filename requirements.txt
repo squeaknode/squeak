@@ -1,4 +1,3 @@
 cryptography
 python-bitcoinlib
-secp256k1
 ipdb
