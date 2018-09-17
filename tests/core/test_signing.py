@@ -6,8 +6,8 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CVerifyingKey
-from squeak.core.signing import VerifyScript
 from squeak.core.signing import PUB_KEY_LENGTH
+from squeak.core.script import VerifyScript
 
 
 @pytest.fixture
@@ -67,7 +67,6 @@ class TestSignVerify(object):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
-        data = make_hash()
         address = CSqueakAddress.from_verifying_key(verifying_key)
         pubkey_script = address.to_scriptPubKey()
 

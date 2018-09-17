@@ -4,7 +4,6 @@ from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
-from bitcoin.core.script import CScript
 
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import encrypt_content
@@ -15,8 +14,9 @@ from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
+from squeak.core.script import CScript
+from squeak.core.script import VerifyScript
 from squeak.core.signing import CSqueakAddress
-from squeak.core.signing import VerifyScript
 from squeak.core.signing import PUB_KEY_LENGTH
 
 
@@ -95,6 +95,10 @@ class CSqueakHeader(ImmutableSerializable):
     def is_reply(self):
         """Return True if the squeak is a reply to another squeak."""
         return not self.hashReplySqk == b'\x00'*HASH_LENGTH
+
+    def GetAddress(self):
+        """Return the squeak author adress."""
+        return CSqueakAddress.from_scriptPubKey(self.scriptPubKey)
 
     def __repr__(self):
         return "%s(%i, lx(%s), lx(%s), lx(%s), %s, %r, lx(%s), lx(%s), lx(%s), %s, 0x%08x)" % \
@@ -183,7 +187,7 @@ class VerifySqueakSignatureError(ValidationError):
 
 
 def SignSqueak(signing_key, squeak_header):
-    """Generate a signature for the given squeak header
+    """Generate a signature script for the given squeak header
 
     signing_key (CSigningKey)
     squeak_header (CSqueakHeader)
@@ -311,8 +315,8 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nNonce=nonce,
         encContent=enc_content,
     )
-    signature = SignSqueak(signing_key, squeak)
-    return squeak, decryption_key, signature
+    sig_script = SignSqueak(signing_key, squeak)
+    return squeak, decryption_key, sig_script
 
 
 __all__ = (

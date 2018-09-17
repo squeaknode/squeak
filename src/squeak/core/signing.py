@@ -1,22 +1,12 @@
-import bitcoin.core.script
-
-def _new_RawSignatureHash(script, hash, _, hashtype):
-    return (hash, None)
-
-bitcoin.core.script.RawSignatureHash = _new_RawSignatureHash
-
-
 from bitcoin.core.key import CECKey
 from bitcoin.core.key import CPubKey
-from bitcoin.core.script import CScript
-from bitcoin.core.scripteval import VerifyScript as BitcoinVerifyScript
-from bitcoin.core.scripteval import VerifyScriptError
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
-from bitcoin.wallet import CBitcoinAddress
 from bitcoin.wallet import P2PKHBitcoinAddress
 
 from secp256k1 import PrivateKey
+
+from squeak.core.script import CScript
 
 
 PUB_KEY_LENGTH = 33
@@ -114,11 +104,3 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
 def _generate_secret():
     return PrivateKey().private_key
-
-
-def VerifyScript(scriptSig, scriptPubKey, hash):
-    try:
-        BitcoinVerifyScript(scriptSig, scriptPubKey, hash, 0)
-        return True
-    except VerifyScriptError:
-        return False
