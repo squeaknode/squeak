@@ -68,7 +68,6 @@ class TestSignVerify(object):
         verifying_key = signing_key.get_verifying_key()
 
         data = make_hash()
-        sig_script = signing_key.sign_to_scriptSig(data)
         address = CSqueakAddress.from_verifying_key(verifying_key)
         pubkey_script = address.to_scriptPubKey()
 

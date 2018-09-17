@@ -10,6 +10,7 @@ from bitcoin.core.key import CECKey
 from bitcoin.core.key import CPubKey
 from bitcoin.core.script import CScript
 from bitcoin.core.scripteval import VerifyScript as BitcoinVerifyScript
+from bitcoin.core.scripteval import VerifyScriptError
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
 from bitcoin.wallet import CBitcoinAddress
@@ -116,4 +117,8 @@ def _generate_secret():
 
 
 def VerifyScript(scriptSig, scriptPubKey, hash):
-    return BitcoinVerifyScript(scriptSig, scriptPubKey, hash, 0)
+    try:
+        BitcoinVerifyScript(scriptSig, scriptPubKey, hash, 0)
+        return True
+    except VerifyScriptError:
+        return False

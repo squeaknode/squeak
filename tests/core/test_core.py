@@ -147,7 +147,7 @@ class TestMakeSqueak(object):
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
-            vchPubkey=squeak.vchPubkey,
+            scriptPubKey=squeak.scriptPubKey,
             vchEncPubkey=squeak.vchEncPubkey,
             vchEncDatakey=squeak.vchEncDatakey,
             vchIv=squeak.vchIv,
