@@ -1,10 +1,13 @@
+import os
+
+import hashlib
+
 from bitcoin.core.key import CECKey
 from bitcoin.core.key import CPubKey
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
+from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
-
-from secp256k1 import PrivateKey
 
 from squeak.core.script import CScript
 
@@ -14,7 +17,7 @@ SIGNATURE_LENGTH = 64  # Only if the signature is compacted
 SIGHASH_ALL = b'\01'
 
 
-class CSigningKey(Serializable):
+class CSigningKey(object):
     """Represents a DSA signing key.
 
     Args:
@@ -34,16 +37,15 @@ class CSigningKey(Serializable):
 
     @classmethod
     def generate(cls):
-        secret = _generate_secret()
+        secret = CSqueakSecret.generate()
+        return cls.from_secret(secret)
+
+    @classmethod
+    def from_secret(cls, secret):
         private_key = CECKey()
         private_key.set_secretbytes(secret)
         private_key.set_compressed(True)
         return cls(private_key)
-
-    def stream_serialize(self, f):
-        # TODO
-        # f.write(struct.pack(data)
-        pass
 
     def get_verifying_key(self):
         public_key = CPubKey(self.private_key.get_pubkey(), self.private_key)
@@ -102,5 +104,20 @@ class CSqueakAddress(P2PKHBitcoinAddress):
         return cls.from_pubkey(verifying_key.public_key)
 
 
-def _generate_secret():
-    return PrivateKey().private_key
+class CSqueakSecret(CBitcoinSecret):
+    # TODO: Override BASE58_PREFIXES
+
+    @classmethod
+    def generate(cls):
+        return cls.from_secret_bytes(_generate_secret_bytes())
+
+
+def _generate_secret_bytes():
+    ## https://en.bitcoin.it/wiki/Private_key#Range_of_valid_ECDSA_private_keys
+    min_key = b'\00' * 31 + b'\01'
+    max_key = bytes.fromhex('FFFF FFFF FFFF FFFF FFFF FFFF FFFF FFFE BAAE DCE6 AF48 A03B BFD2 5E8C D036 4140')
+
+    h = b'\00' * 32
+    while h < min_key or h > max_key:
+        h = hashlib.sha256(os.urandom(128)).digest()
+    return h
