@@ -11,7 +11,8 @@ Field Size | Description | Data type | Comments
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes if squeak is not a reply
 32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
-33 | vchPubkey | char[33] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key
+1+ | script length | var_int | Length of the scriptPubKey
+? | scriptPubKey | char[] | Usually contains the public key as a script setting up conditions to claim authorship.
 162 | vchEncPubkey | char[162] | The RSA public key of the squeak, as an RSA-1024 key
 128 | vchEncDatakey | char[128] | The RSA-encrypted AES data key used to encrypt and decrypt the squeak content
 16 | vchIv | char[16] | Random bytes used for the initialization vector
@@ -38,7 +39,8 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-33 | vchPubkey | char[33] | The DSA public key of the author of the squeak, as a compacted SECP256k1 key or null bytes
+1+ | address length | var_int | Length of the address
+? | address | char[] | The bytes of the public address identifying a squeak author
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
@@ -68,7 +70,7 @@ Field Size | Description | Data type | Comments
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | count | var_int | Number of squeak header structs
-451x? | headers | squeak_header[] | Squeak header structs
+? | headers | squeak_header[] | Squeak header structs
 
 #### msg_getaddr
 #### msg_ping
@@ -89,7 +91,8 @@ Field Size | Description | Data type | Comments
 4 | nOfferRequestId | uint32_t | Unique identifier of the offer request
 1571 | squeak | char[1571] | The full squeak struct
 32 | vchProof | char[32] | The decrypted challenge string, proving ownership of the RSA private key
-64 | vchSignature | char[64] | The DSA signature of the squeak, proving authorship of the squeak
+1+ | script length | var_int | Length of the scriptSig
+? | scriptSig | char[] | Computational Script for confirming authorship
 4 | nPrice | uint32_t | The price of the squeak in satoshis
 
 #### msg_getinvoice

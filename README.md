@@ -18,7 +18,7 @@ pip install squeaklib
 
 ### Examples
 
-Create a squeak, verify the signature, and decrypt the content:
+Create a squeak, verify it with the signature script, and decrypt the content:
 
 ```
 >>> import time
@@ -39,7 +39,7 @@ Create a squeak, verify the signature, and decrypt the content:
 >>> content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
 >>> timestamp = int(time.time())
 >>>
->>> squeak, decryption_key, signature = MakeSqueak(
+>>> squeak, decryption_key, sig_script = MakeSqueak(
 ...     signing_key,
 ...     content,
 ...     genesis_block_height,
@@ -48,16 +48,18 @@ Create a squeak, verify the signature, and decrypt the content:
 ... )
 >>>
 >>> print(squeak.GetHash())
-b"\xa7*\x1e\x08\xddg\x8cO\xc5\x8b@\xa0\xc5\x12\xa2'\xac-V\xcb\x1c\xb0_\xf1\x7f\xc1\x04\xb28s(\xbf"
+b'\x8b\xe6\x04\x87\xc0B\xb4\xf4of\x91p-\xc8Nw\xd2Z]_\x8b\x005\x0b\xb8\x19\x9b\xb0p\x98\xf6\x18'
+>>> print(squeak.GetAddress())
+1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq
 >>>
->>> VerifySqueakSignature(squeak, signature)
+>>> VerifySqueakSignature(squeak, sig_script)
 >>> decrypted_content = DecryptContent(squeak, decryption_key)
 >>>
 >>> print(decrypted_content.rstrip(b"\00"))
 b'Hello world!'
 ```
 
-Create a getheaders messages with a given public key and block height range, serialize it, and deserialize it:
+Create a getheaders messages with a given squeak address and block height range, serialize it, and deserialize it:
 
 ```
 >>> from io import BytesIO
@@ -66,11 +68,13 @@ Create a getheaders messages with a given public key and block height range, ser
 >>> from squeak.messages import msg_getheaders
 >>> from squeak.net import CInterested
 >>> from squeak.net import CSqueakLocator
+>>> from squeak.core.signing import CSqueakAddress
 >>>
->>> public_key = b'\x03U\xfc\xd2\xfe\x14:y\xe7\xd0n\x9asZK\xe9b\x05${\x18Z\xc7\xd4\x89vf\x1a\xdb\xf2\xc4\xd2$'
+>>>
+>>> address = CSqueakAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq')
 >>>
 >>> locator = CSqueakLocator([
-...     CInterested(public_key, 10, 15),
+...     CInterested(address, 10, 15),
 ... ])
 >>> getheaders = msg_getheaders(locator)
 >>>
@@ -78,5 +82,5 @@ Create a getheaders messages with a given public key and block height range, ser
 >>> getheaders_deserialized = MsgSerializable.stream_deserialize(BytesIO(getheaders_bytes))
 >>>
 >>> print(getheaders_deserialized)
-msg_getheaders(locator=CSqueakLocator(nVersion=60002 vInterested=[CInterested(vchPubkey=lx(24d2c4f2db1a667689d4c75a187b240562e94b5a739a6ed0e7793a14fed2fc5503) nMinBlockHeight=10 nMaxBlockHeight=15 hashReplySqk=0000000000000000000000000000000000000000000000000000000000000000)]))
+msg_getheaders(locator=CSqueakLocator(nVersion=60002 vInterested=[CInterested(address=P2PKHBitcoinAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq') nMinBlockHeight=10 nMaxBlockHeight=15 hashReplySqk=0000000000000000000000000000000000000000000000000000000000000000)]))
 ```

@@ -20,16 +20,12 @@ from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.core.signing import CSigningKey
+from squeak.core.signing import CSqueakAddress
 
 
 @pytest.fixture
 def signing_key():
     return CSigningKey.generate()
-
-
-@pytest.fixture
-def verifying_key(signing_key):
-    return signing_key.get_verifying_key()
 
 
 @pytest.fixture
@@ -89,6 +85,10 @@ class TestMakeSqueak(object):
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
 
+        address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
+
+        assert squeak.GetAddress() == address
+
     def test_decrypt_squeak(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
         content = b"Hello world!"
         padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
@@ -147,7 +147,7 @@ class TestMakeSqueak(object):
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
-            vchPubkey=squeak.vchPubkey,
+            scriptPubKey=squeak.scriptPubKey,
             vchEncPubkey=squeak.vchEncPubkey,
             vchEncDatakey=squeak.vchEncDatakey,
             vchIv=squeak.vchIv,
