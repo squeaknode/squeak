@@ -17,7 +17,6 @@ from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.script import CScript
 from squeak.core.script import VerifyScript
 from squeak.core.signing import CSqueakAddress
-from squeak.core.signing import PUB_KEY_LENGTH
 
 
 # Core definitions

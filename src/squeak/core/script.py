@@ -1,7 +1,9 @@
 import bitcoin.core.script
 
+
 def _new_RawSignatureHash(script, hash, _, hashtype):
     return (hash, None)
+
 
 bitcoin.core.script.RawSignatureHash = _new_RawSignatureHash
 
