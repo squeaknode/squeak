@@ -29,13 +29,6 @@ class CSigningKey(object):
         self.private_key = private_key
 
     @classmethod
-    def stream_deserialize(cls, f):
-        c = cls()
-        # TODO
-        # c.key =
-        return c
-
-    @classmethod
     def generate(cls):
         secret = CSqueakSecret.generate()
         return cls.from_secret(secret)
@@ -113,7 +106,7 @@ class CSqueakSecret(CBitcoinSecret):
 
 
 def _generate_secret_bytes():
-    ## https://en.bitcoin.it/wiki/Private_key#Range_of_valid_ECDSA_private_keys
+    # https://en.bitcoin.it/wiki/Private_key#Range_of_valid_ECDSA_private_keys
     min_key = b'\00' * 31 + b'\01'
     max_key = bytes.fromhex('FFFF FFFF FFFF FFFF FFFF FFFF FFFF FFFE BAAE DCE6 AF48 A03B BFD2 5E8C D036 4140')
 
