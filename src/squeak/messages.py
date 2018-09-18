@@ -426,12 +426,12 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        strDecryptionKey = VarStringSerializer.stream_deserialize(f)
+        strDecryptionKey = BytesSerializer.stream_deserialize(f)
         return cls(nOfferId, strDecryptionKey)
 
     def msg_ser(self, f):
         f.write(struct.pack(b"<I", self.nOfferId))
-        VarStringSerializer.stream_serialize(self.strDecryptionKey, f)
+        BytesSerializer.stream_serialize(self.strDecryptionKey, f)
 
     def __repr__(self):
         return "msg_fulfill(nOfferId=%i strDecryptionKey=lx(%s))" % \
