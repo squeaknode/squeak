@@ -416,26 +416,26 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
     def __init__(
             self,
             nOfferId=0,
-            strDecryptionKey=b'',
+            vchDecryptionKey=b'',
             protover=PROTO_VERSION,
     ):
         super(msg_fulfill, self).__init__(protover)
         self.nOfferId = nOfferId
-        self.strDecryptionKey = strDecryptionKey
+        self.vchDecryptionKey = vchDecryptionKey
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        strDecryptionKey = BytesSerializer.stream_deserialize(f)
-        return cls(nOfferId, strDecryptionKey)
+        vchDecryptionKey = BytesSerializer.stream_deserialize(f)
+        return cls(nOfferId, vchDecryptionKey)
 
     def msg_ser(self, f):
         f.write(struct.pack(b"<I", self.nOfferId))
-        BytesSerializer.stream_serialize(self.strDecryptionKey, f)
+        BytesSerializer.stream_serialize(self.vchDecryptionKey, f)
 
     def __repr__(self):
-        return "msg_fulfill(nOfferId=%i strDecryptionKey=lx(%s))" % \
-            (self.nOfferId, b2lx(self.strDecryptionKey))
+        return "msg_fulfill(nOfferId=%i vchDecryptionKey=lx(%s))" % \
+            (self.nOfferId, b2lx(self.vchDecryptionKey))
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
