@@ -2,6 +2,8 @@ import os
 
 import pytest
 
+from bitcoin.wallet import CBitcoinAddressError
+
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
@@ -73,3 +75,7 @@ class TestSignVerify(object):
         address_from_script = CSqueakAddress.from_scriptPubKey(pubkey_script)
 
         assert address_from_script == address
+
+    def test_address_to_pubkey_invalid(self):
+        with pytest.raises(CBitcoinAddressError):
+            CSqueakAddress.from_scriptPubKey(b'')
