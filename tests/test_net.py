@@ -47,6 +47,7 @@ class TestCSqueakLocator(object):
         interested = [
             CInterested(address, -1, 10, fake_squeak_hash),
             CInterested(address, 30, 2000, fake_squeak_hash),
+            CInterested(None, 0, 100, fake_squeak_hash),
         ]
         locator = CSqueakLocator(interested)
         stream = _BytesIO()
@@ -56,4 +57,7 @@ class TestCSqueakLocator(object):
 
         deserialized = CSqueakLocator.stream_deserialize(serialized)
         assert deserialized == locator
-        assert len(deserialized.vInterested) == 2
+        print(deserialized)
+        assert len(deserialized.vInterested) == 3
+        assert deserialized.vInterested[1].address == address
+        assert deserialized.vInterested[2].address is None
