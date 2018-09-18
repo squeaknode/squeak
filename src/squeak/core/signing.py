@@ -93,7 +93,6 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
 
 class CSqueakSecret(CBitcoinSecret):
-    # TODO: Override BASE58_PREFIXES
 
     @classmethod
     def generate(cls):
