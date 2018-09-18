@@ -30,7 +30,7 @@ class TestSignVerify(object):
 
         assert verifying_key.verify(data, signature)
 
-    def test_serialize_deserialize(self, make_hash):
+    def test_serialize_deserialize_verifying_key(self, make_hash):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -43,6 +43,18 @@ class TestSignVerify(object):
         assert verifying_key.verify(data, signature)
         assert deserialized_verifying_key.verify(data, signature)
         assert len(key_data) == PUB_KEY_LENGTH
+
+    def test_serialize_deserialize_signing_key(self, make_hash):
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
+
+        key_data = str(signing_key)
+        deserialized_signing_key = CSigningKey.from_string(key_data)
+
+        data = make_hash()
+        signature = deserialized_signing_key.sign(data)
+
+        assert verifying_key.verify(data, signature)
 
     def test_sign_verify_other_data(self, make_hash):
         signing_key = CSigningKey.generate()

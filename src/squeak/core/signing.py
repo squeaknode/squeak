@@ -31,6 +31,11 @@ class CSigningKey(object):
         private_key = CBitcoinSecret.from_secret_bytes(_generate_secret_bytes())
         return cls(private_key)
 
+    @classmethod
+    def from_string(cls, data):
+        private_key = CBitcoinSecret(data)
+        return cls(private_key)
+
     def get_verifying_key(self):
         public_key = self.private_key.pub
         return CVerifyingKey(public_key)
@@ -43,6 +48,9 @@ class CSigningKey(object):
         signature = self.sign(data)
         verifying_key = self.get_verifying_key()
         return MakeSigScript(signature, verifying_key)
+
+    def __str__(self):
+        return str(self.private_key)
 
     def __repr__(self):
         return "CSigningKey(private_key=%s)" % \
