@@ -2,7 +2,6 @@ import os
 
 import hashlib
 
-from bitcoin.core.key import CECKey
 from bitcoin.core.key import CPubKey
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import ser_read
@@ -20,7 +19,7 @@ class CSigningKey(object):
     """Represents a DSA signing key.
 
     Args:
-        private_key (CECKey): An elliptic curve private key.
+        private_key (CBitcoinSecret): An elliptic curve private key.
 
     """
 
@@ -29,18 +28,11 @@ class CSigningKey(object):
 
     @classmethod
     def generate(cls):
-        secret = CSqueakSecret.generate()
-        return cls.from_secret(secret)
-
-    @classmethod
-    def from_secret(cls, secret):
-        private_key = CECKey()
-        private_key.set_secretbytes(secret)
-        private_key.set_compressed(True)
+        private_key = CBitcoinSecret.from_secret_bytes(_generate_secret_bytes())
         return cls(private_key)
 
     def get_verifying_key(self):
-        public_key = CPubKey(self.private_key.get_pubkey(), self.private_key)
+        public_key = self.private_key.pub
         return CVerifyingKey(public_key)
 
     def sign(self, data):
@@ -90,13 +82,6 @@ class CSqueakAddress(P2PKHBitcoinAddress):
     @classmethod
     def from_verifying_key(cls, verifying_key):
         return cls.from_pubkey(verifying_key.public_key)
-
-
-class CSqueakSecret(CBitcoinSecret):
-
-    @classmethod
-    def generate(cls):
-        return cls.from_secret_bytes(_generate_secret_bytes())
 
 
 def _generate_secret_bytes():
