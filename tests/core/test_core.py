@@ -13,6 +13,7 @@ from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
 from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
+from squeak.core import CheckSqueakHeaderError
 from squeak.core import CONTENT_LENGTH
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
@@ -157,4 +158,35 @@ class TestMakeSqueak(object):
         )
 
         with pytest.raises(CheckSqueakError):
+            CheckSqueak(fake_squeak)
+
+    def test_make_squeak_pubkey_script_invalid(self, signing_key, fake_squeak_hash, genesis_block_height, genesis_block_hash):
+        content = b"Hello world!"
+        padded_content = content.ljust(CONTENT_LENGTH, b"\x00")
+        timestamp = int(time.time())
+
+        squeak, _, _ = MakeSqueak(
+            signing_key,
+            padded_content,
+            genesis_block_height,
+            genesis_block_hash,
+            timestamp,
+            fake_squeak_hash,
+        )
+
+        fake_squeak = CSqueak(
+            hashEncContent=squeak.hashEncContent,
+            hashReplySqk=squeak.hashReplySqk,
+            hashBlock=squeak.hashBlock,
+            nBlockHeight=squeak.nBlockHeight,
+            scriptPubKey=b'',
+            vchEncPubkey=squeak.vchEncPubkey,
+            vchEncDatakey=squeak.vchEncDatakey,
+            vchIv=squeak.vchIv,
+            nTime=squeak.nTime,
+            nNonce=squeak.nNonce,
+            encContent=squeak.encContent,
+        )
+
+        with pytest.raises(CheckSqueakHeaderError):
             CheckSqueak(fake_squeak)

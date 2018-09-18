@@ -33,7 +33,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 4 | nVersion | uint32_t | The protocol version
 ? | count | var_int | Number of interested structs
-73x? | interesteds | interested[] | Interested structs
+? | interesteds | interested[] | Interested structs
 
 #### interested
 
@@ -89,7 +89,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 4 | nOfferId | uint32_t | Unique identifier of the offer
 4 | nOfferRequestId | uint32_t | Unique identifier of the offer request
-1571 | squeak | char[1571] | The full squeak struct
+? | squeak | char[1571] | The full squeak struct
 32 | vchProof | char[32] | The decrypted challenge string, proving ownership of the RSA private key
 1+ | script length | var_int | Length of the scriptSig
 ? | scriptSig | char[] | Computational Script for confirming authorship

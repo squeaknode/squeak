@@ -48,7 +48,7 @@ class CInterested(Serializable):
     """
     def __init__(
             self,
-            address,
+            address=None,
             nMinBlockHeight=-1,
             nMaxBlockHeight=-1,
             hashReplySqk=b'\x00'*HASH_LENGTH,
@@ -61,14 +61,16 @@ class CInterested(Serializable):
 
     @classmethod
     def stream_deserialize(cls, f):
-        address = CSqueakAddress.from_bytes(BytesSerializer.stream_deserialize(f))
+        address_bytes = BytesSerializer.stream_deserialize(f)
+        address = CSqueakAddress.from_bytes(address_bytes) if address_bytes else None
         nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashReplySqk = ser_read(f, HASH_LENGTH)
         return cls(address, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
 
     def stream_serialize(self, f):
-        BytesSerializer.stream_serialize(self.address, f)
+        address_bytes = self.address or b''
+        BytesSerializer.stream_serialize(address_bytes, f)
         f.write(struct.pack(b"<i", self.nMinBlockHeight))
         f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH

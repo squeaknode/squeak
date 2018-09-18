@@ -9,12 +9,11 @@ from bitcoin.core.serialize import ser_read
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
 
-from squeak.core.script import CScript
+from squeak.core.script import MakeSigScript
 
 
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64  # Only if the signature is compacted
-SIGHASH_ALL = b'\01'
 
 
 class CSigningKey(object):
@@ -51,11 +50,7 @@ class CSigningKey(object):
     def sign_to_scriptSig(self, data):
         signature = self.sign(data)
         verifying_key = self.get_verifying_key()
-        pubkey_bytes = verifying_key.serialize()
-        script = CScript()
-        script += (signature + SIGHASH_ALL)
-        script += pubkey_bytes
-        return script
+        return MakeSigScript(signature, verifying_key)
 
     def __repr__(self):
         return "CSigningKey(private_key=%s)" % \
@@ -98,7 +93,6 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
 
 class CSqueakSecret(CBitcoinSecret):
-    # TODO: Override BASE58_PREFIXES
 
     @classmethod
     def generate(cls):
