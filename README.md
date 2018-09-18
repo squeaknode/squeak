@@ -33,8 +33,8 @@ Create a squeak, verify it with the signature script, and decrypt the content:
 >>>
 >>> signing_key = CSigningKey.generate()
 >>>
->>> genesis_block_height = 0
->>> genesis_block_hash = lx('4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b')
+>>> block_height = 0
+>>> block_hash = lx('4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b')
 >>>
 >>> content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
 >>> timestamp = int(time.time())
@@ -42,8 +42,8 @@ Create a squeak, verify it with the signature script, and decrypt the content:
 >>> squeak, decryption_key, sig_script = MakeSqueak(
 ...     signing_key,
 ...     content,
-...     genesis_block_height,
-...     genesis_block_hash,
+...     block_height,
+...     block_hash,
 ...     timestamp,
 ... )
 >>>
