@@ -13,7 +13,7 @@ Field Size | Description | Data type | Comments
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
 1+ | script length | var_int | Length of the scriptPubKey
 ? | scriptPubKey | char[] | Usually contains the public key as a script setting up conditions to claim authorship.
-162 | vchEncPubkey | char[162] | The RSA public key of the squeak, as an RSA-1024 key
+162 | vchEncryptionKey | char[162] | The RSA public key of the squeak, as an RSA-1024 key
 128 | vchEncDatakey | char[128] | The RSA-encrypted AES data key used to encrypt and decrypt the squeak content
 16 | vchIv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
@@ -119,4 +119,5 @@ Field Size | Description | Data type | Comments
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 4 | nOfferId | uint32_t | Unique identifier of the offer
-? | strDecryptionKey | var_str | The RSA private key for the squeak
+1+ | key length | var_int | Length of the decryption key
+? | vchDecryptionKey | char[] | The RSA private key for the squeak
