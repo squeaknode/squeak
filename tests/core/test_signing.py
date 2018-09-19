@@ -34,15 +34,17 @@ class TestSignVerify(object):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
-        key_data = verifying_key.serialize()
-        deserialized_verifying_key = CVerifyingKey.deserialize(key_data)
+        serialized = verifying_key.serialize()
+        deserialized = CVerifyingKey.deserialize(serialized)
+        serialized2 = deserialized.serialize()
+        deserialized2 = CVerifyingKey.deserialize(serialized2)
 
         data = make_hash()
         signature = signing_key.sign(data)
 
         assert verifying_key.verify(data, signature)
-        assert deserialized_verifying_key.verify(data, signature)
-        assert len(key_data) == PUB_KEY_LENGTH
+        assert deserialized2.verify(data, signature)
+        assert len(serialized2) == PUB_KEY_LENGTH
 
     def test_serialize_deserialize_signing_key(self, make_hash):
         signing_key = CSigningKey.generate()

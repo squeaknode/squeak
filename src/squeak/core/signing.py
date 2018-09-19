@@ -71,11 +71,11 @@ class CVerifyingKey(Serializable):
     @classmethod
     def stream_deserialize(cls, f):
         data = ser_read(f, PUB_KEY_LENGTH)
-        return CPubKey(data)
+        public_key = CPubKey(data)
+        return cls(public_key)
 
     def stream_serialize(self, f):
-        data = bytes(self.public_key)
-        f.write(data)
+        f.write(self.public_key)
 
     def verify(self, data, signature):
         return self.public_key.verify(data, signature)
