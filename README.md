@@ -82,5 +82,5 @@ Create a getheaders messages with a given squeak address and block height range,
 >>> getheaders_deserialized = MsgSerializable.stream_deserialize(BytesIO(getheaders_bytes))
 >>>
 >>> print(getheaders_deserialized)
-msg_getheaders(locator=CSqueakLocator(nVersion=60002 vInterested=[CInterested(address=P2PKHBitcoinAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq') nMinBlockHeight=10 nMaxBlockHeight=15 hashReplySqk=0000000000000000000000000000000000000000000000000000000000000000)]))
+msg_getheaders(locator=CSqueakLocator(nVersion=60002 vInterested=[CInterested(address=CSqueakAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq') nMinBlockHeight=10 nMaxBlockHeight=15 hashReplySqk=0000000000000000000000000000000000000000000000000000000000000000)]))
 ```

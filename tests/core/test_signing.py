@@ -90,6 +90,19 @@ class TestSignVerify(object):
 
         assert address_from_script == address
 
+    def test_address_to_string(self, make_hash):
+        signing_key = CSigningKey.generate()
+        verifying_key = signing_key.get_verifying_key()
+
+        address = CSqueakAddress.from_verifying_key(verifying_key)
+        address_str = str(address)
+
+        address_from_str = CSqueakAddress(address_str)
+
+        assert address_from_str == address
+        assert isinstance(address, CSqueakAddress)
+        assert isinstance(address_from_str, CSqueakAddress)
+
     def test_address_to_pubkey_invalid(self):
         with pytest.raises(CBitcoinAddressError):
             CSqueakAddress.from_scriptPubKey(b'')

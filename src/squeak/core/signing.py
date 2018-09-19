@@ -89,7 +89,9 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
     def from_verifying_key(cls, verifying_key):
-        return cls.from_pubkey(verifying_key.public_key)
+        self = cls.from_pubkey(verifying_key.public_key)
+        self.__class__ = CSqueakAddress
+        return self
 
     @classmethod
     def from_bytes(cls, data, nVersion=None):
