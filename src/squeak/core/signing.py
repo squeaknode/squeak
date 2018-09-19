@@ -91,6 +91,12 @@ class CSqueakAddress(P2PKHBitcoinAddress):
     def from_verifying_key(cls, verifying_key):
         return cls.from_pubkey(verifying_key.public_key)
 
+    @classmethod
+    def from_bytes(cls, data, nVersion=None):
+        self = super(CSqueakAddress, cls).from_bytes(data, nVersion)
+        self.__class__ = CSqueakAddress
+        return self
+
 
 def _generate_secret_bytes():
     # https://en.bitcoin.it/wiki/Private_key#Range_of_valid_ECDSA_private_keys
