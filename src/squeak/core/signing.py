@@ -15,81 +15,49 @@ PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64  # Only if the signature is compacted
 
 
-class CSigningKey(object):
+class CSigningKey(CBitcoinSecret):
     """Represents a DSA signing key.
-
-    Args:
-        private_key (CBitcoinSecret): An elliptic curve private key.
 
     """
 
-    def __init__(self, private_key):
-        self.private_key = private_key
-
     @classmethod
     def generate(cls):
-        private_key = CBitcoinSecret.from_secret_bytes(_generate_secret_bytes())
-        return cls(private_key)
-
-    @classmethod
-    def from_string(cls, data):
-        private_key = CBitcoinSecret(data)
-        return cls(private_key)
+        return cls.from_secret_bytes(_generate_secret_bytes())
 
     def get_verifying_key(self):
-        public_key = self.private_key.pub
-        return CVerifyingKey(public_key)
-
-    def sign(self, data):
-        signature = self.private_key.sign(data)
-        return signature
+        public_key = self.pub
+        return CVerifyingKey.from_pubkey(public_key)
 
     def sign_to_scriptSig(self, data):
         signature = self.sign(data)
         verifying_key = self.get_verifying_key()
         return MakeSigScript(signature, verifying_key)
 
-    def __str__(self):
-        return str(self.private_key)
 
-    def __repr__(self):
-        return "CSigningKey(private_key=%s)" % \
-            (repr(self.private_key))
-
-
-class CVerifyingKey(Serializable):
+class CVerifyingKey(CPubKey, Serializable):
     """Represents a DSA verifying key.
-
-    Args:
-        public_key (CPubKey): An elliptic curve public key.
 
     """
 
-    def __init__(self, public_key):
-        self.public_key = public_key
+    @classmethod
+    def from_pubkey(cls, pubkey):
+        data = bytes(pubkey)
+        return cls(data)
 
     @classmethod
     def stream_deserialize(cls, f):
         data = ser_read(f, PUB_KEY_LENGTH)
-        public_key = CPubKey(data)
-        return cls(public_key)
+        return cls(data)
 
     def stream_serialize(self, f):
-        f.write(self.public_key)
-
-    def verify(self, data, signature):
-        return self.public_key.verify(data, signature)
-
-    def __repr__(self):
-        return "CVerifyingKey(public_key=%s)" % \
-            (repr(self.public_key))
+        f.write(self)
 
 
 class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
     def from_verifying_key(cls, verifying_key):
-        self = cls.from_pubkey(verifying_key.public_key)
+        self = cls.from_pubkey(verifying_key)
         self.__class__ = CSqueakAddress
         return self
 
