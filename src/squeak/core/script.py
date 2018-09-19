@@ -15,8 +15,7 @@ def VerifyScript(scriptSig, scriptPubKey, hash):
 
 
 def MakeSigScript(signature, verifying_key):
-    pubkey_bytes = verifying_key.serialize()
     script = CScript()
     script += (signature + SIGHASH_ALL)
-    script += pubkey_bytes
+    script += verifying_key
     return script

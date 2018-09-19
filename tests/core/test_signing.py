@@ -51,7 +51,7 @@ class TestSignVerify(object):
         verifying_key = signing_key.get_verifying_key()
 
         key_data = str(signing_key)
-        deserialized_signing_key = CSigningKey.from_string(key_data)
+        deserialized_signing_key = CSigningKey(key_data)
 
         data = make_hash()
         signature = deserialized_signing_key.sign(data)
