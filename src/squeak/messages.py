@@ -20,7 +20,7 @@ from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.net import CAddress
 
-import squeak
+import squeak.params
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
@@ -42,7 +42,7 @@ class MsgSerializable(object):
         f = _BytesIO()
         self.msg_ser(f)
         body = f.getvalue()
-        res = squeak.params.MESSAGE_START
+        res = squeak.params.params.MESSAGE_START
         res += self.command
         res += b"\x00" * (12 - len(self.command))
         res += struct.pack(b"<I", len(body))
@@ -65,9 +65,9 @@ class MsgSerializable(object):
         recvbuf = ser_read(f, 4 + 12 + 4 + 4)
 
         # check magic
-        if recvbuf[:4] != squeak.params.MESSAGE_START:
+        if recvbuf[:4] != squeak.params.params.MESSAGE_START:
             raise ValueError("Invalid message start '%s', expected '%s'" %
-                             (b2x(recvbuf[:4]), b2x(squeak.params.MESSAGE_START)))
+                             (b2x(recvbuf[:4]), b2x(squeak.params.params.MESSAGE_START)))
 
         # remaining header fields: command, msg length, checksum
         command = recvbuf[4:4+12].split(b"\x00", 1)[0]
