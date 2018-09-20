@@ -34,10 +34,10 @@ class TestSignVerify(object):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
-        serialized = verifying_key.serialize()
-        deserialized = CVerifyingKey.deserialize(serialized)
-        serialized2 = deserialized.serialize()
-        deserialized2 = CVerifyingKey.deserialize(serialized2)
+        serialized = bytes(verifying_key)
+        deserialized = CVerifyingKey(serialized)
+        serialized2 = bytes(deserialized)
+        deserialized2 = CVerifyingKey(serialized2)
 
         data = make_hash()
         signature = signing_key.sign(data)

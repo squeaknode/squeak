@@ -3,8 +3,6 @@ import os
 import hashlib
 
 from bitcoin.core.key import CPubKey
-from bitcoin.core.serialize import Serializable
-from bitcoin.core.serialize import ser_read
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
 
@@ -34,7 +32,7 @@ class CSigningKey(CBitcoinSecret):
         return MakeSigScript(signature, verifying_key)
 
 
-class CVerifyingKey(CPubKey, Serializable):
+class CVerifyingKey(CPubKey):
     """Represents a DSA verifying key.
 
     """
@@ -43,14 +41,6 @@ class CVerifyingKey(CPubKey, Serializable):
     def from_pubkey(cls, pubkey):
         data = bytes(pubkey)
         return cls(data)
-
-    @classmethod
-    def stream_deserialize(cls, f):
-        data = ser_read(f, PUB_KEY_LENGTH)
-        return cls(data)
-
-    def stream_serialize(self, f):
-        f.write(self)
 
 
 class CSqueakAddress(P2PKHBitcoinAddress):
