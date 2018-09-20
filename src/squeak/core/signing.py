@@ -6,8 +6,6 @@ from bitcoin.core.key import CPubKey
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
 
-from squeak.core.script import MakeSigScript
-
 
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64  # Only if the signature is compacted
@@ -25,11 +23,6 @@ class CSigningKey(CBitcoinSecret):
     def get_verifying_key(self):
         public_key = self.pub
         return CVerifyingKey.from_pubkey(public_key)
-
-    def sign_to_scriptSig(self, data):
-        signature = self.sign(data)
-        verifying_key = self.get_verifying_key()
-        return MakeSigScript(signature, verifying_key)
 
 
 class CVerifyingKey(CPubKey):
