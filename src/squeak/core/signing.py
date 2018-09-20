@@ -27,6 +27,7 @@ class CSigningKey(CBitcoinSecret):
 
 
 class CVerifyingKey(CPubKey):
+
     """Represents a DSA verifying key.
 
     """
