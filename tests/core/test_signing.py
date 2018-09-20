@@ -2,14 +2,12 @@ import os
 
 import pytest
 
-from bitcoin.wallet import CBitcoinAddressError
-
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
+from squeak.core.signing import CSqueakAddressError
 from squeak.core.signing import CVerifyingKey
 from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.script import VerifyScript
 
 
 @pytest.fixture
@@ -34,10 +32,10 @@ class TestSignVerify(object):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
-        serialized = verifying_key.serialize()
-        deserialized = CVerifyingKey.deserialize(serialized)
-        serialized2 = deserialized.serialize()
-        deserialized2 = CVerifyingKey.deserialize(serialized2)
+        serialized = bytes(verifying_key)
+        deserialized = CVerifyingKey(serialized)
+        serialized2 = bytes(deserialized)
+        deserialized2 = CVerifyingKey(serialized2)
 
         data = make_hash()
         signature = signing_key.sign(data)
@@ -68,17 +66,6 @@ class TestSignVerify(object):
 
         assert not verifying_key.verify(data2, signature)
 
-    def test_sign_verify_script(self, make_hash):
-        signing_key = CSigningKey.generate()
-        verifying_key = signing_key.get_verifying_key()
-
-        data = make_hash()
-        sig_script = signing_key.sign_to_scriptSig(data)
-        address = CSqueakAddress.from_verifying_key(verifying_key)
-        pubkey_script = address.to_scriptPubKey()
-
-        VerifyScript(sig_script, pubkey_script, data)
-
     def test_address_to_pubkey(self, make_hash):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
@@ -104,5 +91,5 @@ class TestSignVerify(object):
         assert isinstance(address_from_str, CSqueakAddress)
 
     def test_address_to_pubkey_invalid(self):
-        with pytest.raises(CBitcoinAddressError):
+        with pytest.raises(CSqueakAddressError):
             CSqueakAddress.from_scriptPubKey(b'')

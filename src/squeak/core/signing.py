@@ -3,12 +3,9 @@ import os
 import hashlib
 
 from bitcoin.core.key import CPubKey
-from bitcoin.core.serialize import Serializable
-from bitcoin.core.serialize import ser_read
+from bitcoin.wallet import CBitcoinAddressError
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
-
-from squeak.core.script import MakeSigScript
 
 
 PUB_KEY_LENGTH = 33
@@ -28,13 +25,9 @@ class CSigningKey(CBitcoinSecret):
         public_key = self.pub
         return CVerifyingKey.from_pubkey(public_key)
 
-    def sign_to_scriptSig(self, data):
-        signature = self.sign(data)
-        verifying_key = self.get_verifying_key()
-        return MakeSigScript(signature, verifying_key)
 
+class CVerifyingKey(CPubKey):
 
-class CVerifyingKey(CPubKey, Serializable):
     """Represents a DSA verifying key.
 
     """
@@ -44,13 +37,11 @@ class CVerifyingKey(CPubKey, Serializable):
         data = bytes(pubkey)
         return cls(data)
 
-    @classmethod
-    def stream_deserialize(cls, f):
-        data = ser_read(f, PUB_KEY_LENGTH)
-        return cls(data)
 
-    def stream_serialize(self, f):
-        f.write(self)
+class CSqueakAddressError(Exception):
+    """An error that occurs when the squeak address
+    is not valid
+    """
 
 
 class CSqueakAddress(P2PKHBitcoinAddress):
@@ -63,7 +54,24 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
     def from_bytes(cls, data, nVersion=None):
-        self = super(CSqueakAddress, cls).from_bytes(data, nVersion)
+        try:
+            self = super(CSqueakAddress, cls).from_bytes(data, nVersion)
+        except CBitcoinAddressError:
+            raise CSqueakAddressError("CSqueakAddress() : bytes do not convert to a valid squeak address")
+
+        if not self.__class__ == P2PKHBitcoinAddress:
+            raise CSqueakAddressError("CSqueakAddress() : bytes do not convert to a valid squeak address")
+
+        self.__class__ = CSqueakAddress
+        return self
+
+    @classmethod
+    def from_scriptPubKey(cls, scriptPubKey):
+        try:
+            self = super(CSqueakAddress, cls).from_scriptPubKey(scriptPubKey)
+        except CBitcoinAddressError:
+            raise CSqueakAddressError("CSqueakAddress() : pubkey_script does not convert to a valid squeak address")
+
         self.__class__ = CSqueakAddress
         return self
 

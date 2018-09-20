@@ -4,7 +4,6 @@ from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
-from bitcoin.wallet import CBitcoinAddressError
 
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import encrypt_content
@@ -16,8 +15,11 @@ from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.script import CScript
+from squeak.core.script import MakeSigScript
 from squeak.core.script import VerifyScript
+from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
+from squeak.core.signing import CSqueakAddressError
 
 
 # Core definitions
@@ -192,7 +194,10 @@ def SignSqueak(signing_key, squeak_header):
     signing_key (CSigningKey)
     squeak_header (CSqueakHeader)
     """
-    return signing_key.sign_to_scriptSig(squeak_header.GetHash())
+    squeak_hash = squeak_header.GetHash()
+    signature = signing_key.sign(squeak_hash)
+    verifying_key = signing_key.get_verifying_key()
+    return MakeSigScript(signature, verifying_key)
 
 
 def VerifySqueakSignature(squeak_header, sig_script):
@@ -201,9 +206,11 @@ def VerifySqueakSignature(squeak_header, sig_script):
     squeak_header (CSqueakHeader)
     sig_script (CScript)
     """
-    hash = squeak_header.GetHash()
+    squeak_hash = squeak_header.GetHash()
     pubkey_script = squeak_header.scriptPubKey
-    if not VerifyScript(sig_script, pubkey_script, hash):
+    try:
+        VerifyScript(sig_script, pubkey_script, squeak_hash)
+    except VerifyScriptError:
         raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak header")
 
 
@@ -262,7 +269,7 @@ def CheckSqueakHeader(squeak_header):
     # Pubkey script check
     try:
         squeak_header.GetAddress()
-    except CBitcoinAddressError:
+    except CSqueakAddressError:
         raise CheckSqueakHeaderError("CheckSqueakError() : scriptPubKey does not convert to a valid address")
 
 
