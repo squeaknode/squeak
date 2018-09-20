@@ -3,6 +3,7 @@ import os
 import hashlib
 
 from bitcoin.core.key import CPubKey
+from bitcoin.wallet import CBitcoinAddressError
 from bitcoin.wallet import CBitcoinSecret
 from bitcoin.wallet import P2PKHBitcoinAddress
 
@@ -36,6 +37,12 @@ class CVerifyingKey(CPubKey):
         return cls(data)
 
 
+class CSqueakAddressError(Exception):
+    """An error that occurs when the squeak address
+    is not valid
+    """
+
+
 class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
@@ -46,7 +53,24 @@ class CSqueakAddress(P2PKHBitcoinAddress):
 
     @classmethod
     def from_bytes(cls, data, nVersion=None):
-        self = super(CSqueakAddress, cls).from_bytes(data, nVersion)
+        try:
+            self = super(CSqueakAddress, cls).from_bytes(data, nVersion)
+        except CBitcoinAddressError:
+            raise CSqueakAddressError("CSqueakAddress() : bytes do not convert to a valid squeak address")
+
+        if not self.__class__ == P2PKHBitcoinAddress:
+            raise CSqueakAddressError("CSqueakAddress() : bytes do not convert to a valid squeak address")
+
+        self.__class__ = CSqueakAddress
+        return self
+
+    @classmethod
+    def from_scriptPubKey(cls, scriptPubKey):
+        try:
+            self = super(CSqueakAddress, cls).from_scriptPubKey(scriptPubKey)
+        except CBitcoinAddressError:
+            raise CSqueakAddressError("CSqueakAddress() : pubkey_script does not convert to a valid squeak address")
+
         self.__class__ = CSqueakAddress
         return self
 

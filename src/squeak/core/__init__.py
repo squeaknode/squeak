@@ -4,7 +4,6 @@ from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
 from bitcoin.core import b2lx
-from bitcoin.wallet import CBitcoinAddressError
 
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import encrypt_content
@@ -20,6 +19,7 @@ from squeak.core.script import MakeSigScript
 from squeak.core.script import VerifyScript
 from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
+from squeak.core.signing import CSqueakAddressError
 
 
 # Core definitions
@@ -269,7 +269,7 @@ def CheckSqueakHeader(squeak_header):
     # Pubkey script check
     try:
         squeak_header.GetAddress()
-    except CBitcoinAddressError:
+    except CSqueakAddressError:
         raise CheckSqueakHeaderError("CheckSqueakError() : scriptPubKey does not convert to a valid address")
 
 
