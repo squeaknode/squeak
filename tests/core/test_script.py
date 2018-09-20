@@ -7,6 +7,7 @@ from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
 from squeak.core.script import MakeSigScript
 from squeak.core.script import VerifyScript
+from squeak.core.script import VerifyScriptError
 
 
 @pytest.fixture
@@ -28,7 +29,7 @@ class TestSignVerify(object):
         pubkey_script = address.to_scriptPubKey()
         sig_script = MakeSigScript(signature, verifying_key)
 
-        assert VerifyScript(sig_script, pubkey_script, data)
+        VerifyScript(sig_script, pubkey_script, data)
 
     def test_sign_verify_script_invalid(self, make_hash):
         signing_key = CSigningKey.generate()
@@ -42,4 +43,5 @@ class TestSignVerify(object):
 
         new_data = make_hash()
 
-        assert not VerifyScript(sig_script, pubkey_script, new_data)
+        with pytest.raises(VerifyScriptError):
+            VerifyScript(sig_script, pubkey_script, new_data)
