@@ -39,9 +39,7 @@ class CVerifyingKey(CPubKey):
 
 
 class CSqueakAddressError(Exception):
-    """An error that occurs when the squeak address
-    is not valid
-    """
+    pass
 
 
 class CSqueakAddress(P2PKHBitcoinAddress):
