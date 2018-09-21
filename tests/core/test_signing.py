@@ -10,16 +10,13 @@ from squeak.core.signing import CVerifyingKey
 from squeak.core.signing import PUB_KEY_LENGTH
 
 
-@pytest.fixture
 def make_hash():
-    def _make_hash():
-        return os.urandom(HASH_LENGTH)
-    return _make_hash
+    return os.urandom(HASH_LENGTH)
 
 
 class TestSignVerify(object):
 
-    def test_sign_verify(self, make_hash):
+    def test_sign_verify(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -28,7 +25,7 @@ class TestSignVerify(object):
 
         assert verifying_key.verify(data, signature)
 
-    def test_serialize_deserialize_verifying_key(self, make_hash):
+    def test_serialize_deserialize_verifying_key(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -44,7 +41,7 @@ class TestSignVerify(object):
         assert deserialized2.verify(data, signature)
         assert len(serialized2) == PUB_KEY_LENGTH
 
-    def test_serialize_deserialize_signing_key(self, make_hash):
+    def test_serialize_deserialize_signing_key(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -56,7 +53,7 @@ class TestSignVerify(object):
 
         assert verifying_key.verify(data, signature)
 
-    def test_sign_verify_other_data(self, make_hash):
+    def test_sign_verify_other_data(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -66,7 +63,7 @@ class TestSignVerify(object):
 
         assert not verifying_key.verify(data2, signature)
 
-    def test_address_to_pubkey(self, make_hash):
+    def test_address_to_pubkey(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -77,7 +74,7 @@ class TestSignVerify(object):
 
         assert address_from_script == address
 
-    def test_address_to_string(self, make_hash):
+    def test_address_to_string(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
