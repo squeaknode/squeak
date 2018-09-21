@@ -4,7 +4,7 @@
 from setuptools import find_packages
 from setuptools import setup
 
-from src.squeak import __version__
+from squeak import __version__
 
 setup(
     name='squeaklib',
@@ -18,8 +18,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages(exclude=["tests*"]),
     zip_safe=False,
     keywords=[
         'squeak',
