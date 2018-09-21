@@ -17,6 +17,7 @@ from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.script import CScript
 from squeak.core.script import MakeSigScript
 from squeak.core.script import VerifyScript
+from squeak.core.script import EvalScriptError
 from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CSqueakAddressError
@@ -210,7 +211,7 @@ def VerifySqueakSignature(squeak_header, sig_script):
     pubkey_script = squeak_header.scriptPubKey
     try:
         VerifyScript(sig_script, pubkey_script, squeak_hash)
-    except VerifyScriptError:
+    except (VerifyScriptError, EvalScriptError):
         raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak header")
 
 
