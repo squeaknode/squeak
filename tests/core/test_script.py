@@ -10,16 +10,13 @@ from squeak.core.script import VerifyScript
 from squeak.core.script import VerifyScriptError
 
 
-@pytest.fixture
 def make_hash():
-    def _make_hash():
-        return os.urandom(HASH_LENGTH)
-    return _make_hash
+    return os.urandom(HASH_LENGTH)
 
 
 class TestSignVerify(object):
 
-    def test_sign_verify_script(self, make_hash):
+    def test_sign_verify_script(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
@@ -31,7 +28,7 @@ class TestSignVerify(object):
 
         VerifyScript(sig_script, pubkey_script, data)
 
-    def test_sign_verify_script_invalid(self, make_hash):
+    def test_sign_verify_script_invalid(self):
         signing_key = CSigningKey.generate()
         verifying_key = signing_key.get_verifying_key()
 
