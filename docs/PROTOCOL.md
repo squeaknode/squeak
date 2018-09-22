@@ -112,7 +112,7 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-? | squeak | char[1571] | The full squeak struct
+? | squeak | char[1571] | The full squeak struct, with the decryption key set to empty bytes
 
 #### msg_getaddr
 #### msg_ping
