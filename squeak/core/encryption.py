@@ -2,7 +2,7 @@ import os
 import struct
 
 from bitcoin.core.serialize import Serializable
-from bitcoin.core.serialize import VarStringSerializer
+from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ser_read
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
@@ -29,7 +29,7 @@ class CDecryptionKey(Serializable):
 
     @classmethod
     def stream_deserialize(cls, f):
-        data = VarStringSerializer.stream_deserialize(f)
+        data = BytesSerializer.stream_deserialize(f)
         return cls(_deserialize_private_key(data))
 
     @classmethod
@@ -38,7 +38,7 @@ class CDecryptionKey(Serializable):
 
     def stream_serialize(self, f):
         data = _serialize_private_key(self.private_key)
-        VarStringSerializer.stream_serialize(data, f)
+        BytesSerializer.stream_serialize(data, f)
 
     def get_encryption_key(self):
         return CEncryptionKey(self.private_key.public_key())

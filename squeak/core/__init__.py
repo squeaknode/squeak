@@ -1,16 +1,20 @@
+import os
 import struct
 
 from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
+from bitcoin.core.serialize import SerializationTruncationError
 from bitcoin.core import b2lx
 
 from squeak.core.encryption import CDecryptionKey
+from squeak.core.encryption import CEncryptionKey
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
+from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
@@ -179,6 +183,10 @@ class CSqueak(CSqueakHeader):
         """Return the squeak decryption key."""
         return CDecryptionKey.deserialize(self.vchDecryptionKey)
 
+    def GetEncryptionKey(self):
+        """Return the squeak encryption key."""
+        return CEncryptionKey.deserialize(self.vchEncryptionKey)
+
     def GetDecryptedContent(self):
         """Return the decrypted content."""
         decryption_key = self.GetDecryptionKey()
@@ -223,6 +231,10 @@ class VerifySqueakSignatureError(CheckSqueakError):
     pass
 
 
+class CheckSqueakDecryptionKeyError(CheckSqueakError):
+    pass
+
+
 def SignSqueak(signing_key, squeak_header):
     """Generate a signature script for the given squeak header
 
@@ -247,6 +259,27 @@ def VerifySqueakSignature(squeak):
         VerifyScript(sig_script, pubkey_script, squeak_hash)
     except (VerifyScriptError, EvalScriptError):
         raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak")
+
+
+def CheckSqueakDecryptionKey(squeak):
+    """Check if the given squeak has a valid decryption key
+
+    squeak (CSqueak)
+    """
+    try:
+        decryption_key = squeak.GetDecryptionKey()
+        encryption_key = squeak.GetEncryptionKey()
+    except SerializationTruncationError:
+        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
+
+    expected_proof = os.urandom(DATA_KEY_LENGTH)
+    challenge = encryption_key.encrypt(expected_proof)
+    try:
+        proof = decryption_key.decrypt(challenge)
+    except ValueError:
+        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
+    if not proof == expected_proof:
+        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
 
 class InvalidContentLengthError(ValidationError):
@@ -310,7 +343,7 @@ def CheckSqueak(squeak):
     VerifySqueakSignature(squeak)
 
     # Decryption key check
-    # TODO
+    CheckSqueakDecryptionKey(squeak)
 
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
