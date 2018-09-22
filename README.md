@@ -27,9 +27,9 @@ Create a squeak, verify it with the signature script, and decrypt the content:
 >>>
 >>> from squeak.core import MakeSqueak
 >>> from squeak.core import VerifySqueakSignature
->>> from squeak.core import DecryptContent
 >>> from squeak.core import CONTENT_LENGTH
 >>> from squeak.core.signing import CSigningKey
+>>>
 >>>
 >>> signing_key = CSigningKey.generate()
 >>>
@@ -39,7 +39,7 @@ Create a squeak, verify it with the signature script, and decrypt the content:
 >>> content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
 >>> timestamp = int(time.time())
 >>>
->>> squeak, decryption_key, sig_script = MakeSqueak(
+>>> squeak = MakeSqueak(
 ...     signing_key,
 ...     content,
 ...     block_height,
@@ -52,8 +52,7 @@ b'\x8b\xe6\x04\x87\xc0B\xb4\xf4of\x91p-\xc8Nw\xd2Z]_\x8b\x005\x0b\xb8\x19\x9b\xb
 >>> print(squeak.GetAddress())
 1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq
 >>>
->>> VerifySqueakSignature(squeak, sig_script)
->>> decrypted_content = DecryptContent(squeak, decryption_key)
+>>> decrypted_content = squeak.GetDecryptedContent()
 >>>
 >>> print(decrypted_content.rstrip(b"\00"))
 b'Hello world!'
