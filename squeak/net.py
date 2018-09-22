@@ -85,7 +85,6 @@ class CInv(BitcoinCInv):
     typemap = {
         0: "Error",
         1: "Squeak",
-        3: "FilteredSqueak",
     }
 
     def __init__(self, type=0, hash=b'\x00'*HASH_LENGTH,):
