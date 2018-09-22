@@ -13,6 +13,7 @@ from squeak.core import SignSqueak
 from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakHeaderError
+from squeak.core import CheckSqueakDecryptionKeyError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import CheckSqueakSignatureError
 from squeak.core.encryption import CDecryptionKey
@@ -214,8 +215,10 @@ class TestCheckSqueakDecryptionKey(object):
             vchDecryptionKey=fake_decryption_key.serialize(),
         )
 
-        with pytest.raises(CheckSqueakError):
+        with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(fake_squeak)
+
+        CheckSqueak(fake_squeak, skipDecryptionCheck=True)
 
     def test_verify_squeak_decryption_key_invalid(self, squeak):
         fake_squeak = CSqueak(
@@ -234,8 +237,10 @@ class TestCheckSqueakDecryptionKey(object):
             vchDecryptionKey=b'foo',
         )
 
-        with pytest.raises(CheckSqueakError):
+        with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(fake_squeak)
+
+        CheckSqueak(fake_squeak, skipDecryptionCheck=True)
 
 
 class TestSerializeSqueak(object):
