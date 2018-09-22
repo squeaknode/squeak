@@ -4,6 +4,7 @@ from io import BytesIO as _BytesIO
 
 from bitcoin.core import lx
 
+from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
 from squeak.net import CInv
@@ -45,7 +46,7 @@ class TestCSqueakLocator(object):
         address = CSqueakAddress.from_verifying_key(verifying_key)
         interested = [
             CInterested(address, -1, 10, fake_squeak_hash),
-            CInterested(address, 30, 2000, fake_squeak_hash),
+            CInterested(address, 30, 2000),
             CInterested(None, 0, 100, fake_squeak_hash),
         ]
         locator = CSqueakLocator(interested)
@@ -58,3 +59,4 @@ class TestCSqueakLocator(object):
         assert len(deserialized.vInterested) == 3
         assert deserialized.vInterested[1].address == address
         assert deserialized.vInterested[2].address is None
+        assert deserialized.vInterested[1].hashReplySqk == b'\x00'*HASH_LENGTH

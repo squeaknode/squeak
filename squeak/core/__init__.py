@@ -227,7 +227,7 @@ class CheckSqueakError(CheckSqueakHeaderError):
     pass
 
 
-class VerifySqueakSignatureError(CheckSqueakError):
+class CheckSqueakSignatureError(CheckSqueakError):
     pass
 
 
@@ -247,7 +247,7 @@ def SignSqueak(signing_key, squeak_header):
     return MakeSigScript(signature, verifying_key)
 
 
-def VerifySqueakSignature(squeak):
+def CheckSqueakSignature(squeak):
     """Check if the given squeak has a valid signature
 
     squeak (CSqueak)
@@ -258,7 +258,7 @@ def VerifySqueakSignature(squeak):
     try:
         VerifyScript(sig_script, pubkey_script, squeak_hash)
     except (VerifyScriptError, EvalScriptError):
-        raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak")
+        raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
 def CheckSqueakDecryptionKey(squeak):
@@ -340,7 +340,7 @@ def CheckSqueak(squeak):
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
     # Sig Script check
-    VerifySqueakSignature(squeak)
+    CheckSqueakSignature(squeak)
 
     # Decryption key check
     CheckSqueakDecryptionKey(squeak)

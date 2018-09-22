@@ -27,7 +27,6 @@ from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import DATA_KEY_LENGTH
-from squeak.core.script import CScript
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
@@ -299,7 +298,6 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
             nOfferRequestId=0,
             squeak=None,
             vchProof=b'\x00'*DATA_KEY_LENGTH,
-            scriptSig=CScript(),
             nPrice=0,
             protover=PROTO_VERSION,
     ):
@@ -308,7 +306,6 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         self.nOfferRequestId = nOfferRequestId
         self.squeak = squeak or CSqueak()
         self.vchProof = vchProof
-        self.scriptSig = scriptSig
         self.nPrice = nPrice
 
     @classmethod
@@ -317,9 +314,8 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         nOfferRequestId = struct.unpack(b"<I", ser_read(f, 4))[0]
         squeak = CSqueak.stream_deserialize(f)
         vchProof = ser_read(f, DATA_KEY_LENGTH)
-        scriptSig = CScript(BytesSerializer.stream_deserialize(f))
         nPrice = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return cls(nOfferId, nOfferRequestId, squeak, vchProof, scriptSig, nPrice)
+        return cls(nOfferId, nOfferRequestId, squeak, vchProof, nPrice)
 
     def msg_ser(self, f):
         f.write(struct.pack(b"<I", self.nOfferId))
@@ -327,12 +323,11 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         self.squeak.stream_serialize(f)
         assert len(self.vchProof) == DATA_KEY_LENGTH
         f.write(self.vchProof)
-        BytesSerializer.stream_serialize(self.scriptSig, f)
         f.write(struct.pack(b"<I", self.nPrice))
 
     def __repr__(self):
-        return "msg_offer(nOfferId=%i nOfferRequestId=%i squeak=%s scriptSig=%r vchProof=lx(%s) nPrice=%i)" % \
-            (self.nOfferId, self.nOfferRequestId, repr(self.squeak), self.scriptSig, b2lx(self.vchProof), self.nPrice)
+        return "msg_offer(nOfferId=%i nOfferRequestId=%i squeak=%s vchProof=lx(%s) nPrice=%i)" % \
+            (self.nOfferId, self.nOfferRequestId, repr(self.squeak), b2lx(self.vchProof), self.nPrice)
 
 
 class msg_getinvoice(MsgSerializable, BitcoinMsgSerializable):
