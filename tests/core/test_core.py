@@ -8,7 +8,6 @@ from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import CheckSqueak
 from squeak.core import EncryptContent
-from squeak.core import DecryptContent
 from squeak.core import MakeSqueak
 from squeak.core import SignSqueak
 from squeak.core import InvalidContentLengthError
@@ -47,7 +46,7 @@ def squeak(signing_key, prev_squeak_hash, block_height, block_hash):
     content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
     timestamp = int(time.time())
 
-    squeak, _ = MakeSqueak(
+    squeak = MakeSqueak(
         signing_key,
         content,
         block_height,
@@ -64,7 +63,7 @@ class TestMakeSqueak(object):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
-        squeak, decryption_key = MakeSqueak(
+        squeak = MakeSqueak(
             signing_key,
             content,
             block_height,
@@ -76,7 +75,7 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
-        decrypted_content = DecryptContent(squeak, decryption_key)
+        decrypted_content = squeak.GetDecryptedContent()
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
@@ -87,7 +86,7 @@ class TestMakeSqueak(object):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
-        squeak, decryption_key = MakeSqueak(
+        squeak = MakeSqueak(
             signing_key,
             content,
             block_height,
@@ -98,7 +97,7 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
-        decrypted_content = DecryptContent(squeak, decryption_key)
+        decrypted_content = squeak.GetDecryptedContent()
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply

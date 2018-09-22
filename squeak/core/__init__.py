@@ -100,7 +100,7 @@ class CSqueakHeader(ImmutableSerializable):
         return not self.hashReplySqk == b'\x00'*HASH_LENGTH
 
     def GetAddress(self):
-        """Return the squeak author adress."""
+        """Return the squeak author address."""
         return CSqueakAddress.from_scriptPubKey(self.scriptPubKey)
 
     def __repr__(self):
@@ -112,15 +112,16 @@ class CSqueakHeader(ImmutableSerializable):
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
-    __slots__ = ['encContent', 'scriptSig']
+    __slots__ = ['encContent', 'scriptSig', 'vchDecryptionKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript()):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b''):
         """Create a new squeak"""
         super(CSqueak, self).__init__(nVersion, hashEncContent, hashReplySqk, hashBlock, nBlockHeight, scriptPubKey, vchEncryptionKey, vchEncDatakey, vchIv, nTime, nNonce)
         if encContent is None:
             encContent = CSqueakEncContent(b'\00'*ENC_CONTENT_LENGTH)
         object.__setattr__(self, 'encContent', encContent)
         object.__setattr__(self, 'scriptSig', scriptSig)
+        object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -129,12 +130,15 @@ class CSqueak(CSqueakHeader):
         object.__setattr__(self, 'encContent', encContent)
         scriptSig = CScript(BytesSerializer.stream_deserialize(f))
         object.__setattr__(self, 'scriptSig', scriptSig)
+        vchDecryptionKey = BytesSerializer.stream_deserialize(f)
+        object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
         return self
 
     def stream_serialize(self, f):
         super(CSqueak, self).stream_serialize(f)
         CSqueakEncContent.stream_serialize(self.encContent, f)
         BytesSerializer.stream_serialize(self.scriptSig, f)
+        BytesSerializer.stream_serialize(self.vchDecryptionKey, f)
 
     def get_header(self):
         """Return the squeak header
@@ -170,6 +174,19 @@ class CSqueak(CSqueakHeader):
         """Set the sig script.
         """
         object.__setattr__(self, 'scriptSig', scriptSig)
+
+    def GetDecryptionKey(self):
+        """Return the squeak decryption key."""
+        return CDecryptionKey.deserialize(self.vchDecryptionKey)
+
+    def GetDecryptedContent(self):
+        """Return the decrypted content."""
+        decryption_key = self.GetDecryptionKey()
+        data_key_cipher = self.vchEncDatakey
+        data_key = decryption_key.decrypt(data_key_cipher)
+        iv = self.vchIv
+        ciphertext = self.encContent.vchEncContent
+        return decrypt_content(data_key, iv, ciphertext)
 
 
 class CSqueakEncContent(ImmutableSerializable):
@@ -249,19 +266,6 @@ def EncryptContent(data_key, iv, content):
     return CSqueakEncContent(encrypt_content(data_key, iv, content))
 
 
-def DecryptContent(squeak, decryption_key):
-    """Return the decrypted content.
-
-    squeak (Squeak)
-    decryption_key (CDecryptionKey)
-    """
-    data_key_cipher = squeak.vchEncDatakey
-    data_key = decryption_key.decrypt(data_key_cipher)
-    iv = squeak.vchIv
-    ciphertext = squeak.encContent.vchEncContent
-    return decrypt_content(data_key, iv, ciphertext)
-
-
 def EncryptDataKey(encryption_key, data_key):
     """Return the ciphertext from the given content.
 
@@ -305,6 +309,9 @@ def CheckSqueak(squeak):
     # Sig Script check
     VerifySqueakSignature(squeak)
 
+    # Decryption key check
+    # TODO
+
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
     """Create a new squeak.
@@ -338,10 +345,11 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nTime=timestamp,
         nNonce=nonce,
         encContent=enc_content,
+        vchDecryptionKey=decryption_key.serialize(),
     )
     sig_script = SignSqueak(signing_key, squeak)
     squeak.SetSigScript(sig_script)
-    return squeak, decryption_key
+    return squeak
 
 
 __all__ = (
@@ -350,7 +358,6 @@ __all__ = (
     'CSqueak',
     'SignSqueak',
     'EncryptContent',
-    'DecryptContent',
     'EncryptDataKey',
     'CheckSqueakHeader',
     'CheckSqueak',
