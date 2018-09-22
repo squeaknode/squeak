@@ -320,7 +320,7 @@ def CheckSqueakHeader(squeak_header):
         raise CheckSqueakHeaderError("CheckSqueakError() : scriptPubKey does not convert to a valid address")
 
 
-def CheckSqueak(squeak):
+def CheckSqueak(squeak, skipDecryptionCheck=False):
     """Context independent CSqueak checks.
 
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
@@ -343,7 +343,8 @@ def CheckSqueak(squeak):
     CheckSqueakSignature(squeak)
 
     # Decryption key check
-    CheckSqueakDecryptionKey(squeak)
+    if not skipDecryptionCheck:
+        CheckSqueakDecryptionKey(squeak)
 
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
