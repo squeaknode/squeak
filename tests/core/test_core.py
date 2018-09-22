@@ -14,7 +14,7 @@ from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakHeaderError
 from squeak.core import CONTENT_LENGTH
-from squeak.core import VerifySqueakSignatureError
+from squeak.core import CheckSqueakSignatureError
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
@@ -166,7 +166,7 @@ class TestCheckSqueak(object):
             CheckSqueak(fake_squeak)
 
 
-class TestVerifySqueakSignature(object):
+class TestCheckSqueakSignature(object):
 
     def test_verify_squeak_pubkey_sigscript_fails_verify(self, squeak):
         squeak_header = squeak.get_header()
@@ -189,7 +189,7 @@ class TestVerifySqueakSignature(object):
             vchDecryptionKey=squeak.vchDecryptionKey,
         )
 
-        with pytest.raises(VerifySqueakSignatureError):
+        with pytest.raises(CheckSqueakSignatureError):
             CheckSqueak(fake_squeak)
 
 

@@ -26,6 +26,10 @@ A squeak has all of the fields of a squeak header plus the following:
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 1136 | vchEncContent | char[1136] | Encrypted content
+1+ | script length | var_int | Length of the scriptSig
+? | scriptSig | char[] | Computational Script for confirming authorship
+1+ | key length | var_int | Length of the decryption key
+? | vchDecryptionKey | char[] | The RSA private key for the squeak
 
 #### squeak locator
 
@@ -91,8 +95,6 @@ Field Size | Description | Data type | Comments
 4 | nOfferRequestId | uint32_t | Unique identifier of the offer request
 ? | squeak | char[1571] | The full squeak struct
 32 | vchProof | char[32] | The decrypted challenge string, proving ownership of the RSA private key
-1+ | script length | var_int | Length of the scriptSig
-? | scriptSig | char[] | Computational Script for confirming authorship
 4 | nPrice | uint32_t | The price of the squeak in satoshis
 
 #### msg_getinvoice
