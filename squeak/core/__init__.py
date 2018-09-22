@@ -112,25 +112,29 @@ class CSqueakHeader(ImmutableSerializable):
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
-    __slots__ = ['encContent']
+    __slots__ = ['encContent', 'scriptSig']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript()):
         """Create a new squeak"""
         super(CSqueak, self).__init__(nVersion, hashEncContent, hashReplySqk, hashBlock, nBlockHeight, scriptPubKey, vchEncryptionKey, vchEncDatakey, vchIv, nTime, nNonce)
         if encContent is None:
             encContent = CSqueakEncContent(b'\00'*ENC_CONTENT_LENGTH)
         object.__setattr__(self, 'encContent', encContent)
+        object.__setattr__(self, 'scriptSig', scriptSig)
 
     @classmethod
     def stream_deserialize(cls, f):
         self = super(CSqueak, cls).stream_deserialize(f)
         encContent = CSqueakEncContent.stream_deserialize(f)
         object.__setattr__(self, 'encContent', encContent)
+        scriptSig = CScript(BytesSerializer.stream_deserialize(f))
+        object.__setattr__(self, 'scriptSig', scriptSig)
         return self
 
     def stream_serialize(self, f):
         super(CSqueak, self).stream_serialize(f)
         CSqueakEncContent.stream_serialize(self.encContent, f)
+        BytesSerializer.stream_serialize(self.scriptSig, f)
 
     def get_header(self):
         """Return the squeak header
@@ -162,6 +166,11 @@ class CSqueak(CSqueakHeader):
             object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
             return _cached_GetHash
 
+    def SetSigScript(self, scriptSig):
+        """Set the sig script.
+        """
+        object.__setattr__(self, 'scriptSig', scriptSig)
+
 
 class CSqueakEncContent(ImmutableSerializable):
     """Squeak encrypted content"""
@@ -185,7 +194,15 @@ class CSqueakEncContent(ImmutableSerializable):
             (self.__class__.__name__, b2lx(self.vchEncContent))
 
 
-class VerifySqueakSignatureError(ValidationError):
+class CheckSqueakHeaderError(ValidationError):
+    pass
+
+
+class CheckSqueakError(CheckSqueakHeaderError):
+    pass
+
+
+class VerifySqueakSignatureError(CheckSqueakError):
     pass
 
 
@@ -201,18 +218,19 @@ def SignSqueak(signing_key, squeak_header):
     return MakeSigScript(signature, verifying_key)
 
 
-def VerifySqueakSignature(squeak_header, sig_script):
+def VerifySqueakSignature(squeak):
     """Check if the given signature script is valid
 
     squeak_header (CSqueakHeader)
     sig_script (CScript)
     """
-    squeak_hash = squeak_header.GetHash()
-    pubkey_script = squeak_header.scriptPubKey
+    sig_script = squeak.scriptSig
+    squeak_hash = squeak.GetHash()
+    pubkey_script = squeak.scriptPubKey
     try:
         VerifyScript(sig_script, pubkey_script, squeak_hash)
     except (VerifyScriptError, EvalScriptError):
-        raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak header")
+        raise VerifySqueakSignatureError("VerifySqueakSignature() : invalid signature for the given squeak")
 
 
 class InvalidContentLengthError(ValidationError):
@@ -254,14 +272,6 @@ def EncryptDataKey(encryption_key, data_key):
     return encryption_key.encrypt(data_key)
 
 
-class CheckSqueakHeaderError(ValidationError):
-    pass
-
-
-class CheckSqueakError(CheckSqueakHeaderError):
-    pass
-
-
 def CheckSqueakHeader(squeak_header):
     """Context independent CSqueakHeader checks.
     Raises CSqueakHeaderError if squeak header is invalid.
@@ -292,6 +302,9 @@ def CheckSqueak(squeak):
     hash_enc_content = squeak.encContent.GetHash()
     if not hash_enc_content == squeak.hashEncContent:
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
+
+    # Sig Script check
+    VerifySqueakSignature(squeak)
 
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
@@ -328,7 +341,8 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         encContent=enc_content,
     )
     sig_script = SignSqueak(signing_key, squeak)
-    return squeak, decryption_key, sig_script
+    squeak.SetSigScript(sig_script)
+    return squeak, decryption_key
 
 
 __all__ = (
