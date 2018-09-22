@@ -59,7 +59,7 @@ Field Size | Description | Data type | Comments
 The object type is currently defined as one of the following possibilities:
 
 Value | Name | Description
---- | --- | --- | ---
+--- | --- | ---
 0 | ERROR | Any data of with this number may be ignored
 1 | MSG_SQUEAK | Hash is related to a squeak
 
