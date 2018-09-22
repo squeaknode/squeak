@@ -49,14 +49,46 @@ Field Size | Description | Data type | Comments
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
 
+#### inv_vect
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+4 | type | uint32_t | Identifies the object type linked to this inventory
+32 | hash | char[32] | Hash of the object
+
+The object type is currently defined as one of the following possibilities:
+
+Value | Name | Description
+--- | --- | ---
+0 | ERROR | Any data of with this number may be ignored
+1 | MSG_SQUEAK | Hash is related to a squeak
+
 ### Messages
 
 #### msg_version
 #### msg_verack
 #### msg_addr
 #### msg_inv
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+? | count | var_int | Number of inventory entries
+36x? | inventory | inv_vect[] | Inventory vectors
+
 #### msg_getdata
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+? | count | var_int | Number of inventory entries
+36x? | inventory | inv_vect[] | Inventory vectors
+
 #### msg_notfound
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+? | count | var_int | Number of inventory entries
+36x? | inventory | inv_vect[] | Inventory vectors
+
 #### msg_getsqueaks
 
 Field Size | Description | Data type | Comments
@@ -76,6 +108,12 @@ Field Size | Description | Data type | Comments
 ? | count | var_int | Number of squeak header structs
 ? | headers | squeak_header[] | Squeak header structs
 
+#### msg_squeak
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+? | squeak | char[1571] | The full squeak struct, with the decryption key set to empty bytes
+
 #### msg_getaddr
 #### msg_ping
 #### msg_pong
@@ -93,7 +131,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 4 | nOfferId | uint32_t | Unique identifier of the offer
 4 | nOfferRequestId | uint32_t | Unique identifier of the offer request
-? | squeak | char[1571] | The full squeak struct
+? | squeak | char[1571] | The full squeak struct, with the decryption key set to empty bytes
 32 | vchProof | char[32] | The decrypted challenge string, proving ownership of the RSA private key
 4 | nPrice | uint32_t | The price of the squeak in satoshis
 

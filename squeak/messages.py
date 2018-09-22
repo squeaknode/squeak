@@ -243,6 +243,25 @@ class msg_headers(MsgSerializable, BitcoinMsgSerializable):
         return "msg_headers(headers=%s)" % (repr(self.headers))
 
 
+class msg_squeak(MsgSerializable, BitcoinMsgSerializable):
+    command = b"squeak"
+
+    def __init__(self, squeak=None, protover=PROTO_VERSION):
+        super(msg_squeak, self).__init__(protover)
+        self.squeak = squeak or CSqueak()
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        squeak = CSqueak.stream_deserialize(f)
+        return cls(squeak)
+
+    def msg_ser(self, f):
+        self.squeak.stream_serialize(f)
+
+    def __repr__(self):
+        return "msg_squeak(squeak=%s)" % (repr(self.squeak))
+
+
 class msg_getaddr(MsgSerializable, bitcoin_msg_getaddr):
     pass
 
@@ -436,8 +455,9 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
-               msg_getaddr, msg_ping, msg_pong, msg_getoffer, msg_offer,
-               msg_getinvoice, msg_invoice, msg_getfulfill, msg_fulfill]
+               msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_getoffer,
+               msg_offer, msg_getinvoice, msg_invoice, msg_getfulfill,
+               msg_fulfill]
 
 messagemap = {}
 for cls in msg_classes:
