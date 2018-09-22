@@ -252,6 +252,14 @@ class TestSerializeSqueak(object):
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
 
+    def test_serialize_squeak_null(self):
+        squeak = CSqueak()
+        serialized_squeak = squeak.serialize()
+        deserialized_squeak = CSqueak.deserialize(serialized_squeak)
+
+        assert deserialized_squeak == squeak
+        assert isinstance(squeak, CSqueak)
+
     def test_serialize_squeak_header(self, squeak):
         squeak_header = squeak.get_header()
         serialized_squeak_header = squeak_header.serialize()
