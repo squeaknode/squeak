@@ -5,6 +5,7 @@ import random
 
 from io import BytesIO as _BytesIO
 
+import bitcoin  # noqa: F401
 from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import msg_verack as bitcoin_msg_verack
