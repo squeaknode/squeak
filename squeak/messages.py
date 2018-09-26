@@ -13,6 +13,7 @@ from bitcoin.messages import msg_addr as bitcoin_msg_addr
 from bitcoin.messages import msg_getaddr as bitcoin_msg_getaddr
 from bitcoin.messages import msg_ping as bitcoin_msg_ping
 from bitcoin.messages import msg_pong as bitcoin_msg_pong
+from bitcoin.messages import msg_alert as bitcoin_msg_alert
 from bitcoin.core import b2x
 from bitcoin.core import b2lx
 from bitcoin.core.serialize import BytesSerializer
@@ -275,6 +276,10 @@ class msg_pong(MsgSerializable, bitcoin_msg_pong):
     pass
 
 
+class msg_alert(MsgSerializable, bitcoin_msg_alert):
+    pass
+
+
 class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
     command = b"getoffer"
 
@@ -456,9 +461,9 @@ class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
-               msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_getoffer,
-               msg_offer, msg_getinvoice, msg_invoice, msg_getfulfill,
-               msg_fulfill]
+               msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
+               msg_getoffer, msg_offer, msg_getinvoice, msg_invoice,
+               msg_getfulfill, msg_fulfill]
 
 messagemap = {}
 for cls in msg_classes:
