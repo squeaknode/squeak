@@ -16,6 +16,7 @@ from squeak.messages import msg_headers
 from squeak.messages import msg_getaddr
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
+from squeak.messages import msg_alert
 from squeak.messages import msg_getoffer
 from squeak.messages import msg_offer
 from squeak.messages import msg_getinvoice
@@ -105,6 +106,11 @@ class Test_msg_ping(MessageTestCase):
 class Test_msg_pong(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_pong, self).serialization_test(msg_pong)
+
+
+class Test_msg_alert(MessageTestCase):
+    def test_serialization(self):
+        super(Test_msg_alert, self).serialization_test(msg_alert)
 
 
 class Test_msg_getoffer(MessageTestCase):
