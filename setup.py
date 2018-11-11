@@ -9,7 +9,6 @@ from squeak import __version__
 setup(
     name='squeaklib',
     version=__version__,
-    license='MIT',
     author='Jonathan Zernik',
     description='Squeak library',
     long_description=open('README.md').read(),
