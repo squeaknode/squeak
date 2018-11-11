@@ -34,8 +34,8 @@ from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
 
 
-USER_AGENT = (b'/python-squeak:' +
-              squeak.__version__.encode('ascii') + b'/')
+USER_AGENT = b'/python-squeak:' + \
+             squeak.__version__.encode('ascii') + b'/'
 
 
 class MsgSerializable(object):
