@@ -20,7 +20,7 @@ pip install squeaklib
 
 Create a squeak, verify it with the signature script, and decrypt the content:
 
-```
+```python
 import time
 
 from bitcoin.core import lx
@@ -53,7 +53,7 @@ print(squeak.GetDecryptedContentStr())  # Hello world!
 
 Create a getheaders messages with a given squeak address and block height range, serialize it, and deserialize it:
 
-```
+```python
 from io import BytesIO
 
 from squeak.messages import MsgSerializable
