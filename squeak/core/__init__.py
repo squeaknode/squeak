@@ -196,6 +196,11 @@ class CSqueak(CSqueakHeader):
         ciphertext = self.encContent.vchEncContent
         return decrypt_content(data_key, iv, ciphertext)
 
+    def GetDecryptedContentStr(self):
+        """Return the decrypted content."""
+        content = self.GetDecryptedContent()
+        return DecodeContent(content)
+
 
 class CSqueakEncContent(ImmutableSerializable):
     """Squeak encrypted content"""
@@ -384,6 +389,41 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     sig_script = SignSqueak(signing_key, squeak)
     squeak.SetSigScript(sig_script)
     return squeak
+
+
+def EncodeContent(content: str):
+    """Convert a string into utf-8 encoded bytes of the required length."""
+    encoded = content.encode('utf-8')
+    padded = encoded.ljust(CONTENT_LENGTH, b"\x00")
+    return padded
+
+
+def DecodeContent(data: bytes):
+    """Convert utf-8 encoded bytes to a string."""
+    unpadded = data.rstrip(b"\00")
+    content = unpadded.decode("utf-8", "strict")
+    return content
+
+
+def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
+    """Create a new squeak from a string of content.
+
+    signing_key (CSigningkey)
+    content_str (str)
+    block_height (int)
+    block_hash (bytes)
+    timestamp (int)
+    reply_to (bytes)
+    """
+    content = EncodeContent(content_str)
+    return MakeSqueak(
+        signing_key,
+        content,
+        block_height,
+        block_hash,
+        timestamp,
+        reply_to,
+    )
 
 
 __all__ = (

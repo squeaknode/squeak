@@ -9,6 +9,7 @@ from squeak.core import CSqueakHeader
 from squeak.core import CheckSqueak
 from squeak.core import EncryptContent
 from squeak.core import MakeSqueak
+from squeak.core import MakeSqueakFromStr
 from squeak.core import SignSqueak
 from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
@@ -62,10 +63,10 @@ def squeak(signing_key, prev_squeak_hash, block_height, block_hash):
 class TestMakeSqueak(object):
 
     def test_make_squeak(self, signing_key, prev_squeak_hash, block_height, block_hash):
-        content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
+        content = "Hello world!"
         timestamp = int(time.time())
 
-        squeak = MakeSqueak(
+        squeak = MakeSqueakFromStr(
             signing_key,
             content,
             block_height,
@@ -77,12 +78,12 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
-        decrypted_content = squeak.GetDecryptedContent()
+        decrypted_content = squeak.GetDecryptedContentStr()
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
         assert squeak.GetAddress() == address
-        assert decrypted_content.rstrip(b"\00") == b"Hello world!"
+        assert decrypted_content == "Hello world!"
 
     def test_make_squeak_is_not_reply(self, signing_key, block_height, block_hash):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
