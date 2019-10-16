@@ -22,6 +22,13 @@ class RegTestParams(bitcoin.RegTestParams):
     DNS_SEEDS = ()
 
 
+class SimNetParams(bitcoin.RegTestParams):
+    MESSAGE_START = b'X\x85\xf4\xcb'
+    DEFAULT_PORT = 18777
+    RPC_PORT = 18776
+    DNS_SEEDS = ()
+
+
 """Master global setting for what chain params we're using.
 However, don't set this directly, use SelectParams() instead so as to set the
 bitcoin.params correctly too.
@@ -35,12 +42,18 @@ def SelectParams(name):
     Default chain is 'mainnet'
     """
     global params
-    bitcoin.SelectParams(name)
     if name == 'mainnet':
+        bitcoin.SelectParams(name)
         params = bitcoin.params = MainParams()
     elif name == 'testnet':
+        bitcoin.SelectParams(name)
         params = bitcoin.params = TestNetParams()
     elif name == 'regtest':
+        bitcoin.SelectParams(name)
         params = bitcoin.params = RegTestParams()
+    elif name == 'simnet':
+        # Should be ok because 'regtest' and 'simnet' use the same magic.
+        bitcoin.SelectParams('regtest')
+        params = bitcoin.params = SimTestParams()
     else:
         raise ValueError('Unknown chain %r' % name)
