@@ -11,8 +11,6 @@ setup(
     version=__version__,
     author='Jonathan Zernik',
     description='Squeak library',
-    long_description=open('README.md').read(),
-    long_description_content_type='text/markdown',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
