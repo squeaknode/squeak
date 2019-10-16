@@ -54,6 +54,6 @@ def SelectParams(name):
     elif name == 'simnet':
         # Should be ok because 'regtest' and 'simnet' use the same magic.
         bitcoin.SelectParams('regtest')
-        params = bitcoin.params = SimTestParams()
+        params = bitcoin.params = SimNetParams()
     else:
         raise ValueError('Unknown chain %r' % name)
