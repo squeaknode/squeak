@@ -14,7 +14,6 @@ from squeak.core import SignSqueak
 from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakHeaderError
-from squeak.core import CheckSqueakDecryptionKeyError
 from squeak.core import CheckSqueakDataKeyError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import CheckSqueakSignatureError

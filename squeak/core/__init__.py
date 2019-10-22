@@ -7,8 +7,6 @@ from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import SerializationTruncationError
 from bitcoin.core import b2lx
 
-from squeak.core.encryption import CDecryptionKey
-from squeak.core.encryption import CEncryptionKey
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import decrypt_content
 from squeak.core.encryption import generate_data_key
@@ -122,9 +120,9 @@ class CSqueakHeader(ImmutableSerializable):
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
-    __slots__ = ['encContent', 'scriptSig', 'vchDecryptionKey', 'vchDataKey']
+    __slots__ = ['encContent', 'scriptSig', 'vchDataKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), hashDataKey=b'\x00'*HASH_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b'', vchDataKey=b'\x00'*DATA_KEY_LENGTH):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), hashDataKey=b'\x00'*HASH_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDataKey=b'\x00'*DATA_KEY_LENGTH):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
@@ -197,10 +195,6 @@ class CSqueak(CSqueakHeader):
         """
         object.__setattr__(self, 'scriptSig', scriptSig)
 
-    def GetDecryptionKey(self):
-        """Return the squeak decryption key."""
-        return CDecryptionKey.deserialize(self.vchDecryptionKey)
-
     def GetDataKey(self):
         """Return the data key."""
         return self.vchDataKey
@@ -260,9 +254,6 @@ class CheckSqueakSignatureError(CheckSqueakError):
     pass
 
 
-class CheckSqueakDecryptionKeyError(CheckSqueakError):
-    pass
-
 class CheckSqueakDataKeyError(CheckSqueakError):
     pass
 
@@ -293,28 +284,8 @@ def CheckSqueakSignature(squeak):
         raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
-def CheckSqueakDecryptionKey(squeak):
-    """Check if the given squeak has a valid decryption key
-
-    squeak (CSqueak)
-    """
-    try:
-        decryption_key = squeak.GetDecryptionKey()
-        encryption_key = squeak.GetEncryptionKey()
-    except SerializationTruncationError:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
-
-    expected_proof = os.urandom(DATA_KEY_LENGTH)
-    challenge = encryption_key.encrypt(expected_proof)
-    try:
-        proof = decryption_key.decrypt(challenge)
-    except ValueError:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
-    if not proof == expected_proof:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
-
 def CheckSqueakDataKey(squeak):
-    """Check if the given squeak has a valid decryption key
+    """Check if the given squeak has a valid data key
 
     squeak (CSqueak)
     """
@@ -414,9 +385,6 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     data_key = generate_data_key()
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
-    # decryption_key = CDecryptionKey.generate()
-    # encryption_key = decryption_key.get_encryption_key()
-    # data_key_cipher = EncryptDataKey(encryption_key, data_key)
     data_key_hash = HashDataKey(data_key)
     nonce = generate_nonce()
     verifying_key = signing_key.get_verifying_key()
@@ -428,14 +396,11 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         hashBlock=block_hash,
         nBlockHeight=block_height,
         scriptPubKey=pubkey_script,
-        # vchEncryptionKey=encryption_key.serialize(),
-        # vchEncDatakey=data_key_cipher,
         hashDataKey=data_key_hash,
         vchIv=initialization_vector,
         nTime=timestamp,
         nNonce=nonce,
         encContent=enc_content,
-        # vchDecryptionKey=decryption_key.serialize(),
         vchDataKey=data_key,
     )
     sig_script = SignSqueak(signing_key, squeak)
