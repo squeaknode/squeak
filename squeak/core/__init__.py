@@ -414,6 +414,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     decryption_key = CDecryptionKey.generate()
     encryption_key = decryption_key.get_encryption_key()
     data_key_cipher = EncryptDataKey(encryption_key, data_key)
+    data_key_hash = HashDataKey(data_key)
     nonce = generate_nonce()
     verifying_key = signing_key.get_verifying_key()
     squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
@@ -426,6 +427,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         scriptPubKey=pubkey_script,
         vchEncryptionKey=encryption_key.serialize(),
         vchEncDatakey=data_key_cipher,
+        hashDataKey=data_key_hash,
         vchIv=initialization_vector,
         nTime=timestamp,
         nNonce=nonce,
