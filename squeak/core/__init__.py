@@ -127,10 +127,10 @@ class CSqueakHeader(ImmutableSerializable):
         return CSqueakAddress.from_scriptPubKey(self.scriptPubKey)
 
     def __repr__(self):
-        return "%s(%i, lx(%s), lx(%s), lx(%s), %s, %r, lx(%s), lx(%s), lx(%s), %s, 0x%08x)" % \
+        return "%s(nVersion: %i, hashEncContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, scriptPubKey: %r, vchEncryptionKey: lx(%s), vchEncDatakey: lx(%s), hashDataKey: lx(%s), vchIv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
             (self.__class__.__name__, self.nVersion, b2lx(self.hashEncContent), b2lx(self.hashReplySqk),
              b2lx(self.hashBlock), self.nBlockHeight, self.scriptPubKey, b2lx(self.vchEncryptionKey),
-             b2lx(self.vchEncDatakey), b2lx(self.vchIv), self.nTime, self.nNonce)
+             b2lx(self.vchEncDatakey), b2lx(self.hashDataKey), b2lx(self.vchIv), self.nTime, self.nNonce)
 
 
 class CSqueak(CSqueakHeader):
@@ -171,6 +171,7 @@ class CSqueak(CSqueakHeader):
         vchDecryptionKey = BytesSerializer.stream_deserialize(f)
         object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
         vchDataKey = ser_read(f,DATA_KEY_LENGTH)
+        object.__setattr__(self, 'vchDataKey', vchDataKey)
         return self
 
     def stream_serialize(self, f):
@@ -433,6 +434,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nNonce=nonce,
         encContent=enc_content,
         vchDecryptionKey=decryption_key.serialize(),
+        vchDataKey=data_key,
     )
     sig_script = SignSqueak(signing_key, squeak)
     squeak.SetSigScript(sig_script)
