@@ -222,15 +222,17 @@ class CSqueak(CSqueakHeader):
         """Return the squeak decryption key."""
         return CDecryptionKey.deserialize(self.vchDecryptionKey)
 
+    def GetDataKey(self):
+        """Return the data key."""
+        return self.vchDataKey
+
     def GetEncryptionKey(self):
         """Return the squeak encryption key."""
         return CEncryptionKey.deserialize(self.vchEncryptionKey)
 
     def GetDecryptedContent(self):
         """Return the decrypted content."""
-        decryption_key = self.GetDecryptionKey()
-        data_key_cipher = self.vchEncDatakey
-        data_key = decryption_key.decrypt(data_key_cipher)
+        data_key = self.GetDataKey()
         iv = self.vchIv
         ciphertext = self.encContent.vchEncContent
         return decrypt_content(data_key, iv, ciphertext)
