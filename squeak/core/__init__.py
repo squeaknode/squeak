@@ -25,6 +25,7 @@ from squeak.core.script import EvalScriptError
 from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CSqueakAddressError
+from squeak.core.hashing import sha256
 
 
 # Core definitions
@@ -311,6 +312,14 @@ def EncryptDataKey(encryption_key, data_key):
     data_key (bytes)
     """
     return encryption_key.encrypt(data_key)
+
+
+def HashDataKey(data_key):
+    """Return the hash of the data key.
+
+    data_key (bytes)
+    """
+    return sha256(data_key)
 
 
 def CheckSqueakHeader(squeak_header):
