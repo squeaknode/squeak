@@ -7,6 +7,7 @@ from squeak.messages import msg_getaddr
 from squeak.messages import msg_getdata
 from squeak.messages import msg_getheaders
 from squeak.messages import msg_getoffer
+from squeak.messages import msg_getsqueak
 from squeak.messages import msg_getsqueaks
 from squeak.messages import msg_headers
 from squeak.messages import msg_inv
@@ -76,6 +77,11 @@ class Test_msg_notfound(MessageTestCase):
 class Test_msg_getheaders(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_getheaders, self).serialization_test(msg_getheaders)
+
+
+class Test_msg_getsqueak(MessageTestCase):
+    def test_serialization(self):
+        super(Test_msg_getsqueak, self).serialization_test(msg_getsqueak)
 
 
 class Test_msg_squeak(MessageTestCase):

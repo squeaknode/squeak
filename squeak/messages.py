@@ -222,6 +222,31 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
         return "msg_getsqueaks(locator=%s)" % (repr(self.locator))
 
 
+class msg_getsqueak(MsgSerializable, BitcoinMsgSerializable):
+    command = b"getsqueak"
+
+    def __init__(
+            self,
+            hashSqueak=b'\x00'*HASH_LENGTH,
+            protover=PROTO_VERSION,
+    ):
+        super(msg_getsqueak, self).__init__(protover)
+        self.hashSqueak = hashSqueak
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        hashSqueak = ser_read(f, HASH_LENGTH)
+        return cls(hashSqueak)
+
+    def msg_ser(self, f):
+        assert len(self.hashSqueak) == HASH_LENGTH
+        f.write(self.hashSqueak)
+
+    def __repr__(self):
+        return "msg_getsqueak(squeakhash=lx(%s))" % \
+            b2lx(self.hashSqueak)
+
+
 class msg_headers(MsgSerializable, BitcoinMsgSerializable):
     command = b"headers"
 
@@ -328,7 +353,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_getoffer, msg_offer]
+               msg_getsqueak, msg_getoffer, msg_offer]
 
 messagemap = {}
 for cls in msg_classes:
