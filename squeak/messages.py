@@ -7,7 +7,6 @@ from io import BytesIO as _BytesIO
 import bitcoin  # noqa: F401
 from bitcoin.core import b2lx
 from bitcoin.core import b2x
-from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import VectorSerializer
@@ -282,28 +281,24 @@ class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
-            nOfferRequestId=0,
             hashSqueak=b'\x00'*HASH_LENGTH,
             protover=PROTO_VERSION,
     ):
         super(msg_getoffer, self).__init__(protover)
-        self.nOfferRequestId = nOfferRequestId
         self.hashSqueak = hashSqueak
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferRequestId = struct.unpack(b"<I", ser_read(f, 4))[0]
         hashSqueak = ser_read(f, HASH_LENGTH)
-        return cls(nOfferRequestId, hashSqueak)
+        return cls(hashSqueak)
 
     def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferRequestId))
         assert len(self.hashSqueak) == HASH_LENGTH
         f.write(self.hashSqueak)
 
     def __repr__(self):
-        return "msg_getoffer(nOfferRequestId=%i squeakhash=lx(%s))" % \
-            (self.nOfferRequestId, b2lx(self.hashSqueak))
+        return "msg_getoffer(squeakhash=lx(%s))" % \
+            b2lx(self.hashSqueak)
 
 
 class msg_offer(MsgSerializable, BitcoinMsgSerializable):
@@ -311,146 +306,29 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
-            nOfferId=0,
-            nOfferRequestId=0,
-            squeak=None,
-            nPrice=0,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_offer, self).__init__(protover)
-        self.nOfferId = nOfferId
-        self.nOfferRequestId = nOfferRequestId
-        self.squeak = squeak or CSqueak()
-        self.nPrice = nPrice
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        nOfferRequestId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        squeak = CSqueak.stream_deserialize(f)
-        nPrice = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return cls(nOfferId, nOfferRequestId, squeak, nPrice)
-
-    def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferId))
-        f.write(struct.pack(b"<I", self.nOfferRequestId))
-        self.squeak.stream_serialize(f)
-        f.write(struct.pack(b"<I", self.nPrice))
-
-    def __repr__(self):
-        return "msg_offer(nOfferId=%i nOfferRequestId=%i squeak=%s nPrice=%i)" % \
-            (self.nOfferId, self.nOfferRequestId, repr(self.squeak), self.nPrice)
-
-
-class msg_getinvoice(MsgSerializable, BitcoinMsgSerializable):
-    command = b"getinvoice"
-
-    def __init__(
-            self,
-            nOfferId=0,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_getinvoice, self).__init__(protover)
-        self.nOfferId = nOfferId
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return cls(nOfferId)
-
-    def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferId))
-
-    def __repr__(self):
-        return "msg_getinvoice(nOfferId=%i)" % \
-            (self.nOfferId)
-
-
-class msg_invoice(MsgSerializable, BitcoinMsgSerializable):
-    command = b"invoice"
-
-    def __init__(
-            self,
-            nOfferId=0,
             strPaymentInfo=b'',
             protover=PROTO_VERSION,
     ):
-        super(msg_invoice, self).__init__(protover)
-        self.nOfferId = nOfferId
+        super(msg_offer, self).__init__(protover)
         self.strPaymentInfo = strPaymentInfo
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
         strPaymentInfo = VarStringSerializer.stream_deserialize(f)
-        return cls(nOfferId, strPaymentInfo)
+        return cls(strPaymentInfo)
 
     def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferId))
         VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
 
     def __repr__(self):
-        return "msg_invoice(nOfferId=%i strPaymentInfo=%s)" % \
-            (self.nOfferId, self.strPaymentInfo)
-
-
-class msg_getfulfill(MsgSerializable, BitcoinMsgSerializable):
-    command = b"getfulfill"
-
-    def __init__(
-            self,
-            nOfferId=0,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_getfulfill, self).__init__(protover)
-        self.nOfferId = nOfferId
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        return cls(nOfferId)
-
-    def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferId))
-
-    def __repr__(self):
-        return "msg_getfulfill(nOfferId=%i)" % \
-            (self.nOfferId)
-
-
-class msg_fulfill(MsgSerializable, BitcoinMsgSerializable):
-    command = b"fulfill"
-
-    def __init__(
-            self,
-            nOfferId=0,
-            vchDecryptionKey=b'',
-            protover=PROTO_VERSION,
-    ):
-        super(msg_fulfill, self).__init__(protover)
-        self.nOfferId = nOfferId
-        self.vchDecryptionKey = vchDecryptionKey
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        nOfferId = struct.unpack(b"<I", ser_read(f, 4))[0]
-        vchDecryptionKey = BytesSerializer.stream_deserialize(f)
-        return cls(nOfferId, vchDecryptionKey)
-
-    def msg_ser(self, f):
-        f.write(struct.pack(b"<I", self.nOfferId))
-        BytesSerializer.stream_serialize(self.vchDecryptionKey, f)
-
-    def __repr__(self):
-        return "msg_fulfill(nOfferId=%i vchDecryptionKey=lx(%s))" % \
-            (self.nOfferId, b2lx(self.vchDecryptionKey))
+        return "msg_offer(strPaymentInfo=%s)" % \
+            self.strPaymentInfo
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_getoffer, msg_offer, msg_getinvoice, msg_invoice,
-               msg_getfulfill, msg_fulfill]
+               msg_getoffer, msg_offer]
 
 messagemap = {}
 for cls in msg_classes:
