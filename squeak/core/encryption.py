@@ -1,15 +1,11 @@
 import os
 import struct
 
-from bitcoin.core.serialize import Serializable
-from bitcoin.core.serialize import BytesSerializer
-from bitcoin.core.serialize import ser_read
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import padding as data_padding
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import algorithms
+from cryptography.hazmat.primitives.ciphers import Cipher
+from cryptography.hazmat.primitives.ciphers import modes
 
 
 DATA_KEY_LENGTH = 32

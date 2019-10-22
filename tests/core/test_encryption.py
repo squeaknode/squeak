@@ -1,9 +1,9 @@
-from squeak.core.encryption import encrypt_content
-from squeak.core.encryption import decrypt_content
-from squeak.core.encryption import generate_data_key
-from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import _create_data_cipher
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
+from squeak.core.encryption import decrypt_content
+from squeak.core.encryption import encrypt_content
+from squeak.core.encryption import generate_data_key
+from squeak.core.encryption import generate_initialization_vector
 
 
 class TestEncryptionCipher(object):

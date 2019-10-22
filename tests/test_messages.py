@@ -1,28 +1,27 @@
 import unittest
-
 from io import BytesIO
 
-from squeak.messages import MsgSerializable
-from squeak.messages import msg_version
-from squeak.messages import msg_verack
 from squeak.messages import msg_addr
-from squeak.messages import msg_inv
-from squeak.messages import msg_getdata
-from squeak.messages import msg_getsqueaks
-from squeak.messages import msg_notfound
-from squeak.messages import msg_getheaders
-from squeak.messages import msg_squeak
-from squeak.messages import msg_headers
+from squeak.messages import msg_alert
+from squeak.messages import msg_fulfill
 from squeak.messages import msg_getaddr
+from squeak.messages import msg_getdata
+from squeak.messages import msg_getfulfill
+from squeak.messages import msg_getheaders
+from squeak.messages import msg_getinvoice
+from squeak.messages import msg_getoffer
+from squeak.messages import msg_getsqueaks
+from squeak.messages import msg_headers
+from squeak.messages import msg_inv
+from squeak.messages import msg_invoice
+from squeak.messages import msg_notfound
+from squeak.messages import msg_offer
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
-from squeak.messages import msg_alert
-from squeak.messages import msg_getoffer
-from squeak.messages import msg_offer
-from squeak.messages import msg_getinvoice
-from squeak.messages import msg_invoice
-from squeak.messages import msg_getfulfill
-from squeak.messages import msg_fulfill
+from squeak.messages import msg_squeak
+from squeak.messages import msg_verack
+from squeak.messages import msg_version
+from squeak.messages import MsgSerializable
 
 
 class MessageTestCase(unittest.TestCase):

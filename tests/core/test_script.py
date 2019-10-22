@@ -3,11 +3,11 @@ import os
 import pytest
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import CSigningKey
-from squeak.core.signing import CSqueakAddress
 from squeak.core.script import MakeSigScript
 from squeak.core.script import VerifyScript
 from squeak.core.script import VerifyScriptError
+from squeak.core.signing import CSigningKey
+from squeak.core.signing import CSqueakAddress
 
 
 def make_hash():
