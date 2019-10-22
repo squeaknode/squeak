@@ -1,25 +1,24 @@
-import time
-import struct
 import hashlib
 import random
-
+import struct
+import time
 from io import BytesIO as _BytesIO
 
 import bitcoin  # noqa: F401
-from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
-from bitcoin.messages import msg_version as bitcoin_msg_version
-from bitcoin.messages import msg_verack as bitcoin_msg_verack
+from bitcoin.core import b2lx
+from bitcoin.core import b2x
+from bitcoin.core.serialize import BytesSerializer
+from bitcoin.core.serialize import ser_read
+from bitcoin.core.serialize import VarStringSerializer
+from bitcoin.core.serialize import VectorSerializer
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
+from bitcoin.messages import msg_alert as bitcoin_msg_alert
 from bitcoin.messages import msg_getaddr as bitcoin_msg_getaddr
 from bitcoin.messages import msg_ping as bitcoin_msg_ping
 from bitcoin.messages import msg_pong as bitcoin_msg_pong
-from bitcoin.messages import msg_alert as bitcoin_msg_alert
-from bitcoin.core import b2x
-from bitcoin.core import b2lx
-from bitcoin.core.serialize import BytesSerializer
-from bitcoin.core.serialize import VectorSerializer
-from bitcoin.core.serialize import VarStringSerializer
-from bitcoin.core.serialize import ser_read
+from bitcoin.messages import msg_verack as bitcoin_msg_verack
+from bitcoin.messages import msg_version as bitcoin_msg_version
+from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.net import CAddress
 
 import squeak
@@ -27,7 +26,6 @@ import squeak.params
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
-from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
