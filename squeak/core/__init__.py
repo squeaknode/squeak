@@ -13,8 +13,6 @@ from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import DATA_KEY_LENGTH
-from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
-from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.script import CScript
 from squeak.core.script import MakeSigScript

@@ -12,10 +12,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
-KEY_SIZE = 1024
-ENCRYPTION_PUB_KEY_LENGTH = 162
 DATA_KEY_LENGTH = 32
-ENCRYPTED_DATA_KEY_LENGTH = 128
 CIPHER_BLOCK_LENGTH = 16
 
 
