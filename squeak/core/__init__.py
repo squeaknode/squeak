@@ -135,9 +135,9 @@ class CSqueakHeader(ImmutableSerializable):
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
-    __slots__ = ['encContent', 'scriptSig', 'vchDecryptionKey']
+    __slots__ = ['encContent', 'scriptSig', 'vchDecryptionKey', 'vchDataKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, hashDataKey=b'\x00'*HASH_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b''):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, hashDataKey=b'\x00'*HASH_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b'', vchDataKey=b'\x00'*DATA_KEY_LENGTH):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
@@ -158,6 +158,8 @@ class CSqueak(CSqueakHeader):
         object.__setattr__(self, 'encContent', encContent)
         object.__setattr__(self, 'scriptSig', scriptSig)
         object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
+        assert len(vchDataKey) == DATA_KEY_LENGTH
+        object.__setattr__(self, 'vchDataKey', vchDataKey)
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -168,6 +170,7 @@ class CSqueak(CSqueakHeader):
         object.__setattr__(self, 'scriptSig', scriptSig)
         vchDecryptionKey = BytesSerializer.stream_deserialize(f)
         object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
+        vchDataKey = ser_read(f,DATA_KEY_LENGTH)
         return self
 
     def stream_serialize(self, f):
@@ -175,6 +178,8 @@ class CSqueak(CSqueakHeader):
         CSqueakEncContent.stream_serialize(self.encContent, f)
         BytesSerializer.stream_serialize(self.scriptSig, f)
         BytesSerializer.stream_serialize(self.vchDecryptionKey, f)
+        assert len(self.vchDataKey) == HASH_LENGTH
+        f.write(self.vchDataKey)
 
     def get_header(self):
         """Return the squeak header
