@@ -43,7 +43,7 @@ def prev_squeak_hash():
     return lx('DEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAF')
 
 
-@pytest.fixture
+@pytest.yield_fixture
 def squeak(signing_key, prev_squeak_hash, block_height, block_hash):
     content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
     timestamp = int(time.time())
@@ -195,26 +195,20 @@ class TestCheckSqueakDataKey(object):
 
     def test_verify_squeak_data_key_check_fails(self, squeak):
         fake_data_key = generate_data_key()
-
-        fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
-            hashReplySqk=squeak.hashReplySqk,
-            hashBlock=squeak.hashBlock,
-            nBlockHeight=squeak.nBlockHeight,
-            scriptPubKey=squeak.scriptPubKey,
-            hashDataKey=squeak.hashDataKey,
-            vchIv=squeak.vchIv,
-            nTime=squeak.nTime,
-            nNonce=squeak.nNonce,
-            encContent=squeak.encContent,
-            scriptSig=squeak.scriptSig,
-            vchDataKey=fake_data_key,
-        )
+        squeak.SetDataKey(fake_data_key)
 
         with pytest.raises(CheckSqueakDataKeyError):
-            CheckSqueak(fake_squeak)
+            CheckSqueak(squeak)
 
-        CheckSqueak(fake_squeak, skipDecryptionCheck=True)
+        CheckSqueak(squeak, skipDecryptionCheck=True)
+
+    def test_verify_squeak_data_key_cleared(self, squeak):
+        squeak.ClearDataKey()
+
+        with pytest.raises(CheckSqueakDataKeyError):
+            CheckSqueak(squeak)
+
+        CheckSqueak(squeak, skipDecryptionCheck=True)
 
 
 class TestSerializeSqueak(object):

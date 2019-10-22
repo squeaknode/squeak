@@ -193,6 +193,17 @@ class CSqueak(CSqueakHeader):
         """
         object.__setattr__(self, 'scriptSig', scriptSig)
 
+    def SetDataKey(self, data_key):
+        """Set the data key.
+        """
+        object.__setattr__(self, 'vchDataKey', data_key)
+
+    def ClearDataKey(self):
+        """Set the data key.
+        """
+        null_data_key = b'\x00'*DATA_KEY_LENGTH
+        object.__setattr__(self, 'vchDataKey', null_data_key)
+
     def GetDataKey(self):
         """Return the data key."""
         return self.vchDataKey
