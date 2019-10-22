@@ -17,7 +17,6 @@ from squeak.core import CheckSqueakHeaderError
 from squeak.core import CheckSqueakDataKeyError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import CheckSqueakSignatureError
-from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
