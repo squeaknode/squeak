@@ -14,10 +14,9 @@ from squeak.core import SignSqueak
 from squeak.core import InvalidContentLengthError
 from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakHeaderError
-from squeak.core import CheckSqueakDecryptionKeyError
+from squeak.core import CheckSqueakDataKeyError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import CheckSqueakSignatureError
-from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
@@ -136,13 +135,12 @@ class TestCheckSqueak(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             scriptPubKey=squeak.scriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            vchEncDatakey=squeak.vchEncDatakey,
+            hashDataKey=squeak.hashDataKey,
             vchIv=squeak.vchIv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=fake_enc_content,
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            vchDataKey=squeak.vchDataKey,
         )
 
         with pytest.raises(CheckSqueakError):
@@ -155,13 +153,12 @@ class TestCheckSqueak(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             scriptPubKey=b'',
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            vchEncDatakey=squeak.vchEncDatakey,
+            hashDataKey=squeak.hashDataKey,
             vchIv=squeak.vchIv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            vchDataKey=squeak.vchDataKey,
         )
 
         with pytest.raises(CheckSqueakHeaderError):
@@ -181,24 +178,23 @@ class TestCheckSqueakSignature(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             scriptPubKey=squeak.scriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            vchEncDatakey=squeak.vchEncDatakey,
+            hashDataKey=squeak.hashDataKey,
             vchIv=squeak.vchIv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
             scriptSig=fake_sig_script,
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            vchDataKey=squeak.vchDataKey,
         )
 
         with pytest.raises(CheckSqueakSignatureError):
             CheckSqueak(fake_squeak)
 
 
-class TestCheckSqueakDecryptionKey(object):
+class TestCheckSqueakDataKey(object):
 
-    def test_verify_squeak_decryption_key_check_fails(self, squeak):
-        fake_decryption_key = CDecryptionKey.generate()
+    def test_verify_squeak_data_key_check_fails(self, squeak):
+        fake_data_key = generate_data_key()
 
         fake_squeak = CSqueak(
             hashEncContent=squeak.hashEncContent,
@@ -206,39 +202,16 @@ class TestCheckSqueakDecryptionKey(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             scriptPubKey=squeak.scriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            vchEncDatakey=squeak.vchEncDatakey,
+            hashDataKey=squeak.hashDataKey,
             vchIv=squeak.vchIv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
             scriptSig=squeak.scriptSig,
-            vchDecryptionKey=fake_decryption_key.serialize(),
+            vchDataKey=fake_data_key,
         )
 
-        with pytest.raises(CheckSqueakDecryptionKeyError):
-            CheckSqueak(fake_squeak)
-
-        CheckSqueak(fake_squeak, skipDecryptionCheck=True)
-
-    def test_verify_squeak_decryption_key_invalid(self, squeak):
-        fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
-            hashReplySqk=squeak.hashReplySqk,
-            hashBlock=squeak.hashBlock,
-            nBlockHeight=squeak.nBlockHeight,
-            scriptPubKey=squeak.scriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            vchEncDatakey=squeak.vchEncDatakey,
-            vchIv=squeak.vchIv,
-            nTime=squeak.nTime,
-            nNonce=squeak.nNonce,
-            encContent=squeak.encContent,
-            scriptSig=squeak.scriptSig,
-            vchDecryptionKey=b'foo',
-        )
-
-        with pytest.raises(CheckSqueakDecryptionKeyError):
+        with pytest.raises(CheckSqueakDataKeyError):
             CheckSqueak(fake_squeak)
 
         CheckSqueak(fake_squeak, skipDecryptionCheck=True)
