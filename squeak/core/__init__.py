@@ -212,10 +212,6 @@ class CSqueak(CSqueakHeader):
         """Return the data key."""
         return self.hashDataKey
 
-    def GetEncryptionKey(self):
-        """Return the squeak encryption key."""
-        return CEncryptionKey.deserialize(self.vchEncryptionKey)
-
     def GetDecryptedContent(self):
         """Return the decrypted content."""
         data_key = self.GetDataKey()
@@ -323,15 +319,6 @@ def EncryptContent(data_key, iv, content):
         raise InvalidContentLengthError("EncryptContent : content length must be %i; got %i" %
                                         (CONTENT_LENGTH, len(content)))
     return CSqueakEncContent(encrypt_content(data_key, iv, content))
-
-
-def EncryptDataKey(encryption_key, data_key):
-    """Return the ciphertext from the given content.
-
-    encryption_key (CEncryptionKey)
-    data_key (bytes)
-    """
-    return encryption_key.encrypt(data_key)
 
 
 def HashDataKey(data_key):
