@@ -1,15 +1,14 @@
-import pytest
-
 from io import BytesIO as _BytesIO
 
+import pytest
 from bitcoin.core import lx
 
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSigningKey
 from squeak.core.signing import CSqueakAddress
+from squeak.net import CInterested
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
-from squeak.net import CInterested
 
 
 @pytest.fixture

@@ -1,10 +1,10 @@
 import struct
 
+from bitcoin.core import b2lx
 from bitcoin.core.serialize import BytesSerializer
+from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VectorSerializer
-from bitcoin.core.serialize import ser_read
-from bitcoin.core import b2lx
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
@@ -19,6 +19,7 @@ class CSqueakLocator(Serializable):
 
     Contains a list of public keys, each with a block height range and reply_to hash.
     """
+
     def __init__(
             self,
             vInterested=None,
@@ -46,6 +47,7 @@ class CInterested(Serializable):
     """Contains a public key together with a block range and reply_to hash.
 
     """
+
     def __init__(
             self,
             address=None,

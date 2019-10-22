@@ -1,6 +1,5 @@
-import os
-
 import hashlib
+import os
 
 from bitcoin.core.key import CPubKey
 from bitcoin.wallet import CBitcoinAddressError

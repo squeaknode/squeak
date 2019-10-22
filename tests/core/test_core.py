@@ -1,22 +1,21 @@
 import time
 
 import pytest
-
 from bitcoin.core import lx
 
+from squeak.core import CheckSqueak
+from squeak.core import CheckSqueakDataKeyError
+from squeak.core import CheckSqueakError
+from squeak.core import CheckSqueakHeaderError
+from squeak.core import CheckSqueakSignatureError
+from squeak.core import CONTENT_LENGTH
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
-from squeak.core import CheckSqueak
 from squeak.core import EncryptContent
+from squeak.core import InvalidContentLengthError
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
 from squeak.core import SignSqueak
-from squeak.core import InvalidContentLengthError
-from squeak.core import CheckSqueakError
-from squeak.core import CheckSqueakHeaderError
-from squeak.core import CheckSqueakDataKeyError
-from squeak.core import CONTENT_LENGTH
-from squeak.core import CheckSqueakSignatureError
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
