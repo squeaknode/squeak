@@ -43,5 +43,8 @@ class TestDeserializeSqueak(object):
         assert(deserialized_squeak.scriptSig == CScript([x('304402202a14a26951547f1a30a1069823acdea21adeae40d9772ce7e692bf03386c5cdd022002be4530b5ce0f94d40429561e2161be589b72157bd3b42e02f2fa399a8f939c01'), x('03f59e4e458f1bf2a24917b680a954a0e87ec9c9b35403880293a0e79bf2a95c4b')]))
         assert(deserialized_squeak.vchDataKey == lx('eb8b021786ae01835cc914d043a498cba2fcb4df6687667b2566c34a9de8173d'))
 
+        # Check the hash
+        assert(deserialized_squeak.GetHash() == lx('4d320a62da0b85fa749e6910ae0b4f33e384b9a1af78055d25f0e7d040bd76ef'))
+
         # Check the validity of the squeak
         CheckSqueak(deserialized_squeak)
