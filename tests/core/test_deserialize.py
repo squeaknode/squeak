@@ -2,9 +2,11 @@ import os
 
 import pytest
 
-from bitcoin.core import lx
+from bitcoin.core import lx, x
+from bitcoin.core.script import OP_DUP, OP_HASH160, OP_EQUALVERIFY, OP_CHECKSIG
 
 from squeak.core import CSqueak
+from squeak.core.script import CScript
 
 
 TESTDATA_FILENAME = os.path.join(os.path.dirname(__file__), 'squeak-example.dat')
@@ -29,3 +31,7 @@ class TestDeserializeSqueak(object):
 
         assert(deserialized_squeak.nVersion == 1)
         assert(deserialized_squeak.hashEncContent == lx('a6ed7e0b2314d9b1616e9ccdff18df970b2b697b80a98739e50deab98f64afb9'))
+        assert(deserialized_squeak.hashReplySqk == lx('0000000000000000000000000000000000000000000000000000000000000000'))
+        assert(deserialized_squeak.hashBlock == lx('4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b'))
+        assert(deserialized_squeak.nBlockHeight == 0)
+        assert(deserialized_squeak.scriptPubKey == CScript([OP_DUP, OP_HASH160, x('d90be698f3b2dd28eb8f32933186fda15e9cc5f3'), OP_EQUALVERIFY, OP_CHECKSIG]))
