@@ -46,6 +46,9 @@ class TestDeserializeSqueak(object):
         # Check the hash
         assert(deserialized_squeak.GetHash() == lx('4d320a62da0b85fa749e6910ae0b4f33e384b9a1af78055d25f0e7d040bd76ef'))
 
+        # Check the address
+        assert(str(deserialized_squeak.GetAddress()) == '1LndtWRXeZKUBjRu4K28d26PVWHopFJ9Z6')
+
         # Check the decrypted content
         assert(len(deserialized_squeak.GetDecryptedContent()) == 1120)
         assert(deserialized_squeak.GetDecryptedContentStr() == 'Hello world!')
