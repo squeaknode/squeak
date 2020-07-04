@@ -92,6 +92,10 @@ class CEncryptedDecryptionKey():
         cipher_bytes = encrypt_content(preimage, iv, decryption_key_bytes)
         return cls(cipher_bytes)
 
+    @classmethod
+    def from_bytes(cls, cipher_bytes):
+        return cls(cipher_bytes)
+
     def get_decryption_key(self, preimage, iv):
         new_decryption_key_bytes = decrypt_content(preimage, iv, self.cipher_bytes)
         new_decryption_key = CDecryptionKey.from_bytes(new_decryption_key_bytes)
