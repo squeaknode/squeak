@@ -1,4 +1,3 @@
-import os
 import struct
 
 from bitcoin.core import b2lx
@@ -12,7 +11,6 @@ from squeak.core.encryption import CEncryptionKey
 from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
-from squeak.core.encryption import DATA_KEY_LENGTH
 from squeak.core.encryption import decrypt_content
 from squeak.core.encryption import encrypt_content
 from squeak.core.encryption import generate_data_key
@@ -323,7 +321,7 @@ def CheckSqueakDecryptionKey(squeak):
     except SerializationTruncationError:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
-    expected_proof = os.urandom(DATA_KEY_LENGTH)
+    expected_proof = generate_data_key()
     challenge = encryption_key.encrypt(expected_proof)
     try:
         proof = decryption_key.decrypt(challenge)
