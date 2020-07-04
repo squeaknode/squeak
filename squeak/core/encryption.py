@@ -81,35 +81,25 @@ class CEncryptionKey(Serializable):
             (repr(self.public_key))
 
 
-class CEncryptedDecryptionKey(Serializable):
+class CEncryptedDecryptionKey():
 
-    def __init__(self, key_bytes):
-        # TODO: rename key_bytes to cipher_bytes
-        self.key_bytes = key_bytes
-
-    @classmethod
-    def stream_deserialize(cls, f):
-        key_bytes = ser_read(f, ENCRYPTED_DECRYPTION_KEY_LENGTH)
-        return cls(key_bytes)
+    def __init__(self, cipher_bytes):
+        self.cipher_bytes = cipher_bytes
 
     @classmethod
     def from_decryption_key(cls, decryption_key, preimage, iv):
         decryption_key_bytes = _serialize_private_key(decryption_key.private_key)
-        key_bytes = encrypt_content(preimage, iv, decryption_key_bytes)
-        return cls(key_bytes)
-
-    def stream_serialize(self, f):
-        f.write(self.key_bytes)
-        assert len(self.key_bytes) == ENCRYPTED_DECRYPTION_KEY_LENGTH
+        cipher_bytes = encrypt_content(preimage, iv, decryption_key_bytes)
+        return cls(cipher_bytes)
 
     def get_decryption_key(self, preimage, iv):
-        new_decryption_key_bytes = decrypt_content(preimage, iv, self.key_bytes)
+        new_decryption_key_bytes = decrypt_content(preimage, iv, self.cipher_bytes)
         new_decryption_key = CDecryptionKey.from_bytes(new_decryption_key_bytes)
         return new_decryption_key
 
     def __repr__(self):
-        return "CEncryptedDecryptionKey(key_bytes=%s)" % \
-            (repr(self.key_bytes))
+        return "CEncryptedDecryptionKey(cipher_bytes=%s)" % \
+            (repr(self.cipher_bytes))
 
 
 def _generate_assymetric_decryption_key():
