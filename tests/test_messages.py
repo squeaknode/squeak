@@ -1,3 +1,4 @@
+import pytest
 import unittest
 from io import BytesIO
 
@@ -21,6 +22,7 @@ from squeak.messages import msg_version
 from squeak.messages import MsgSerializable
 
 
+@pytest.mark.skip(reason="The test resource is using an old squeak version.")
 class MessageTestCase(unittest.TestCase):
     def serialization_test(self, cls):
         m = cls()

@@ -8,7 +8,6 @@ from bitcoin.core.serialize import SerializationTruncationError
 
 from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import CEncryptionKey
-from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.encryption import decrypt_content
@@ -44,7 +43,7 @@ class CSqueakHeader(ImmutableSerializable):
     """A squeak header"""
     __slots__ = ['nVersion', 'hashEncContent', 'hashReplySqk', 'hashBlock', 'nBlockHeight', 'scriptPubKey', 'vchEncryptionKey', 'vchEncDatakey', 'vchIv', 'nTime', 'nNonce']
 
-    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0):
+    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=CEncryptionKey(), vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0):
         object.__setattr__(self, 'nVersion', nVersion)
         assert len(hashEncContent) == HASH_LENGTH
         object.__setattr__(self, 'hashEncContent', hashEncContent)
@@ -54,7 +53,6 @@ class CSqueakHeader(ImmutableSerializable):
         object.__setattr__(self, 'hashBlock', hashBlock)
         object.__setattr__(self, 'nBlockHeight', nBlockHeight)
         object.__setattr__(self, 'scriptPubKey', scriptPubKey)
-        assert len(vchEncryptionKey) == ENCRYPTION_PUB_KEY_LENGTH
         object.__setattr__(self, 'vchEncryptionKey', vchEncryptionKey)
         assert len(vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
         object.__setattr__(self, 'vchEncDatakey', vchEncDatakey)
@@ -71,7 +69,7 @@ class CSqueakHeader(ImmutableSerializable):
         hashBlock = ser_read(f,HASH_LENGTH)
         nBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         scriptPubKey = CScript(BytesSerializer.stream_deserialize(f))
-        vchEncryptionKey = ser_read(f,ENCRYPTION_PUB_KEY_LENGTH)
+        vchEncryptionKey = CEncryptionKey.stream_deserialize(f)
         vchEncDatakey = ser_read(f,ENCRYPTED_DATA_KEY_LENGTH)
         vchIv = ser_read(f,CIPHER_BLOCK_LENGTH)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
@@ -100,8 +98,7 @@ class CSqueakHeader(ImmutableSerializable):
         f.write(self.hashBlock)
         f.write(struct.pack(b"<i", self.nBlockHeight))
         BytesSerializer.stream_serialize(self.scriptPubKey, f)
-        assert len(self.vchEncryptionKey) == ENCRYPTION_PUB_KEY_LENGTH
-        f.write(self.vchEncryptionKey)
+        self.vchEncryptionKey.stream_serialize(f)
         assert len(self.vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
         f.write(self.vchEncDatakey)
         assert len(self.vchIv) == CIPHER_BLOCK_LENGTH
@@ -128,7 +125,7 @@ class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
     __slots__ = ['encContent', 'scriptSig', 'vchDecryptionKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=b'\x00'*ENCRYPTION_PUB_KEY_LENGTH, vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b''):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, scriptPubKey=CScript(), vchEncryptionKey=CEncryptionKey(), vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, scriptSig=CScript(), vchDecryptionKey=b''):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
@@ -229,7 +226,7 @@ class CSqueak(CSqueakHeader):
 
     def GetEncryptionKey(self):
         """Return the squeak encryption key."""
-        return CEncryptionKey.deserialize(self.vchEncryptionKey)
+        return self.vchEncryptionKey
 
     def GetDecryptedContent(self):
         """Return the decrypted content."""
@@ -429,7 +426,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         hashBlock=block_hash,
         nBlockHeight=block_height,
         scriptPubKey=pubkey_script,
-        vchEncryptionKey=encryption_key.serialize(),
+        vchEncryptionKey=encryption_key,
         vchEncDatakey=data_key_cipher,
         vchIv=initialization_vector,
         nTime=timestamp,

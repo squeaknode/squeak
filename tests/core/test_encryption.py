@@ -12,7 +12,6 @@ from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import CEncryptionKey
 from squeak.core.encryption import CEncryptedDecryptionKey
 from squeak.core.encryption import KEY_SIZE
-from squeak.core.encryption import ENCRYPTION_PUB_KEY_LENGTH
 
 
 PREIMAGE_LENGTH = 32
@@ -66,7 +65,7 @@ class TestEncryptContent(object):
 
         assert public_key.public_key.key_size == KEY_SIZE
         assert isinstance(public_key_data, bytes)
-        assert len(public_key_data) == ENCRYPTION_PUB_KEY_LENGTH
+        assert len(public_key_data) > 0
         assert isinstance(private_key_data, bytes)
 
         deserialized_public_key = CEncryptionKey.deserialize(public_key_data)
