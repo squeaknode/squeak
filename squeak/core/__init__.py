@@ -114,10 +114,6 @@ class CSqueakHeader(ImmutableSerializable):
     def GetAddress(self):
         """Return the squeak author address."""
         script_pubkey = self.GetScriptPubkey()
-
-        print('script_pubkey:')
-        print(script_pubkey)
-
         return CSqueakAddress.from_scriptPubKey(script_pubkey)
 
     def GetScriptPubkey(self):
