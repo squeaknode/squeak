@@ -63,26 +63,18 @@ class CDecryptionKey(Serializable):
             (repr(self.private_key))
 
 
-class CEncryptionKey(Serializable):
+class CEncryptionKey():
 
     def __init__(self, public_key=None):
         self.public_key = public_key
 
     @classmethod
-    def stream_deserialize(cls, f):
-        data = BytesSerializer.stream_deserialize(f)
-        if len(data) == 0:
-            public_key = None
-        else:
-            public_key = _deserialize_public_key(data)
+    def from_bytes(cls, data):
+        public_key = _deserialize_public_key(data)
         return cls(public_key)
 
-    def stream_serialize(self, f):
-        if self.public_key is None:
-            data = b''
-        else:
-            data = _serialize_public_key(self.public_key)
-        BytesSerializer.stream_serialize(data, f)
+    def get_bytes(self):
+        return _serialize_public_key(self.public_key)
 
     def encrypt(self, message):
         return _encrypt_assymetric(message, self.public_key)
