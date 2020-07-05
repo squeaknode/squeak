@@ -3,7 +3,6 @@ import struct
 
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import BytesSerializer
-from bitcoin.core.serialize import ser_read
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -19,22 +18,24 @@ from cryptography.hazmat.primitives.serialization import load_der_private_key
 
 
 KEY_SIZE = 1024
-ENCRYPTION_PUB_KEY_LENGTH = 162
 DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
 CIPHER_BLOCK_LENGTH = 16
-ENCRYPTED_DECRYPTION_KEY_LENGTH = 640
 
 
 class CDecryptionKey(Serializable):
 
-    def __init__(self, private_key):
+    def __init__(self, private_key=None):
         self.private_key = private_key
 
     @classmethod
     def stream_deserialize(cls, f):
         data = BytesSerializer.stream_deserialize(f)
-        return cls(_deserialize_private_key(data))
+        if len(data) == 0:
+            private_key = None
+        else:
+            private_key = _deserialize_private_key(data)
+        return cls(private_key)
 
     @classmethod
     def generate(cls):
@@ -45,7 +46,10 @@ class CDecryptionKey(Serializable):
         return cls(_deserialize_private_key(key_bytes))
 
     def stream_serialize(self, f):
-        data = _serialize_private_key(self.private_key)
+        if self.private_key is None:
+            data = b''
+        else:
+            data = _serialize_private_key(self.private_key)
         BytesSerializer.stream_serialize(data, f)
 
     def get_encryption_key(self):
@@ -61,17 +65,24 @@ class CDecryptionKey(Serializable):
 
 class CEncryptionKey(Serializable):
 
-    def __init__(self, public_key):
+    def __init__(self, public_key=None):
         self.public_key = public_key
 
     @classmethod
     def stream_deserialize(cls, f):
-        data = ser_read(f, ENCRYPTION_PUB_KEY_LENGTH)
-        return cls(_deserialize_public_key(data))
+        data = BytesSerializer.stream_deserialize(f)
+        if len(data) == 0:
+            public_key = None
+        else:
+            public_key = _deserialize_public_key(data)
+        return cls(public_key)
 
     def stream_serialize(self, f):
-        data = _serialize_public_key(self.public_key)
-        f.write(data)
+        if self.public_key is None:
+            data = b''
+        else:
+            data = _serialize_public_key(self.public_key)
+        BytesSerializer.stream_serialize(data, f)
 
     def encrypt(self, message):
         return _encrypt_assymetric(message, self.public_key)
