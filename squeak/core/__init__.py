@@ -223,8 +223,6 @@ class CSqueak(CSqueakHeader):
         """Return the squeak decryption key."""
         if not self.HasDecryptionKey():
             return None
-        # print('self.vchDecryptionKey:')
-        # print(self.vchDecryptionKey)
         return CDecryptionKey.from_bytes(self.vchDecryptionKey)
 
     def HasDecryptionKey(self):
