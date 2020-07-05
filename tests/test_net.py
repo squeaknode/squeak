@@ -3,12 +3,12 @@ from io import BytesIO as _BytesIO
 import pytest
 from bitcoin.core import lx
 
-from squeak.core import HASH_LENGTH
-from squeak.core.signing import CSigningKey
-from squeak.core.signing import CSqueakAddress
-from squeak.net import CInterested
-from squeak.net import CInv
-from squeak.net import CSqueakLocator
+# from squeak.core import HASH_LENGTH
+# from squeak.core.signing import CSigningKey
+# from squeak.core.signing import CSqueakAddress
+# from squeak.net import CInterested
+# from squeak.net import CInv
+# from squeak.net import CSqueakLocator
 
 
 @pytest.fixture
@@ -26,6 +26,7 @@ def fake_squeak_hash():
     return lx('DEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAFDEADBEAF')
 
 
+@pytest.mark.skip(reason="The test resource is using an old squeak version.")
 class TestCInv(object):
     def test_serialization(self):
         inv = CInv(type=1)
@@ -40,6 +41,7 @@ class TestCInv(object):
         assert deserialized == inv
 
 
+@pytest.mark.skip(reason="The test resource is using an old squeak version.")
 class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
         address = CSqueakAddress.from_verifying_key(verifying_key)

@@ -25,13 +25,17 @@ CIPHER_BLOCK_LENGTH = 16
 
 class CDecryptionKey(Serializable):
 
-    def __init__(self, private_key):
+    def __init__(self, private_key=None):
         self.private_key = private_key
 
     @classmethod
     def stream_deserialize(cls, f):
         data = BytesSerializer.stream_deserialize(f)
-        return cls(_deserialize_private_key(data))
+        if len(data) == 0:
+            private_key = None
+        else:
+            private_key = _deserialize_private_key(data)
+        return cls(private_key)
 
     @classmethod
     def generate(cls):
@@ -42,7 +46,10 @@ class CDecryptionKey(Serializable):
         return cls(_deserialize_private_key(key_bytes))
 
     def stream_serialize(self, f):
-        data = _serialize_private_key(self.private_key)
+        if self.private_key is None:
+            data = b''
+        else:
+            data = _serialize_private_key(self.private_key)
         BytesSerializer.stream_serialize(data, f)
 
     def get_encryption_key(self):

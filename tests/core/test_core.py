@@ -16,6 +16,7 @@ from squeak.core import InvalidContentLengthError
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
 from squeak.core import SignSqueak
+from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
@@ -44,7 +45,7 @@ def prev_squeak_hash():
 
 @pytest.fixture
 def fake_decryption_key():
-    return lx('BAAAAAAD')
+    return CDecryptionKey.generate()
 
 
 @pytest.yield_fixture
@@ -86,6 +87,7 @@ class TestMakeSqueak(object):
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
         assert squeak.GetAddress() == address
+        assert squeak.GetDecryptionKey() is not None
         assert decrypted_content == "Hello world!"
 
     def test_make_squeak_is_not_reply(self, signing_key, block_height, block_hash):
@@ -209,7 +211,11 @@ class TestCheckSqueakDataKey(object):
         CheckSqueak(squeak, skipDecryptionCheck=True)
 
     def test_verify_squeak_data_key_cleared(self, squeak):
+        assert squeak.GetDecryptionKey() is not None
+
         squeak.ClearDecryptionKey()
+
+        assert squeak.GetDecryptionKey() is None
 
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(squeak)
