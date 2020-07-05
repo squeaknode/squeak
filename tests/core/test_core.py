@@ -45,7 +45,7 @@ def prev_squeak_hash():
 
 @pytest.fixture
 def fake_decryption_key():
-    return CDecryptionKey.generate()
+    return CDecryptionKey.generate().get_bytes()
 
 
 @pytest.yield_fixture
