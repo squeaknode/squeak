@@ -192,7 +192,7 @@ class TestCheckSqueakSignature(object):
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
-            scriptSig=fake_sig_script,
+            vchScriptSig=bytes(fake_sig_script),
             vchDecryptionKey=squeak.vchDecryptionKey,
         )
 
