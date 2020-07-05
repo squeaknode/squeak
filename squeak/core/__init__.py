@@ -217,10 +217,13 @@ class CSqueak(CSqueakHeader):
     def ClearDecryptionKey(self):
         """Set the decryption key.
         """
-        object.__setattr__(self, 'vchDecryptionKey', None)
+        null_decryption_key = CDecryptionKey()
+        self.SetDecryptionKey(null_decryption_key)
 
     def GetDecryptionKey(self):
         """Return the squeak decryption key."""
+        if not self.HasDecryptionKey():
+            return None
         return self.vchDecryptionKey
 
     def HasDecryptionKey(self):

@@ -247,3 +247,19 @@ class TestSerializeSqueak(object):
 
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)
+
+    def test_serialize_without_decryption_key(self, squeak):
+        squeak.ClearDecryptionKey()
+
+        serialized_squeak = squeak.serialize()
+        deserialized_squeak = CSqueak.deserialize(serialized_squeak)
+
+        assert deserialized_squeak == squeak
+        assert isinstance(squeak, CSqueak)
+
+        assert deserialized_squeak.GetDecryptionKey() is None
+
+        with pytest.raises(CheckSqueakDecryptionKeyError):
+            CheckSqueak(deserialized_squeak)
+
+        CheckSqueak(deserialized_squeak, skipDecryptionCheck=True)
