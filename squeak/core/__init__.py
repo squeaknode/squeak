@@ -41,9 +41,9 @@ class ValidationError(Exception):
 
 class CSqueakHeader(ImmutableSerializable):
     """A squeak header"""
-    __slots__ = ['nVersion', 'hashEncContent', 'hashReplySqk', 'hashBlock', 'nBlockHeight', 'vchScriptPubKey', 'vchEncryptionKey', 'vchEncDatakey', 'vchIv', 'nTime', 'nNonce']
+    __slots__ = ['nVersion', 'hashEncContent', 'hashReplySqk', 'hashBlock', 'nBlockHeight', 'vchScriptPubKey', 'vchEncryptionKey', 'encDatakey', 'vchIv', 'nTime', 'nNonce']
 
-    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', vchEncryptionKey=b'', vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0):
+    def __init__(self, nVersion=SQUEAK_VERSION, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', vchEncryptionKey=b'', encDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0):
         object.__setattr__(self, 'nVersion', nVersion)
         assert len(hashEncContent) == HASH_LENGTH
         object.__setattr__(self, 'hashEncContent', hashEncContent)
@@ -54,8 +54,8 @@ class CSqueakHeader(ImmutableSerializable):
         object.__setattr__(self, 'nBlockHeight', nBlockHeight)
         object.__setattr__(self, 'vchScriptPubKey', vchScriptPubKey)
         object.__setattr__(self, 'vchEncryptionKey', vchEncryptionKey)
-        assert len(vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
-        object.__setattr__(self, 'vchEncDatakey', vchEncDatakey)
+        assert len(encDatakey) == ENCRYPTED_DATA_KEY_LENGTH
+        object.__setattr__(self, 'encDatakey', encDatakey)
         assert len(vchIv) == CIPHER_BLOCK_LENGTH
         object.__setattr__(self, 'vchIv', vchIv)
         object.__setattr__(self, 'nTime', nTime)
@@ -70,7 +70,7 @@ class CSqueakHeader(ImmutableSerializable):
         nBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         vchScriptPubKey = BytesSerializer.stream_deserialize(f)
         vchEncryptionKey = BytesSerializer.stream_deserialize(f)
-        vchEncDatakey = ser_read(f,ENCRYPTED_DATA_KEY_LENGTH)
+        encDatakey = ser_read(f,ENCRYPTED_DATA_KEY_LENGTH)
         vchIv = ser_read(f,CIPHER_BLOCK_LENGTH)
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
@@ -82,7 +82,7 @@ class CSqueakHeader(ImmutableSerializable):
             nBlockHeight=nBlockHeight,
             vchScriptPubKey=vchScriptPubKey,
             vchEncryptionKey=vchEncryptionKey,
-            vchEncDatakey=vchEncDatakey,
+            encDatakey=encDatakey,
             vchIv=vchIv,
             nTime=nTime,
             nNonce=nNonce,
@@ -99,8 +99,8 @@ class CSqueakHeader(ImmutableSerializable):
         f.write(struct.pack(b"<i", self.nBlockHeight))
         BytesSerializer.stream_serialize(self.vchScriptPubKey, f)
         BytesSerializer.stream_serialize(self.vchEncryptionKey, f)
-        assert len(self.vchEncDatakey) == ENCRYPTED_DATA_KEY_LENGTH
-        f.write(self.vchEncDatakey)
+        assert len(self.encDatakey) == ENCRYPTED_DATA_KEY_LENGTH
+        f.write(self.encDatakey)
         assert len(self.vchIv) == CIPHER_BLOCK_LENGTH
         f.write(self.vchIv)
         f.write(struct.pack(b"<I", self.nTime))
@@ -125,16 +125,16 @@ class CSqueakHeader(ImmutableSerializable):
         self.vchScriptPubKey = vchScriptPubKey
 
     def __repr__(self):
-        return "%s(nVersion: %i, hashEncContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, vchScriptPubKey: %r, vchEncryptionKey: b2lx(%s), vchEncDatakey: b2lx(%s), vchIv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
+        return "%s(nVersion: %i, hashEncContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, vchScriptPubKey: %r, vchEncryptionKey: b2lx(%s), encDatakey: b2lx(%s), vchIv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
             (self.__class__.__name__, self.nVersion, b2lx(self.hashEncContent), b2lx(self.hashReplySqk),
-             b2lx(self.hashBlock), self.nBlockHeight, self.vchScriptPubKey, b2lx(self.vchEncryptionKey), b2lx(self.vchEncDatakey), b2lx(self.vchIv), self.nTime, self.nNonce)
+             b2lx(self.hashBlock), self.nBlockHeight, self.vchScriptPubKey, b2lx(self.vchEncryptionKey), b2lx(self.encDatakey), b2lx(self.vchIv), self.nTime, self.nNonce)
 
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
     __slots__ = ['encContent', 'vchScriptSig', 'vchDecryptionKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', vchEncryptionKey=b'', vchEncDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=None, vchScriptSig=b'', vchDecryptionKey=b''):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', vchEncryptionKey=b'', encDatakey=b'\x00'*ENCRYPTED_DATA_KEY_LENGTH, vchIv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=b'\x00'*ENC_CONTENT_LENGTH, vchScriptSig=b'', vchDecryptionKey=b''):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
@@ -144,13 +144,11 @@ class CSqueak(CSqueakHeader):
             nBlockHeight=nBlockHeight,
             vchScriptPubKey=vchScriptPubKey,
             vchEncryptionKey=vchEncryptionKey,
-            vchEncDatakey=vchEncDatakey,
+            encDatakey=encDatakey,
             vchIv=vchIv,
             nTime=nTime,
             nNonce=nNonce,
         )
-        if encContent is None:
-            encContent = CSqueakEncContent(b'\00'*ENC_CONTENT_LENGTH)
         object.__setattr__(self, 'encContent', encContent)
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
         object.__setattr__(self, 'vchDecryptionKey', vchDecryptionKey)
@@ -158,7 +156,7 @@ class CSqueak(CSqueakHeader):
     @classmethod
     def stream_deserialize(cls, f):
         self = super(CSqueak, cls).stream_deserialize(f)
-        encContent = CSqueakEncContent.stream_deserialize(f)
+        encContent = ser_read(f,ENC_CONTENT_LENGTH)
         object.__setattr__(self, 'encContent', encContent)
         vchScriptSig = CScript(BytesSerializer.stream_deserialize(f))
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
@@ -168,7 +166,8 @@ class CSqueak(CSqueakHeader):
 
     def stream_serialize(self, f):
         super(CSqueak, self).stream_serialize(f)
-        CSqueakEncContent.stream_serialize(self.encContent, f)
+        assert len(self.encContent) == ENC_CONTENT_LENGTH
+        f.write(self.encContent)
         BytesSerializer.stream_serialize(self.vchScriptSig, f)
         BytesSerializer.stream_serialize(self.vchDecryptionKey, f)
 
@@ -184,7 +183,7 @@ class CSqueak(CSqueakHeader):
             nBlockHeight=self.nBlockHeight,
             vchScriptPubKey=self.vchScriptPubKey,
             vchEncryptionKey=self.vchEncryptionKey,
-            vchEncDatakey=self.vchEncDatakey,
+            encDatakey=self.encDatakey,
             vchIv=self.vchIv,
             nTime=self.nTime,
             nNonce=self.nNonce,
@@ -201,6 +200,10 @@ class CSqueak(CSqueakHeader):
             _cached_GetHash = self.get_header().GetHash()
             object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
             return _cached_GetHash
+
+    def GetEncContentHash(self):
+        """Return the hash of the encContent."""
+        return HashEncryptedContent(self.encContent)
 
     def GetScriptSig(self):
         """Return the signature script."""
@@ -239,10 +242,10 @@ class CSqueak(CSqueakHeader):
     def GetDecryptedContent(self):
         """Return the decrypted content."""
         decryption_key = self.GetDecryptionKey()
-        data_key_cipher = self.vchEncDatakey
+        data_key_cipher = self.encDatakey
         data_key = decryption_key.decrypt(data_key_cipher)
         iv = self.vchIv
-        ciphertext = self.encContent.vchEncContent
+        ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
 
     def GetDecryptedContentStr(self):
@@ -253,24 +256,27 @@ class CSqueak(CSqueakHeader):
 
 class CSqueakEncContent(ImmutableSerializable):
     """Squeak encrypted content"""
-    __slots__ = ['vchEncContent']
+    __slots__ = ['encContent']
 
-    def __init__(self, vchEncContent=b'\x00'*ENC_CONTENT_LENGTH):
-        assert len(vchEncContent) == ENC_CONTENT_LENGTH
-        object.__setattr__(self, 'vchEncContent', vchEncContent)
+    def __init__(self, encContent=b'\x00'*ENC_CONTENT_LENGTH):
+        assert len(encContent) == ENC_CONTENT_LENGTH
+        object.__setattr__(self, 'encContent', encContent)
 
     @classmethod
     def stream_deserialize(cls, f):
-        vchEncContent = ser_read(f,ENC_CONTENT_LENGTH)
-        return cls(vchEncContent)
+        encContent = ser_read(f,ENC_CONTENT_LENGTH)
+        return cls(encContent)
 
     def stream_serialize(self, f):
-        assert len(self.vchEncContent) == ENC_CONTENT_LENGTH
-        f.write(self.vchEncContent)
+        assert len(self.encContent) == ENC_CONTENT_LENGTH
+        f.write(self.encContent)
+
+    def get_bytes(self):
+        return self.encContent
 
     def __repr__(self):
         return "%s(lx(%s))" % \
-            (self.__class__.__name__, b2lx(self.vchEncContent))
+            (self.__class__.__name__, b2lx(self.encContent))
 
 
 class CheckSqueakHeaderError(ValidationError):
@@ -353,7 +359,16 @@ def EncryptContent(data_key, iv, content):
     if not len(content) == CONTENT_LENGTH:
         raise InvalidContentLengthError("EncryptContent : content length must be %i; got %i" %
                                         (CONTENT_LENGTH, len(content)))
-    return CSqueakEncContent(encrypt_content(data_key, iv, content))
+    return encrypt_content(data_key, iv, content)
+
+
+def HashEncryptedContent(enc_content):
+    """Return the hash of the encrypted content.
+
+    enc_content (bytes)
+    """
+    squeak_enc_content = CSqueakEncContent(enc_content)
+    return squeak_enc_content.GetHash()
 
 
 def EncryptDataKey(encryption_key, data_key):
@@ -395,11 +410,11 @@ def CheckSqueak(squeak, skipDecryptionCheck=False):
     CheckSqueakHeader(squeak)
 
     # Content length check
-    if not len(squeak.encContent.vchEncContent) == ENC_CONTENT_LENGTH:
+    if not len(squeak.encContent) == ENC_CONTENT_LENGTH:
         raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
 
     # Content hash check
-    hash_enc_content = squeak.encContent.GetHash()
+    hash_enc_content = squeak.GetEncContentHash()
     if not hash_enc_content == squeak.hashEncContent:
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
@@ -424,6 +439,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     data_key = generate_data_key()
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
+    hash_enc_content = HashEncryptedContent(enc_content)
     decryption_key = CDecryptionKey.generate()
     encryption_key = decryption_key.get_encryption_key()
     data_key_cipher = EncryptDataKey(encryption_key, data_key)
@@ -432,13 +448,13 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
     pubkey_script = squeak_address.to_scriptPubKey()
     squeak = CSqueak(
-        hashEncContent=enc_content.GetHash(),
+        hashEncContent=hash_enc_content,
         hashReplySqk=reply_to,
         hashBlock=block_hash,
         nBlockHeight=block_height,
         vchScriptPubKey=bytes(pubkey_script),
         vchEncryptionKey=encryption_key.get_bytes(),
-        vchEncDatakey=data_key_cipher,
+        encDatakey=data_key_cipher,
         vchIv=initialization_vector,
         nTime=timestamp,
         nNonce=nonce,
