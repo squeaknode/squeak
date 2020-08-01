@@ -50,28 +50,3 @@ print(squeak.GetHash())  # prints b"\x9e\xeb\xbc)N\x94\xe2\x85\x9b(d\x7f\x1e7\xb
 print(squeak.GetAddress())  # prints 16sFQMmfiU9g3B2ZW55YppjMa3icEuncxj
 print(squeak.GetDecryptedContentStr())  # Hello world!
 ```
-
-Create a getheaders messages with a given squeak address and block height range, serialize it, and deserialize it:
-
-```python
-from io import BytesIO
-
-from squeak.messages import MsgSerializable
-from squeak.messages import msg_getheaders
-from squeak.net import CInterested
-from squeak.net import CSqueakLocator
-from squeak.core.signing import CSqueakAddress
-
-
-address = CSqueakAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq')
-
-locator = CSqueakLocator([
-    CInterested(address, 10, 15),
-])
-getheaders = msg_getheaders(locator)
-
-getheaders_bytes = getheaders.serialize()
-getheaders_deserialized = MsgSerializable.stream_deserialize(BytesIO(getheaders_bytes))
-
-print(getheaders_deserialized)  # prints msg_getheaders(locator=CSqueakLocator(nVersion=60002 vInterested=[CInterested(address=CSqueakAddress('1LU2c2iUorm1DJHrdmoU2wwJSPUrJythGq') nMinBlockHeight=10 nMaxBlockHeight=15 hashReplySqk=0000000000000000000000000000000000000000000000000000000000000000)]))
-```
