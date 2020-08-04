@@ -216,6 +216,7 @@ class TestCheckSqueakDataKey(object):
         squeak.ClearDecryptionKey()
 
         assert squeak.GetDecryptionKey() is None
+        assert not squeak.HasDecryptionKey()
 
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(squeak)
@@ -258,6 +259,7 @@ class TestSerializeSqueak(object):
         assert isinstance(squeak, CSqueak)
 
         assert deserialized_squeak.GetDecryptionKey() is None
+        assert not deserialized_squeak.HasDecryptionKey()
 
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(deserialized_squeak)
