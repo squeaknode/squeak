@@ -6,13 +6,9 @@ from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import SerializationTruncationError
 
-# from squeak.core.encryption import CDecryptionKey
-# from squeak.core.encryption import CEncryptionKey
-# from squeak.core.encryption import ENCRYPTED_DATA_KEY_LENGTH
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.encryption import decrypt_content
 from squeak.core.encryption import encrypt_content
-# from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
 from squeak.core.hashing import sha256
