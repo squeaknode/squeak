@@ -23,7 +23,6 @@ from squeak.core.script import VerifyScript
 from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CSqueakAddressError
-from squeak.core.elliptic import CURVE
 from squeak.core.elliptic import generate_secret_key
 from squeak.core.elliptic import payment_point_from_secret_key
 
