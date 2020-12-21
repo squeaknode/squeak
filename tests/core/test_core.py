@@ -219,6 +219,9 @@ class TestCheckSqueakDataKey(object):
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(squeak)
 
+        with pytest.raises(CheckSqueakDecryptionKeyError):
+            squeak.GetDecryptedContentStr()
+
         CheckSqueak(squeak, skipDecryptionCheck=True)
 
 

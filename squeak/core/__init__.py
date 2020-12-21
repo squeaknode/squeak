@@ -231,6 +231,7 @@ class CSqueak(CSqueakHeader):
 
     def GetDecryptedContent(self):
         """Return the decrypted content."""
+        CheckSqueakDecryptionKey(self)
         decryption_key = self.GetDecryptionKey()
         data_key = sha256(decryption_key)
         iv = self.iv
