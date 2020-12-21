@@ -323,13 +323,7 @@ def CheckSqueakDecryptionKey(squeak):
     if decryption_key is None:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
-    # G = cv.generator
-    # s_hex = decryption_key.hex()
-    # s = int(s_hex, 16)
-    # payment_point = s*G
-    # payment_point_encoded = bytes(CURVE.encode_point(payment_point, compressed=True))
     payment_point_encoded = payment_point_from_secret_key(decryption_key)
-
     if not payment_point_encoded == squeak.paymentPoint:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
@@ -358,22 +352,6 @@ def HashEncryptedContent(enc_content):
     """
     squeak_enc_content = CSqueakEncContent(enc_content)
     return squeak_enc_content.GetHash()
-
-
-# def EncryptDataKey(encryption_key, data_key):
-#     """Return the ciphertext from the given content.
-#     encryption_key (CEncryptionKey)
-#     data_key (bytes)
-#     """
-#     return encryption_key.encrypt(data_key)
-
-
-# def HashDataKey(data_key):
-#     """Return the hash of the data key.
-
-#     data_key (bytes)
-#     """
-#     return sha256(data_key)
 
 
 def CheckSqueakHeader(squeak_header):
