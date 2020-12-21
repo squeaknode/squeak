@@ -216,12 +216,13 @@ class CSqueak(CSqueakHeader):
     def SetDecryptionKey(self, decryption_key):
         """Set the decryption key.
         """
+        assert len(decryption_key) == SECRET_KEY_LENGTH
         object.__setattr__(self, 'secretKey', decryption_key)
 
     def ClearDecryptionKey(self):
         """Set the decryption key.
         """
-        self.SetDecryptionKey(b'')
+        self.SetDecryptionKey(b'\x00'*SECRET_KEY_LENGTH)
 
     def GetDecryptionKey(self):
         """Return the squeak decryption key."""
@@ -231,7 +232,7 @@ class CSqueak(CSqueakHeader):
 
     def HasDecryptionKey(self):
         """Return true if the decryption key is set."""
-        return len(self.secretKey) > 0
+        return self.secretKey != b'\x00'*SECRET_KEY_LENGTH
 
     def GetDecryptedContent(self):
         """Return the decrypted content."""
@@ -334,9 +335,7 @@ def CheckSqueakDecryptionKey(squeak):
     # payment_point_encoded = bytes(CURVE.encode_point(payment_point, compressed=True))
     payment_point_encoded = payment_point_from_secret_key(decryption_key)
 
-    try:
-        payment_point_encoded == squeak.paymentPoint
-    except ValueError:
+    if not payment_point_encoded == squeak.paymentPoint:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
 
