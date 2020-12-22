@@ -44,7 +44,6 @@ def generate_secret_key():
 
 def payment_point_from_secret_key(secret_key):
     G = CURVE.generator
-    s_hex = secret_key.hex()
-    s = int(s_hex, 16)
+    s = int.from_bytes(secret_key, 'big')
     payment_point = s*G
     return bytes(CURVE.encode_point(payment_point, compressed=True))
