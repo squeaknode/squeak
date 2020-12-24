@@ -1,4 +1,5 @@
 import time
+import os
 
 import pytest
 from bitcoin.core import lx
@@ -9,6 +10,7 @@ from squeak.core import CheckSqueakDecryptionKeyError
 from squeak.core import CheckSqueakHeaderError
 from squeak.core import CheckSqueakSignatureError
 from squeak.core import CONTENT_LENGTH
+from squeak.core import SECRET_KEY_LENGTH
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import EncryptContent
@@ -16,7 +18,6 @@ from squeak.core import InvalidContentLengthError
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
 from squeak.core import SignSqueak
-from squeak.core.encryption import CDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
@@ -44,8 +45,8 @@ def prev_squeak_hash():
 
 
 @pytest.fixture
-def fake_decryption_key():
-    return CDecryptionKey.generate().get_bytes()
+def fake_secret_key():
+    return os.urandom(SECRET_KEY_LENGTH)
 
 
 @pytest.yield_fixture
@@ -141,13 +142,12 @@ class TestCheckSqueak(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             vchScriptPubKey=squeak.vchScriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            encDatakey=squeak.encDatakey,
+            paymentPoint=squeak.paymentPoint,
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=fake_enc_content,
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakError):
@@ -160,13 +160,12 @@ class TestCheckSqueak(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             vchScriptPubKey=b'',
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            encDatakey=squeak.encDatakey,
+            paymentPoint=squeak.paymentPoint,
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakHeaderError):
@@ -186,14 +185,13 @@ class TestCheckSqueakSignature(object):
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
             vchScriptPubKey=squeak.vchScriptPubKey,
-            vchEncryptionKey=squeak.vchEncryptionKey,
-            encDatakey=squeak.encDatakey,
+            paymentPoint=squeak.paymentPoint,
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
             vchScriptSig=bytes(fake_sig_script),
-            vchDecryptionKey=squeak.vchDecryptionKey,
+            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakSignatureError):
@@ -202,8 +200,8 @@ class TestCheckSqueakSignature(object):
 
 class TestCheckSqueakDataKey(object):
 
-    def test_verify_squeak_data_key_check_fails(self, squeak, fake_decryption_key):
-        squeak.SetDecryptionKey(fake_decryption_key)
+    def test_verify_squeak_data_key_check_fails(self, squeak, fake_secret_key):
+        squeak.SetDecryptionKey(fake_secret_key)
 
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(squeak)
@@ -221,6 +219,9 @@ class TestCheckSqueakDataKey(object):
         with pytest.raises(CheckSqueakDecryptionKeyError):
             CheckSqueak(squeak)
 
+        with pytest.raises(CheckSqueakDecryptionKeyError):
+            squeak.GetDecryptedContentStr()
+
         CheckSqueak(squeak, skipDecryptionCheck=True)
 
 
@@ -232,6 +233,7 @@ class TestSerializeSqueak(object):
 
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
+        assert squeak.GetDecryptedContent() == deserialized_squeak.GetDecryptedContent()
 
     def test_serialize_squeak_null(self):
         squeak = CSqueak()
