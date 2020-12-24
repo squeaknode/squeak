@@ -20,7 +20,7 @@ from squeak.core.script import VerifyScriptError
 from squeak.core.signing import CSqueakAddress
 from squeak.core.signing import CSqueakAddressError
 from squeak.core.elliptic import generate_secret_key
-from squeak.core.elliptic import payment_point_from_secret_key
+from squeak.core.elliptic import payment_point_bytes_from_scalar_bytes
 
 
 # Core definitions
@@ -324,7 +324,7 @@ def CheckSqueakDecryptionKey(squeak):
     if decryption_key is None:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
-    payment_point_encoded = payment_point_from_secret_key(decryption_key)
+    payment_point_encoded = payment_point_bytes_from_scalar_bytes(decryption_key)
     if not payment_point_encoded == squeak.paymentPoint:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
@@ -409,7 +409,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
     hash_enc_content = HashEncryptedContent(enc_content)
-    payment_point_encoded = payment_point_from_secret_key(secret_key)
+    payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
     verifying_key = signing_key.get_verifying_key()
     squeak_address = CSqueakAddress.from_verifying_key(verifying_key)

@@ -233,6 +233,7 @@ class TestSerializeSqueak(object):
 
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
+        assert squeak.GetDecryptedContent() == deserialized_squeak.GetDecryptedContent()
 
     def test_serialize_squeak_null(self):
         squeak = CSqueak()
