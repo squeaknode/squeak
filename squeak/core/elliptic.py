@@ -18,6 +18,16 @@ def scalar_from_bytes(b):
     return int.from_bytes(b, 'big')
 
 
+def scalar_sum(x, y):
+    order = CURVE.order
+    return (x + y) % order
+
+
+def scalar_difference(x, y):
+    order = CURVE.order
+    return (x - y) % order
+
+
 def generate_secret_key():
     s = generate_random_scalar()
     print("s: {}".format(s))
