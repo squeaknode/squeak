@@ -30,8 +30,6 @@ def scalar_difference(x, y):
 
 def generate_secret_key():
     s = generate_random_scalar()
-    print("s: {}".format(s))
-    print("s_bytes: {}".format(scalar_to_bytes(s)))
     return scalar_to_bytes(s)
 
 
