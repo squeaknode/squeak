@@ -394,7 +394,7 @@ def CheckSqueak(squeak, skipDecryptionCheck=False):
         CheckSqueakDecryptionKey(squeak)
 
 
-def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
+def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak.
 
     signing_key (CSigningkey)
@@ -404,6 +404,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     timestamp (int)
     reply_to (bytes)
     """
+    reply_to = reply_to or b'\x00'*HASH_LENGTH
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
     initialization_vector = generate_initialization_vector()
@@ -446,7 +447,7 @@ def DecodeContent(data: bytes):
     return content
 
 
-def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timestamp, reply_to=b'\x00'*HASH_LENGTH):
+def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak from a string of content.
 
     signing_key (CSigningkey)
@@ -456,6 +457,7 @@ def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timest
     timestamp (int)
     reply_to (bytes)
     """
+    reply_to = reply_to or b'\x00'*HASH_LENGTH
     content = EncodeContent(content_str)
     return MakeSqueak(
         signing_key,
