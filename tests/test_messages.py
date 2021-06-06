@@ -5,7 +5,6 @@ from squeak.messages import msg_addr
 from squeak.messages import msg_alert
 from squeak.messages import msg_getaddr
 from squeak.messages import msg_getdata
-from squeak.messages import msg_getoffer
 from squeak.messages import msg_getsqueaks
 from squeak.messages import msg_inv
 from squeak.messages import msg_notfound
@@ -94,11 +93,6 @@ class Test_msg_pong(MessageTestCase):
 class Test_msg_alert(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_alert, self).serialization_test(msg_alert)
-
-
-class Test_msg_getoffer(MessageTestCase):
-    def test_serialization(self):
-        super(Test_msg_getoffer, self).serialization_test(msg_getoffer)
 
 
 class Test_msg_offer(MessageTestCase):

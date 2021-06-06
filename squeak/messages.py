@@ -5,7 +5,6 @@ import time
 from io import BytesIO as _BytesIO
 
 import bitcoin  # noqa: F401
-from bitcoin.core import b2lx
 from bitcoin.core import b2x
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import VarStringSerializer
@@ -23,7 +22,6 @@ from bitcoin.net import CAddress
 import squeak
 import squeak.params
 from squeak.core import CSqueak
-from squeak.core import HASH_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
@@ -235,31 +233,6 @@ class msg_alert(MsgSerializable, bitcoin_msg_alert):
     pass
 
 
-class msg_getoffer(MsgSerializable, BitcoinMsgSerializable):
-    command = b"getoffer"
-
-    def __init__(
-            self,
-            hashSqueak=b'\x00'*HASH_LENGTH,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_getoffer, self).__init__(protover)
-        self.hashSqueak = hashSqueak
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        hashSqueak = ser_read(f, HASH_LENGTH)
-        return cls(hashSqueak)
-
-    def msg_ser(self, f):
-        assert len(self.hashSqueak) == HASH_LENGTH
-        f.write(self.hashSqueak)
-
-    def __repr__(self):
-        return "msg_getoffer(squeakhash=lx(%s))" % \
-            b2lx(self.hashSqueak)
-
-
 class msg_offer(MsgSerializable, BitcoinMsgSerializable):
     command = b"offer"
 
@@ -287,7 +260,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_getoffer, msg_offer]
+               msg_offer]
 
 messagemap = {}
 for cls in msg_classes:
