@@ -23,7 +23,6 @@ from bitcoin.net import CAddress
 import squeak
 import squeak.params
 from squeak.core import CSqueak
-from squeak.core import CSqueakHeader
 from squeak.core import HASH_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
@@ -101,7 +100,6 @@ class msg_version(MsgSerializable, bitcoin_msg_version):
             nNonce=None,
             strSubVer=USER_AGENT,
             nStartingHeight=-1,
-            fRelay=True,
             protover=PROTO_VERSION,
     ):
         super(msg_version, self).__init__(protover)
@@ -113,7 +111,6 @@ class msg_version(MsgSerializable, bitcoin_msg_version):
         self.nNonce = nNonce or random.SystemRandom().getrandbits(64)
         self.strSubVer = strSubVer
         self.nStartingHeight = nStartingHeight
-        self.fRelay = fRelay
 
 
 class msg_verack(MsgSerializable, bitcoin_msg_verack):
@@ -184,25 +181,6 @@ class msg_notfound(MsgSerializable, BitcoinMsgSerializable):
         return "msg_notfound(inv=%s)" % (repr(self.inv))
 
 
-class msg_getheaders(MsgSerializable, BitcoinMsgSerializable):
-    command = b"getheaders"
-
-    def __init__(self, locator=None, protover=PROTO_VERSION):
-        super(msg_getheaders, self).__init__(protover)
-        self.locator = locator or CSqueakLocator()
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        locator = CSqueakLocator.stream_deserialize(f)
-        return cls(locator)
-
-    def msg_ser(self, f):
-        self.locator.stream_serialize(f)
-
-    def __repr__(self):
-        return "msg_getheaders(locator=%s)" % (repr(self.locator))
-
-
 class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
     command = b"getsqueaks"
 
@@ -220,50 +198,6 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
 
     def __repr__(self):
         return "msg_getsqueaks(locator=%s)" % (repr(self.locator))
-
-
-class msg_getsqueak(MsgSerializable, BitcoinMsgSerializable):
-    command = b"getsqueak"
-
-    def __init__(
-            self,
-            hashSqueak=b'\x00'*HASH_LENGTH,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_getsqueak, self).__init__(protover)
-        self.hashSqueak = hashSqueak
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        hashSqueak = ser_read(f, HASH_LENGTH)
-        return cls(hashSqueak)
-
-    def msg_ser(self, f):
-        assert len(self.hashSqueak) == HASH_LENGTH
-        f.write(self.hashSqueak)
-
-    def __repr__(self):
-        return "msg_getsqueak(squeakhash=lx(%s))" % \
-            b2lx(self.hashSqueak)
-
-
-class msg_headers(MsgSerializable, BitcoinMsgSerializable):
-    command = b"headers"
-
-    def __init__(self, headers=None, protover=PROTO_VERSION):
-        super(msg_headers, self).__init__(protover)
-        self.headers = headers or []
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        headers = VectorSerializer.stream_deserialize(CSqueakHeader, f)
-        return cls(headers)
-
-    def msg_ser(self, f):
-        VectorSerializer.stream_serialize(CSqueakHeader, self.headers, f)
-
-    def __repr__(self):
-        return "msg_headers(headers=%s)" % (repr(self.headers))
 
 
 class msg_squeak(MsgSerializable, BitcoinMsgSerializable):
@@ -351,9 +285,9 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
-               msg_notfound, msg_getsqueaks, msg_getheaders, msg_headers,
+               msg_notfound, msg_getsqueaks,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_getsqueak, msg_getoffer, msg_offer]
+               msg_getoffer, msg_offer]
 
 messagemap = {}
 for cls in msg_classes:
