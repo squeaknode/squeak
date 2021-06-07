@@ -13,7 +13,7 @@ make test
 ### Install
 
 ```
-pip install squeaklib
+pip install squeakpy
 ```
 
 ### Examples
