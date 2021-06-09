@@ -25,6 +25,7 @@ from squeak.core import CSqueak
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
+from squeak.core import HASH_LENGTH
 
 
 USER_AGENT = b'/python-squeak:' + \
@@ -257,23 +258,33 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
     def __init__(
             self,
+            hashSqk=b'\x00'*HASH_LENGTH,
+            nonce=b'\x00'*HASH_LENGTH,
             strPaymentInfo=b'',
             protover=PROTO_VERSION,
     ):
         super(msg_offer, self).__init__(protover)
+        self.hashSqk = hashSqk
+        self.nonce = nonce
         self.strPaymentInfo = strPaymentInfo
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
+        hashSqk = ser_read(f, HASH_LENGTH)
+        nonce = ser_read(f, HASH_LENGTH)
         strPaymentInfo = VarStringSerializer.stream_deserialize(f)
-        return cls(strPaymentInfo)
+        return cls(hashSqk, nonce, strPaymentInfo)
 
     def msg_ser(self, f):
+        assert len(self.hashSqk) == HASH_LENGTH
+        f.write(self.hashSqk)
+        assert len(self.nonce) == HASH_LENGTH
+        f.write(self.nonce)
         VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
 
     def __repr__(self):
-        return "msg_offer(strPaymentInfo=%s)" % \
-            self.strPaymentInfo
+        return "msg_offer(hashSqk=%s nonce=%s strPaymentInfo=%s)" % \
+            (self.hashSqk, self.nonce, self.strPaymentInfo)
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
