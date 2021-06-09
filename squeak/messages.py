@@ -261,19 +261,25 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
             hashSqk=b'\x00'*HASH_LENGTH,
             nonce=b'\x00'*HASH_LENGTH,
             strPaymentInfo=b'',
+            host=b'',
+            port=0,
             protover=PROTO_VERSION,
     ):
         super(msg_offer, self).__init__(protover)
         self.hashSqk = hashSqk
         self.nonce = nonce
         self.strPaymentInfo = strPaymentInfo
+        self.host = host
+        self.port = port
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         hashSqk = ser_read(f, HASH_LENGTH)
         nonce = ser_read(f, HASH_LENGTH)
         strPaymentInfo = VarStringSerializer.stream_deserialize(f)
-        return cls(hashSqk, nonce, strPaymentInfo)
+        host = VarStringSerializer.stream_deserialize(f)
+        port = struct.unpack(b"<i", ser_read(f, 4))[0]
+        return cls(hashSqk, nonce, strPaymentInfo, host, port)
 
     def msg_ser(self, f):
         assert len(self.hashSqk) == HASH_LENGTH
@@ -281,10 +287,12 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         assert len(self.nonce) == HASH_LENGTH
         f.write(self.nonce)
         VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
+        VarStringSerializer.stream_serialize(self.host, f)
+        f.write(struct.pack(b"<i", self.port))
 
     def __repr__(self):
-        return "msg_offer(hashSqk=%s nonce=%s strPaymentInfo=%s)" % \
-            (self.hashSqk, self.nonce, self.strPaymentInfo)
+        return "msg_offer(hashSqk=%s nonce=%s strPaymentInfo=%s host=%s port=%i)" % \
+            (self.hashSqk, self.nonce, self.strPaymentInfo, self.host, self.port)
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
