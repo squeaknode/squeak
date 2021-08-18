@@ -5,6 +5,7 @@ from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VectorSerializer
+from bitcoin.core.serialize import VarIntSerializer
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
@@ -50,37 +51,38 @@ class CInterested(Serializable):
 
     def __init__(
             self,
-            address=None,
+            addresses=(),
             nMinBlockHeight=-1,
             nMaxBlockHeight=-1,
             hashReplySqk=b'\x00'*HASH_LENGTH,
             protover=PROTO_VERSION,
     ):
-        self.address = address
+        self.addresses = addresses
         self.nMinBlockHeight = nMinBlockHeight
         self.nMaxBlockHeight = nMaxBlockHeight
         self.hashReplySqk = hashReplySqk
 
     @classmethod
     def stream_deserialize(cls, f):
-        address_bytes = BytesSerializer.stream_deserialize(f)
-        address = CSqueakAddress.from_bytes(address_bytes) if address_bytes else None
+        n = VarIntSerializer.stream_deserialize(f)
+        addresses = tuple(CSqueakAddress.from_bytes(BytesSerializer.stream_deserialize(f)) for i in range(n))
         nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashReplySqk = ser_read(f, HASH_LENGTH)
-        return cls(address, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
+        return cls(addresses, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
 
     def stream_serialize(self, f):
-        address_bytes = self.address or b''
-        BytesSerializer.stream_serialize(address_bytes, f)
+        VarIntSerializer.stream_serialize(len(self.addresses), f)
+        for address in self.addresses:
+            BytesSerializer.stream_serialize(address, f)
         f.write(struct.pack(b"<i", self.nMinBlockHeight))
         f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
         f.write(self.hashReplySqk)
 
     def __repr__(self):
-        return "CInterested(address=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
-            (self.address, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
+        return "CInterested(addresses=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
+            (self.addresses, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
 
 
 class CInv(BitcoinCInv):
