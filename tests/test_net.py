@@ -44,9 +44,13 @@ class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
         address = CSqueakAddress.from_verifying_key(verifying_key)
         interested = [
-            CInterested(address, -1, 10, fake_squeak_hash),
-            CInterested(address, 30, 2000),
-            CInterested(None, 0, 100, fake_squeak_hash),
+            CInterested([address, address, address], -1, 10, fake_squeak_hash),
+            CInterested([address], 30, 2000),
+            CInterested(
+                nMinBlockHeight=0,
+                nMaxBlockHeight=100,
+                hashReplySqk=fake_squeak_hash,
+            ),
         ]
         locator = CSqueakLocator(interested)
         stream = _BytesIO()
@@ -56,6 +60,8 @@ class TestCSqueakLocator(object):
 
         assert deserialized == locator
         assert len(deserialized.vInterested) == 3
-        assert deserialized.vInterested[1].address == address
-        assert deserialized.vInterested[2].address is None
+        assert deserialized.vInterested[0].addresses == (address, address, address)
+        assert deserialized.vInterested[1].addresses == (address,)
+        assert deserialized.vInterested[2].addresses == ()
         assert deserialized.vInterested[1].hashReplySqk == b'\x00'*HASH_LENGTH
+        assert deserialized.vInterested[2].hashReplySqk == fake_squeak_hash
