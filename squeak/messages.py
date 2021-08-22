@@ -199,11 +199,11 @@ class msg_getsqueaks(MsgSerializable, BitcoinMsgSerializable):
         return "msg_getsqueaks(locator=%s)" % (repr(self.locator))
 
 
-class msg_sharesqueaks(MsgSerializable, BitcoinMsgSerializable):
-    command = b"sharesqueaks"
+class msg_subscribe(MsgSerializable, BitcoinMsgSerializable):
+    command = b"subscribe"
 
     def __init__(self, locator=None, protover=PROTO_VERSION):
-        super(msg_sharesqueaks, self).__init__(protover)
+        super(msg_subscribe, self).__init__(protover)
         self.locator = locator or CSqueakLocator()
 
     @classmethod
@@ -215,7 +215,7 @@ class msg_sharesqueaks(MsgSerializable, BitcoinMsgSerializable):
         self.locator.stream_serialize(f)
 
     def __repr__(self):
-        return "msg_sharesqueaks(locator=%s)" % (repr(self.locator))
+        return "msg_subscribe(locator=%s)" % (repr(self.locator))
 
 
 class msg_squeak(MsgSerializable, BitcoinMsgSerializable):
@@ -296,7 +296,7 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
-               msg_notfound, msg_getsqueaks, msg_sharesqueaks,
+               msg_notfound, msg_getsqueaks, msg_subscribe,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
                msg_offer]
 
