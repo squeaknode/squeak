@@ -123,7 +123,7 @@ class CSqueakHeader(ImmutableSerializable):
     def __repr__(self):
         return "%s(nVersion: %i, hashEncContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, vchScriptPubKey: %r, paymentPoint: b2lx(%s), iv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
             (self.__class__.__name__, self.nVersion, b2lx(self.hashEncContent), b2lx(self.hashReplySqk),
-             b2lx(self.hashBlock), self.nBlockHeight, self.vchScriptPubKey, b2lx(self.paymentPoint), b2lx(self.iv), self.nTime, self.nNonce)
+             b2lx(self.hashBlock), self.nBlockHeight, b2lx(self.vchScriptPubKey), b2lx(self.paymentPoint), b2lx(self.iv), self.nTime, self.nNonce)
 
 
 class CSqueak(CSqueakHeader):
