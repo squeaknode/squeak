@@ -5,6 +5,7 @@ import time
 from io import BytesIO as _BytesIO
 
 import bitcoin  # noqa: F401
+from bitcoin.core import b2lx
 from bitcoin.core import b2x
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import VarStringSerializer
@@ -291,8 +292,8 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
         f.write(struct.pack(b"<i", self.port))
 
     def __repr__(self):
-        return "msg_offer(hashSqk=%s nonce=%s strPaymentInfo=%s host=%s port=%i)" % \
-            (self.hashSqk, self.nonce, self.strPaymentInfo, self.host, self.port)
+        return "msg_offer(hashSqk=lx(%s) nonce=lx(%s) strPaymentInfo=%s host=%s port=%i)" % \
+            (b2lx(self.hashSqk), b2lx(self.nonce), self.strPaymentInfo, self.host, self.port)
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
