@@ -18,6 +18,7 @@ from squeak.core import InvalidContentLengthError
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
 from squeak.core import SignSqueak
+from squeak.core import CheckSqueakDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import CSigningKey
@@ -50,7 +51,7 @@ def fake_secret_key():
 
 
 @pytest.yield_fixture
-def squeak(signing_key, prev_squeak_hash, block_height, block_hash):
+def squeak_and_key(signing_key, prev_squeak_hash, block_height, block_hash):
     content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
     timestamp = int(time.time())
 
@@ -65,13 +66,25 @@ def squeak(signing_key, prev_squeak_hash, block_height, block_hash):
     return squeak
 
 
+@pytest.yield_fixture
+def squeak(squeak_and_key):
+    squeak, _ = squeak_and_key
+    return squeak
+
+
+@pytest.yield_fixture
+def decryption_key(squeak_and_key):
+    _, decryption_key = squeak_and_key
+    return decryption_key
+
+
 class TestMakeSqueak(object):
 
     def test_make_squeak(self, signing_key, prev_squeak_hash, block_height, block_hash):
         content = "Hello world!"
         timestamp = int(time.time())
 
-        squeak = MakeSqueakFromStr(
+        squeak, decryption_key = MakeSqueakFromStr(
             signing_key,
             content,
             block_height,
@@ -83,19 +96,18 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
-        decrypted_content = squeak.GetDecryptedContentStr()
+        decrypted_content = squeak.GetDecryptedContentStr(decryption_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
         assert squeak.GetAddress() == address
-        assert squeak.GetDecryptionKey() is not None
         assert decrypted_content == "Hello world!"
 
     def test_make_squeak_is_not_reply(self, signing_key, block_height, block_hash):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
-        squeak = MakeSqueak(
+        squeak, decryption_key = MakeSqueak(
             signing_key,
             content,
             block_height,
@@ -106,7 +118,7 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         address = CSqueakAddress.from_verifying_key(signing_key.get_verifying_key())
-        decrypted_content = squeak.GetDecryptedContent()
+        decrypted_content = squeak.GetDecryptedContent(decryption_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply
@@ -147,7 +159,6 @@ class TestCheckSqueak(object):
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=fake_enc_content,
-            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakError):
@@ -165,7 +176,6 @@ class TestCheckSqueak(object):
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
-            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakHeaderError):
@@ -191,7 +201,6 @@ class TestCheckSqueakSignature(object):
             nNonce=squeak.nNonce,
             encContent=squeak.encContent,
             vchScriptSig=bytes(fake_sig_script),
-            secretKey=squeak.secretKey,
         )
 
         with pytest.raises(CheckSqueakSignatureError):
@@ -200,40 +209,26 @@ class TestCheckSqueakSignature(object):
 
 class TestCheckSqueakDataKey(object):
 
+    def test_verify_squeak_data_key_check(self, squeak, decryption_key):
+        CheckSqueak(squeak)
+        CheckSqueakDecryptionKey(squeak, decryption_key)
+
     def test_verify_squeak_data_key_check_fails(self, squeak, fake_secret_key):
-        squeak.SetDecryptionKey(fake_secret_key)
-
+        CheckSqueak(squeak)
         with pytest.raises(CheckSqueakDecryptionKeyError):
-            CheckSqueak(squeak)
-
-        CheckSqueak(squeak, skipDecryptionCheck=True)
-
-    def test_verify_squeak_data_key_cleared(self, squeak):
-        assert squeak.GetDecryptionKey() is not None
-
-        squeak.ClearDecryptionKey()
-
-        assert squeak.GetDecryptionKey() is None
-        assert not squeak.HasDecryptionKey()
-
-        with pytest.raises(CheckSqueakDecryptionKeyError):
-            CheckSqueak(squeak)
-
-        with pytest.raises(CheckSqueakDecryptionKeyError):
-            squeak.GetDecryptedContentStr()
-
-        CheckSqueak(squeak, skipDecryptionCheck=True)
+            CheckSqueakDecryptionKey(squeak, fake_secret_key)
 
 
 class TestSerializeSqueak(object):
 
-    def test_serialize_squeak(self, squeak):
+    def test_serialize_squeak(self, squeak, decryption_key):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
-        assert squeak.GetDecryptedContent() == deserialized_squeak.GetDecryptedContent()
+        assert squeak.GetDecryptedContent(decryption_key) == \
+            deserialized_squeak.GetDecryptedContent(decryption_key)
 
     def test_serialize_squeak_null(self):
         squeak = CSqueak()
@@ -250,20 +245,3 @@ class TestSerializeSqueak(object):
 
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)
-
-    def test_serialize_without_decryption_key(self, squeak):
-        squeak.ClearDecryptionKey()
-
-        serialized_squeak = squeak.serialize()
-        deserialized_squeak = CSqueak.deserialize(serialized_squeak)
-
-        assert deserialized_squeak == squeak
-        assert isinstance(squeak, CSqueak)
-
-        assert deserialized_squeak.GetDecryptionKey() is None
-        assert not deserialized_squeak.HasDecryptionKey()
-
-        with pytest.raises(CheckSqueakDecryptionKeyError):
-            CheckSqueak(deserialized_squeak)
-
-        CheckSqueak(deserialized_squeak, skipDecryptionCheck=True)
