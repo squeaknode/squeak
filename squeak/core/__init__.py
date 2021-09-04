@@ -202,41 +202,6 @@ class CSqueak(CSqueakHeader):
         """Set the signature script bytes."""
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
 
-    # def SetDecryptionKey(self, decryption_key):
-    #     """Set the decryption key.
-    #     """
-    #     assert len(decryption_key) == SECRET_KEY_LENGTH
-    #     object.__setattr__(self, 'secretKey', decryption_key)
-
-    # def ClearDecryptionKey(self):
-    #     """Set the decryption key.
-    #     """
-    #     self.SetDecryptionKey(b'\x00'*SECRET_KEY_LENGTH)
-
-    # def GetDecryptionKey(self):
-    #     """Return the squeak decryption key."""
-    #     if not self.HasDecryptionKey():
-    #         return None
-    #     return self.secretKey
-
-    # def HasDecryptionKey(self):
-    #     """Return true if the decryption key is set."""
-    #     return self.secretKey != b'\x00'*SECRET_KEY_LENGTH
-
-    # def GetDecryptedContent(self):
-    #     """Return the decrypted content."""
-    #     CheckSqueakDecryptionKey(self)
-    #     decryption_key = self.GetDecryptionKey()
-    #     data_key = sha256(decryption_key)
-    #     iv = self.iv
-    #     ciphertext = self.encContent
-    #     return decrypt_content(data_key, iv, ciphertext)
-
-    # def GetDecryptedContentStr(self):
-    #     """Return the decrypted content."""
-    #     content = self.GetDecryptedContent()
-    #     return DecodeContent(content)
-
     def GetDecryptedContent(self, decryption_key):
         """Return the decrypted content."""
         CheckSqueakDecryptionKey(self, decryption_key)
@@ -391,10 +356,6 @@ def CheckSqueak(squeak):
 
     # Sig Script check
     CheckSqueakSignature(squeak)
-
-    # # Decryption key check
-    # if not skipDecryptionCheck:
-    #     CheckSqueakDecryptionKey(squeak)
 
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
