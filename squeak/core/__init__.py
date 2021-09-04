@@ -4,7 +4,6 @@ from bitcoin.core import b2lx
 from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ImmutableSerializable
 from bitcoin.core.serialize import ser_read
-from bitcoin.core.serialize import SerializationTruncationError
 
 from squeak.core.encryption import CIPHER_BLOCK_LENGTH
 from squeak.core.encryption import decrypt_content
@@ -130,7 +129,7 @@ class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
     __slots__ = ['encContent', 'vchScriptSig', 'secretKey']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=b'\x00'*ENC_CONTENT_LENGTH, vchScriptSig=b'', secretKey=b'\x00'*SECRET_KEY_LENGTH):
+    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, vchScriptPubKey=b'', paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=b'\x00'*ENC_CONTENT_LENGTH, vchScriptSig=b''):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
@@ -146,7 +145,6 @@ class CSqueak(CSqueakHeader):
         )
         object.__setattr__(self, 'encContent', encContent)
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
-        object.__setattr__(self, 'secretKey', secretKey)
 
     @classmethod
     def stream_deserialize(cls, f):
@@ -155,8 +153,6 @@ class CSqueak(CSqueakHeader):
         object.__setattr__(self, 'encContent', encContent)
         vchScriptSig = CScript(BytesSerializer.stream_deserialize(f))
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
-        secretKey = ser_read(f,SECRET_KEY_LENGTH)
-        object.__setattr__(self, 'secretKey', secretKey)
         return self
 
     def stream_serialize(self, f):
@@ -164,8 +160,6 @@ class CSqueak(CSqueakHeader):
         assert len(self.encContent) == ENC_CONTENT_LENGTH
         f.write(self.encContent)
         BytesSerializer.stream_serialize(self.vchScriptSig, f)
-        assert len(self.secretKey) == SECRET_KEY_LENGTH
-        f.write(self.secretKey)
 
     def get_header(self):
         """Return the squeak header
@@ -208,39 +202,17 @@ class CSqueak(CSqueakHeader):
         """Set the signature script bytes."""
         object.__setattr__(self, 'vchScriptSig', vchScriptSig)
 
-    def SetDecryptionKey(self, decryption_key):
-        """Set the decryption key.
-        """
-        assert len(decryption_key) == SECRET_KEY_LENGTH
-        object.__setattr__(self, 'secretKey', decryption_key)
-
-    def ClearDecryptionKey(self):
-        """Set the decryption key.
-        """
-        self.SetDecryptionKey(b'\x00'*SECRET_KEY_LENGTH)
-
-    def GetDecryptionKey(self):
-        """Return the squeak decryption key."""
-        if not self.HasDecryptionKey():
-            return None
-        return self.secretKey
-
-    def HasDecryptionKey(self):
-        """Return true if the decryption key is set."""
-        return self.secretKey != b'\x00'*SECRET_KEY_LENGTH
-
-    def GetDecryptedContent(self):
+    def GetDecryptedContent(self, decryption_key):
         """Return the decrypted content."""
-        CheckSqueakDecryptionKey(self)
-        decryption_key = self.GetDecryptionKey()
+        CheckSqueakDecryptionKey(self, decryption_key)
         data_key = sha256(decryption_key)
         iv = self.iv
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
 
-    def GetDecryptedContentStr(self):
+    def GetDecryptedContentStr(self, decryption_key):
         """Return the decrypted content."""
-        content = self.GetDecryptedContent()
+        content = self.GetDecryptedContent(decryption_key)
         return DecodeContent(content)
 
 
@@ -311,16 +283,12 @@ def CheckSqueakSignature(squeak):
         raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
-def CheckSqueakDecryptionKey(squeak):
+def CheckSqueakDecryptionKey(squeak, decryption_key):
     """Check if the given squeak has a valid decryption key
 
     squeak (CSqueak)
+    decryption_key (bytes)
     """
-    try:
-        decryption_key = squeak.GetDecryptionKey()
-    except SerializationTruncationError:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
-
     if decryption_key is None:
         raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
 
@@ -367,7 +335,7 @@ def CheckSqueakHeader(squeak_header):
         raise CheckSqueakHeaderError("CheckSqueakError() : vchScriptPubKey does not convert to a valid address")
 
 
-def CheckSqueak(squeak, skipDecryptionCheck=False):
+def CheckSqueak(squeak):
     """Context independent CSqueak checks.
 
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
@@ -389,13 +357,11 @@ def CheckSqueak(squeak, skipDecryptionCheck=False):
     # Sig Script check
     CheckSqueakSignature(squeak)
 
-    # Decryption key check
-    if not skipDecryptionCheck:
-        CheckSqueakDecryptionKey(squeak)
-
 
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak.
+
+    Returns a tuple of (squeak, decryption_key)
 
     signing_key (CSigningkey)
     content (bytes)
@@ -426,11 +392,10 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nTime=timestamp,
         nNonce=nonce,
         encContent=enc_content,
-        secretKey=secret_key,
     )
     sig_script = SignSqueak(signing_key, squeak)
     squeak.SetScriptSigBytes(bytes(sig_script))
-    return squeak
+    return squeak, secret_key
 
 
 def EncodeContent(content: str):
@@ -449,6 +414,8 @@ def DecodeContent(data: bytes):
 
 def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak from a string of content.
+
+    Returns a tuple of (squeak, decryption_key)
 
     signing_key (CSigningkey)
     content_str (str)
