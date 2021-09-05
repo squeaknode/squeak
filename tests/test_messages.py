@@ -12,6 +12,7 @@ from squeak.messages import msg_notfound
 from squeak.messages import msg_offer
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
+from squeak.messages import msg_secretkey
 from squeak.messages import msg_squeak
 from squeak.messages import msg_verack
 from squeak.messages import msg_version
@@ -104,6 +105,11 @@ class Test_msg_alert(MessageTestCase):
 class Test_msg_offer(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_offer, self).serialization_test(msg_offer)
+
+
+class Test_msg_secretkey(MessageTestCase):
+    def test_serialization(self):
+        super(Test_msg_secretkey, self).serialization_test(msg_secretkey)
 
 
 class Test_messages(unittest.TestCase):
