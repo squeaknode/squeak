@@ -27,6 +27,7 @@ from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
 from squeak.core import HASH_LENGTH
+from squeak.core import SECRET_KEY_LENGTH
 
 
 USER_AGENT = b'/python-squeak:' + \
@@ -296,10 +297,35 @@ class msg_offer(MsgSerializable, BitcoinMsgSerializable):
             (b2lx(self.hashSqk), b2lx(self.nonce), self.strPaymentInfo, self.host, self.port)
 
 
+class msg_secretkey(MsgSerializable, BitcoinMsgSerializable):
+    command = b"secretkey"
+
+    def __init__(self, hashSqk=None, secretKey=None, protover=PROTO_VERSION):
+        super(msg_secretkey, self).__init__(protover)
+        self.hashSqk = hashSqk or b'\x00'*HASH_LENGTH
+        self.secretKey = secretKey or b'\x00'*SECRET_KEY_LENGTH
+
+    @classmethod
+    def msg_deser(cls, f, protover=PROTO_VERSION):
+        hashSqk = ser_read(f, HASH_LENGTH)
+        secretKey = ser_read(f, SECRET_KEY_LENGTH)
+        return cls(hashSqk, secretKey)
+
+    def msg_ser(self, f):
+        assert len(self.hashSqk) == HASH_LENGTH
+        f.write(self.hashSqk)
+        assert len(self.secretKey) == SECRET_KEY_LENGTH
+        f.write(self.secretKey)
+
+    def __repr__(self):
+        return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s))" % \
+            (b2lx(self.hashSqk), b2lx(self.secretKey))
+
+
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_subscribe,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_offer]
+               msg_offer, msg_secretkey]
 
 messagemap = {}
 for cls in msg_classes:
