@@ -89,7 +89,7 @@ class CInv(BitcoinCInv):
     typemap = {
         0: "Error",
         1: "Squeak",
-        2: "Offer",
+        2: "SecretKey",
     }
 
     def __init__(self, type=0, hash=b'\x00'*HASH_LENGTH,):
