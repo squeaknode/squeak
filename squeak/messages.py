@@ -30,6 +30,9 @@ from squeak.core import HASH_LENGTH
 from squeak.core import SECRET_KEY_LENGTH
 
 
+MSG_SQUEAK = 1
+MSG_SECRET_KEY = 2
+
 USER_AGENT = b'/python-squeak:' + \
              squeak.__version__.encode('ascii') + b'/'
 
