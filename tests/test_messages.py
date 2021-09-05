@@ -17,6 +17,8 @@ from squeak.messages import msg_squeak
 from squeak.messages import msg_verack
 from squeak.messages import msg_version
 from squeak.messages import MsgSerializable
+from squeak.messages import MSG_SQUEAK
+from squeak.messages import MSG_SECRET_KEY
 
 
 class MessageTestCase(unittest.TestCase):
@@ -131,3 +133,12 @@ class Test_messages(unittest.TestCase):
         m = msg_verack()
         b = m.to_bytes()
         self.assertEqual(self.verackbytes, b)
+
+
+class Test_message_type_constants(unittest.TestCase):
+
+    def test_squeak_constant(self):
+        self.assertEqual(MSG_SQUEAK, 1)
+
+    def test_secret_key_constant(self):
+        self.assertEqual(MSG_SECRET_KEY, 2)
