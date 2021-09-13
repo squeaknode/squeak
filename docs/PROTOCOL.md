@@ -40,6 +40,7 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
+? | count | var_int | Number of addresses
 1+ | address length | var_int | Length of the address
 ? | address | char[] | The bytes of the public address identifying a squeak author or no bytes
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
