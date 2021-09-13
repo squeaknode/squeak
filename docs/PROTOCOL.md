@@ -94,12 +94,6 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | locator | squeak_locator | A single squeak locator struct
 
-#### msg_getheaders
-
-Field Size | Description | Data type | Comments
---- | --- | --- | ---
-? | locator | squeak_locator | A single squeak locator struct
-
 #### msg_subscribe
 
 Field Size | Description | Data type | Comments
