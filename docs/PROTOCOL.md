@@ -13,7 +13,7 @@ Field Size | Description | Data type | Comments
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
 1+ | script length | var_int | Length of the scriptPubKey
 ? | scriptPubKey | char[] | Usually contains the public key as a script setting up conditions to claim authorship.
-33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key.
+33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | vchIv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
