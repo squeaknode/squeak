@@ -25,8 +25,8 @@ import time
 
 from bitcoin.core import lx
 
+from squeak.core import CheckSqueak
 from squeak.core import MakeSqueakFromStr
-from squeak.core import CONTENT_LENGTH
 from squeak.core.signing import CSigningKey
 
 
@@ -45,6 +45,8 @@ squeak, secret_key = MakeSqueakFromStr(
     block_hash,
     timestamp,
 )
+
+CheckSqueak(squeak)  # No exception raised
 
 print(squeak.GetHash())  # prints b"\x9e\xeb\xbc)N\x94\xe2\x85\x9b(d\x7f\x1e7\xb5{\xcbY\xef\xd4;\xf7P\xfe\x19'Q\xb7\x7f\xbda\xaf"
 print(squeak.GetAddress())  # prints 16sFQMmfiU9g3B2ZW55YppjMa3icEuncxj
