@@ -20,8 +20,8 @@ setup(
         'squeak',
     ],
     install_requires=[
-        "cryptography",
-        "python-bitcoinlib",
-        "ECPy",
+        "cryptography>=3.4.0",
+        "python-bitcoinlib>=0.11.0",
+        "ECPy>=1.2.0",
     ],
 )
