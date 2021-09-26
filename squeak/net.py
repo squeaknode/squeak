@@ -12,7 +12,7 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import CSqueakAddress
 
 
-PROTO_VERSION = 60002
+PROTO_VERSION = 60003
 
 
 class CSqueakLocator(Serializable):
