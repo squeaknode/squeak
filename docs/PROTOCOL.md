@@ -12,7 +12,7 @@ Field Size | Description | Data type | Comments
 32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
 1+ | script length | var_int | Length of the scriptPubKey
-? | scriptPubKey | char[] | Usually contains the public key as a script setting up conditions to claim authorship.
+? | scriptPubKey | char[] | Contains the public key as a script setting up conditions to claim authorship.
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | vchIv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
@@ -42,7 +42,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | count | var_int | Number of addresses
 1+ | address length | var_int | Length of the address
-? | address | char[] | The bytes of the public address identifying a squeak author or no bytes
+? | address | char[] | The bytes of the public address identifying a squeak author
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
