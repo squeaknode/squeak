@@ -98,7 +98,6 @@ When a user creates a squeak, the following happens:
 * A random initialization vector is generated.
 * The user content is encrypted with a symmetric-key algorithm using the encryption key and the initialization vector.
 * A hash is calculated over the encrypted ciphertext.
-* A hash is calculated over the encrypted ciphertext.
 * The payment point is calculated from the encryption key scalar value on an elliptic curve.
 * A new nonce is generated.
 * The private key of the author is used to create a P2PKH pubkey script.
