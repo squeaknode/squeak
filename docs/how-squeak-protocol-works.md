@@ -52,14 +52,32 @@ The basic idea for selling content is as follows:
 If Alice tries to give Bob an invalid invoice, Bob will know. And then he will not pay the invoice.
 
 
-## Connect to other nodes
-After you have created some squeaks, you may be wondering if anyone else can read them. Other users will only be able to download your squeaks if their node is connected to your node (or if they connect to another node that already has copies of your squeaks).
+## How Squeaks work
+The basic unit of content in the Squeak protocol is a squeak.
 
-You can establish connections to other nodes in two ways:
-1) open a connection to another node using its external address
-2) share your node's external address and let other nodes connect to you
+It is an immutable structure that contains all of the fields necessary to validate and share posts between nodes.
 
-Once a connection is established, it doesn't matter which node started the connection, inbound and outbound connections are treated the same.
+There are two components in a squeak:
+
+* The squeak header
+* The external fields outside the header.
+
+A squeak header has the following fields:
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+4 | nVersion | int32_t | Squeak version information
+32 | hashEncContent | char[32] | The hash value of the encrypted content of the squeak
+32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes if squeak is not a reply
+32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
+4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
+1+ | script length | var_int | Length of the scriptPubKey
+? | scriptPubKey | char[] | Contains the public key as a script setting up conditions to claim authorship.
+33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
+16 | vchIv | char[16] | Random bytes used for the initialization vector
+4 | nTime | uint32_t | A timestamp recording when this squeak was created
+4 | nNonce | uint32_t | The nonce used to generate this squeak
+
 
 #### Make an outbound connection
 If you know the external address of another squeaknode, you can connect to it directly:
