@@ -102,12 +102,9 @@ When a user creates a squeak, the following happens:
 * A new nonce is generated.
 * The private key of the author is used to create a P2PKH pubkey script.
 
-All of these values are used to populate the squeak header.
+All of these values are used to populate the squeak header. After the header is created:
 
-After the header is created, the squeak hash is calculated.
-
-After the squeak hash is calculated:
-
+* The squeak hash is calculated from the header.
 * The private key of the author is used to sign the squeak hash.
 * The signature is then turned into a degenerate (SIGHASH_ALL) sig script, and attached to the squeak.
 
