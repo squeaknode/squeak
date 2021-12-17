@@ -63,7 +63,7 @@ If Alice tries to give Bob an invalid invoice, Bob will know. And then he will n
 ## How squeaks work
 The basic unit of content in the Squeak protocol is a squeak.
 
-It is an immutable structure that contains all of the fields necessary to validate and share posts between nodes.
+It is an immutable structure that contains all of the fields necessary to share and validate "locked" posts between nodes.
 
 ### Squeak structure
 
