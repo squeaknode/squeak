@@ -1,8 +1,5 @@
----
-date: 2021-12-16
-title: How the Squeak Protocol Works
-author_staff_member: yzernik
----
+# How the Squeak Protocol Works
+
 The Squeak protocol attempts to solve the problem of decentralized social media by allowing users to buy content from other users with Bitcoin payments.
 
 This document will describe the challenges and how the Squeak protocol solves them with cryptography.
