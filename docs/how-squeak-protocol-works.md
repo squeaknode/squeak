@@ -88,7 +88,7 @@ Field Size | Description | Data type | Comments
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
 
-There are also additional fields outside the header:
+There are also external fields outside the header:
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
