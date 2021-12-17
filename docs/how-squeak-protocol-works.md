@@ -38,7 +38,7 @@ The Squeak protocol uses primitives from elliptic curve cryptography to do trust
 
 ### Elliptic curve distributive property
 
-We can take advantage of the distributive property of elliptic curves:
+We can take advantage of the distributive property of points on elliptic curves:
 
 ```
 (s1 + s2)*G = s1*G + s2*G
