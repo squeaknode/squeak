@@ -127,7 +127,7 @@ All of these values are used to populate the squeak header. After the header is 
 
 After a squeak is created, it can be shared and validated on any node.
 
-A squeak can be validated to prove that is has the following properies:
+A validated squeak has the following properies:
 
 * The P2PKH address associated with the squeak belongs to the author of the squeak (proved by the signature).
 * None of the fields in the header were modified after being signed by the author (the hash would change, and the signature would become invalid if that happened).
