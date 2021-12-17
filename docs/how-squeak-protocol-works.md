@@ -186,3 +186,22 @@ As an example, if Alice creates a squeak, and Bob obtains a copy of the squeak:
 However, because Bob does not have the decryption key:
 
 * Bob will not be able to see the content of the squeak.
+
+### How a user unlocks the content of a squeak
+
+Now Bob has a choice to make. Is he interested in reading the squeak that Alice made, given everything he knows about the squeak?
+
+If Bob wants to unlock the content, he can send a message to all of his peers in the network expressing interest in buying the decryption key for the squeak.
+
+Bob's peers in the network (only those who already have a copy of the decryption key) will respond to Bob by creating invoices as described in the earlier section.
+
+Bob can now browse through the offers, and make a payment to any peer that offered him a valid invoice. Bob knows which invoices are valid because he can validate against `payment_point` field of the squeak header, using elliptic curve math.
+
+When Bob makes a Lightning payment to one of the sellers, he will obtain the preimage of the invoice. This preimage can be used to get the decryption key:
+
+* The preimage is `s1 + s2`, as described earlier.
+* Bob already knows `s2`, because the seller sent it to him.
+* Bob calculates `s1 = (s1 + s2) - s2` to obtain the decryption key.
+* Bob can then decrypt the content of the squeak.
+
+Now Bob can read the content of the squeak!
