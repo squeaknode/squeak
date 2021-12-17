@@ -189,7 +189,7 @@ However, because Bob does not have the decryption key:
 
 ### How a user unlocks the content of a squeak
 
-Now Bob has a choice to make. Is he interested in reading the squeak that Alice made, given everything he knows about the squeak?
+Now Bob has a choice to make. Is he interested in reading the squeak that Alice authored, given everything he knows about the squeak?
 
 If Bob wants to unlock the content, he can send a message to all of his peers in the network expressing interest in buying the decryption key for the squeak.
 
