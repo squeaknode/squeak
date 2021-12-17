@@ -78,6 +78,14 @@ Field Size | Description | Data type | Comments
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
 
+There are also additional fields outside the header:
+
+Field Size | Description | Data type | Comments
+--- | --- | --- | ---
+1136 | vchEncContent | char[1136] | Encrypted content
+1+ | script length | var_int | Length of the scriptSig
+? | scriptSig | char[] | Computational Script for confirming authorship
+
 
 #### Make an outbound connection
 If you know the external address of another squeaknode, you can connect to it directly:
