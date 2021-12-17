@@ -20,7 +20,7 @@ In both cases, you are relying on the honesty or generosity of the instance/rela
 
 ### Pull is better than push
 
-Rather than requiring payment to push content to a relay, a better approach is to require payment when a node pulls content. If a relay receives a payment every time a post is downloaded, then the relay owner has an incentive to host as much content as possible to maximize profit.
+Rather than requiring payment for a client to push content to a relay, a better approach is to require payment when a client pulls content. If a relay receives a payment every time a post is downloaded, then the relay owner has an incentive to host as much content as possible to maximize profit.
 
 ## Trustless payments for content in an adversarial environment
 The Squeak protocol aims to solve this problem by creating a "flat" network, where every node can connect to every other node, and there is no distinction between clients and relays. Every node can pull content from every other node, and every node follows the same protocol rules.
