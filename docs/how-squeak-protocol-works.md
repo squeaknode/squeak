@@ -9,7 +9,7 @@ There have been many attempts at creating a decentralized protocol for social me
 
 ### Existing protocols
 
-* [Mastodon](https://github.com/mastodon/mastodon) uses a federation model, where the owner of the instance has the power to ban users from their instance.
+* [Mastodon](https://github.com/mastodon/mastodon) uses a federation model, where the owner of the instance has complete control of everything that happens on their instance.
 * [Nostr](https://github.com/fiatjaf/nostr) uses interchangeable relay servers, so no single relay server has the power to ban or censor someone.
 
 ### Reliance on relays
