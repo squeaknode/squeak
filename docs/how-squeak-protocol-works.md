@@ -195,7 +195,7 @@ If Bob wants to unlock the content, he can send a message to all of his peers in
 
 Bob's peers in the network (only those who already have a copy of the decryption key) will respond to Bob by sending him invoices as described in the earlier section.
 
-Bob can now browse through the offers, and make a payment to any peer that offered him a valid invoice. Bob knows which invoices are valid because he can validate against `payment_point` field of the squeak header, using elliptic curve math.
+Bob can now browse through the offers, and make a payment to any peer that offered him a valid invoice. Bob knows which invoices are valid because he can validate against `payment_point` field of the squeak header, using the elliptic curve math described earlier.
 
 When Bob makes a Lightning payment to one of the sellers, he will obtain the preimage of the invoice. This preimage can be used to get the decryption key:
 
