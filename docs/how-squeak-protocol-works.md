@@ -51,7 +51,7 @@ where `s1` and `s2` are scalars, and G is an elliptic curve.
 The basic idea for selling content is as follows:
 
 * Alice has a piece of content she wants to sell.
-* Alice generates a scalar value `s1` to use as an encryption/decryption key, and encrypts the content.
+* Alice generates a scalar value `s1` to use as a symmetric encryption/decryption key, and encrypts the content.
 * Alice calculates the point `p1` on an elliptic curve `G` by calculating `p1 = s1*G`.
 * Alice publishes `p1` for anyone interested in buying the content.
 * Bob downloads the encrypted content, and requests an invoice to unlock the content.
