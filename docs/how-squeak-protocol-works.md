@@ -44,7 +44,7 @@ We can take advantage of the distributive property of elliptic curves:
 (s1 + s2)*G = s1*G + s2*G
 ```
 
-where `s1` and `s2` are scalars, and G is an elliptic curve.
+where `s1` and `s2` are scalars, and `G` is an elliptic curve.
 
 ### Selling decryption keys over Lightning
 
