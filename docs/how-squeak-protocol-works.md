@@ -34,7 +34,7 @@ In order for this type of flat network to work, it must be possible for payments
 Without the ability to buy content trustlessly, users would be less willing to make payments to other nodes. A reputation system would be necessary, which would make everything inefficient.
 
 ## How trustless payments work
-The Squeak protocol uses primitives from elliptic curve cryptography to do trustless Bitcoin payments over Lightning.
+The Squeak protocol uses primitives from elliptic curve cryptography to do trustless Bitcoin payments over Lightning in exchange for content.
 
 ### Elliptic curve distributive property
 
