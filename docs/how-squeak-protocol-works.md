@@ -102,7 +102,9 @@ When a user creates a squeak, the following happens:
 * A new nonce is generated.
 * The private key of the author is used to create a P2PKH pubkey script.
 
-All of these values are used to populate the squeak header. After the header is created, the squeak hash is calculated.
+All of these values are used to populate the squeak header.
+
+After the header is created, the squeak hash is calculated.
 
 After the squeak hash is calculated:
 
