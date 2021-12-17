@@ -171,7 +171,7 @@ After a squeak is created, it can be shared and validated on any node.
 A validated squeak has the following properies:
 
 * The pubkey embedded in the squeak belongs to the author of the squeak (proved by the signature).
-* None of the fields in the header were modified after being signed by the author (the hash would change, and the signature would become invalid if that happened).
+* None of the fields in the header were modified after being signed by the author (that would change the hash, and the signature would become invalid if that happened).
 * The encrypted content field was not modified after being signed by the author (that would also result in the signature becoming invalid).
 * The Bitcoin block hash and block height (if valid) prove that the squeak was created after that block was mined.
 
