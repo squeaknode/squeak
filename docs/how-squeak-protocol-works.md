@@ -101,7 +101,7 @@ Field Size | Description | Data type | Comments
 1+ | script length | var_int | Length of the scriptSig
 ? | scriptSig | char[] | Computational Script for confirming authorship
 
-There is also a squeak hash, which is derived from the content of the squeak header using SHA256.
+There is also a squeak hash, which is derived from the bytes of the squeak header using SHA256.
 
 ### How a squeak is created
 
