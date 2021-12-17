@@ -36,7 +36,7 @@ The Squeak protocol uses primitives from elliptic curve cryptography to do trust
 
 ### Selling decryption keys over Lightning
 
-The basic idea for how content is sold is as follows:
+The basic idea for selling content is as follows:
 
 * Alice has a piece of content she wants to sell.
 * Alice generates a scalar value `s1` to use as an encryption/decryption key, and encrypts the content.
