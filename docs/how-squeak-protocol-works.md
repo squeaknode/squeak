@@ -57,6 +57,8 @@ The basic unit of content in the Squeak protocol is a squeak.
 
 It is an immutable structure that contains all of the fields necessary to validate and share posts between nodes.
 
+### Squeak structure
+
 There are two components in a squeak:
 
 * The squeak header
@@ -85,6 +87,28 @@ Field Size | Description | Data type | Comments
 1136 | vchEncContent | char[1136] | Encrypted content
 1+ | script length | var_int | Length of the scriptSig
 ? | scriptSig | char[] | Computational Script for confirming authorship
+
+There is also a squeak hash, which is derived from the content of the squeak header using SHA256.
+
+### How a squeak is created
+
+When a user creates a squeak, the following happens:
+
+* An encryption/decryption key is generated as a random scalar value.
+* A random initialization vector is generated.
+* The user content is encrypted with a symmetric-key algorithm using the encryption key and the initialization vector.
+* A hash is calculated over the encrypted ciphertext.
+* A hash is calculated over the encrypted ciphertext.
+* The payment point is calculated from the encryption key scalar value on an elliptic curve.
+* A new nonce is generated.
+* The private key of the author is used to create a P2PKH pubkey script.
+
+All of these values are used to populate the squeak header. After the header is created, the squeak hash is calculated.
+
+After the squeak hash is calculated:
+
+* The private key of the author is used to sign the squeak hash.
+* The signature is then turned into a degenerate (SIGHASH_ALL) sig script, and attached to the squeak.
 
 
 #### Make an outbound connection
