@@ -177,7 +177,7 @@ A validated squeak has the following properies:
 
 ### How a user interacts with a squeak
 
-As an example, if Alice authored a squeak, and Bob obtained a copy of the squeak:
+For example, if Alice authored a squeak, and Bob obtained a copy of the squeak:
 
 * Bob will know that the squeak was authored by Alice.
 * Bob will know that the squeak was created after a certain time (given by the block hash).
