@@ -5,7 +5,7 @@ The Squeak protocol attempts to solve the problem of decentralized social media 
 This document describes the challenges and how the Squeak protocol solves them with cryptography.
 
 ## The problem of incentives in a decentralized social network
-There have been many attempts at creating a decentralized protocol for social media. Almost all of them rely on some kind of relay in the network, that accepts posts from users and makes them available to other users.
+There have been many attempts to create a protocol for decentralized social media. Almost all of them rely on some kind of relay in the network, that accepts posts from users and makes them available to other users.
 
 ### Existing protocols
 
