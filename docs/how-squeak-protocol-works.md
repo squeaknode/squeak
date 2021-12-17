@@ -23,7 +23,7 @@ In both cases, users have to rely on the honesty or generosity of the instance/r
 Rather than requiring payment for a client to push content to a relay, a better approach is to require payment when a client pulls content. If a relay receives a payment every time a post is downloaded, then the relay owner has an incentive to host as much content as possible to maximize profit.
 
 ## Trustless payments for content in an adversarial environment
-The Squeak protocol aims to solve this problem by creating a "flat" network, where every node can connect to every other node, and there is no distinction between clients and relays. Every node can pull content from every other node, and every node follows the same protocol rules.
+The Squeak protocol attempts to solve this problem by creating a "flat" network, where every node can connect to every other node, and there is no distinction between clients and relays. Every node can pull content from every other node, and every node follows the same protocol rules.
 
 Every node can act as a relay, and earn a profit by hosting content that is sold to other nodes in the network.
 
