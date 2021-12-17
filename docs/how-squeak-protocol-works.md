@@ -16,7 +16,7 @@ There have been many attempts at creating a decentralized protocol for social me
 
 These protocols have one major problem, which is that they rely on hubs or relays for the network to work. There is no incentive for someone to host a Mastodon instance or Nostr relay, aside from altruism. A Nostr relay could charge some amount of money for each post that a user uploads, but there is no guarantee that the relay will actually honor their commitment and share the content with other clients. They could just take the money and throw away the content.
 
-In both cases, clients have to rely on the honesty or generosity of the instance/relay owner to provide a service to the network.
+In both cases, users have to rely on the honesty or generosity of the instance/relay owner to provide a service to the network.
 
 ### Pull is better than push
 
