@@ -25,6 +25,8 @@ Rather than requiring payment for a client to push content to a relay, a better 
 ## Trustless payments for content in an adversarial environment
 The Squeak protocol aims to solve this problem by creating a "flat" network, where every node can connect to every other node, and there is no distinction between clients and relays. Every node can pull content from every other node, and every node follows the same protocol rules.
 
+Every node can act as a relay, and earn a profit by hosting content that is sold to other nodes in the network.
+
 ### Payments must be trustless
 
 In order for this type of flat network to work, it must be possible for payments between nodes to work trustlessly. When a user makes a payment to another node to get a specific piece of content, they must have a guarantee they will get what they pay for.
