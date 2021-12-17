@@ -112,8 +112,18 @@ When a user creates a squeak, the following happens:
 * A new nonce is generated.
 * The private key of the author is used to create a P2PKH pubkey script.
 
+Also,
+
+* The latest block height and block hash are fetched from the Bitcoin blockchain.
+
 All of these values are used to populate the squeak header. After the header is created:
 
 * The squeak hash is calculated from the header.
 * The private key of the author is used to sign the squeak hash.
 * The signature is then turned into a degenerate (SIGHASH_ALL) sig script, and attached to the squeak.
+
+
+### Properties of a squeak
+
+After a squeak is created, it can be shared and validated on any node.
+
