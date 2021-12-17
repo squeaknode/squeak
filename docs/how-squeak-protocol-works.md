@@ -58,7 +58,7 @@ The basic idea for selling content is as follows:
 * Alice generates a new scalar value `s2`, and creates a *PTLC* Lightning invoice with `s1 + s2` as the preimage.
 * Alice sends Bob `s2` and the Lightning invoice as a payment request string.
 * Bob decodes the payment request string to get the payment point of the invoice, call it `p3`.
-* Bob calculates `s2*G`. If it is equeal to `p3 - p1`, than Bob knows that the invoice is valid.
+* Bob calculates `s2*G`. If it is equeal to `p3 - p1`, then Bob knows that the invoice is valid.
 * Bob pays the Lightning invoice, and gets the value of `s1 + s2` as the preimage.
 * Bob calculates `s1 = (s1 + s2) - s2` to get the decryption key, and decrypts the content.
 
