@@ -122,6 +122,46 @@ All of these values are used to populate the squeak header. After the header is 
 * The private key of the author is used to sign the squeak hash.
 * The signature is then turned into a degenerate (SIGHASH_ALL) sig script, and attached to the squeak.
 
+The `MakeSqueak` function looks like this:
+
+```
+def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
+    """Create a new squeak.
+    Returns a tuple of (squeak, decryption_key)
+    signing_key (CSigningkey)
+    content (bytes)
+    block_height (int)
+    block_hash (bytes)
+    timestamp (int)
+    reply_to (bytes)
+    """
+    reply_to = reply_to or b'\x00'*HASH_LENGTH
+    secret_key = generate_secret_key()
+    data_key = sha256(secret_key)
+    initialization_vector = generate_initialization_vector()
+    enc_content = EncryptContent(data_key, initialization_vector, content)
+    hash_enc_content = HashEncryptedContent(enc_content)
+    payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
+    nonce = generate_nonce()
+    verifying_key = signing_key.get_verifying_key()
+    squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
+    pubkey_script = squeak_address.to_scriptPubKey()
+    squeak = CSqueak(
+        hashEncContent=hash_enc_content,
+        hashReplySqk=reply_to,
+        hashBlock=block_hash,
+        nBlockHeight=block_height,
+        vchScriptPubKey=bytes(pubkey_script),
+        paymentPoint=payment_point_encoded,
+        iv=initialization_vector,
+        nTime=timestamp,
+        nNonce=nonce,
+        encContent=enc_content,
+    )
+    sig_script = SignSqueak(signing_key, squeak)
+    squeak.SetScriptSigBytes(bytes(sig_script))
+    return squeak, secret_key
+```
 
 ### Properties of a squeak
 
