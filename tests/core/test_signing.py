@@ -6,6 +6,7 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import SqueakPrivateKey
 from squeak.core.signing import SqueakPublicKey
 from squeak.core.signing import PUB_KEY_LENGTH
+from squeak.core.signing import SIGNATURE_LENGTH
 
 
 def make_hash():
@@ -32,6 +33,7 @@ class TestSignVerify(object):
     def test_sign_verify(self, priv_key, pub_key, data):
         signature = priv_key.sign(data)
 
+        assert len(signature) == SIGNATURE_LENGTH
         assert pub_key.verify(data, signature)
 
     def test_serialize_deserialize_public_key(self, priv_key, pub_key, data):
