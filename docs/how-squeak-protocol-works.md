@@ -115,6 +115,7 @@ When a user creates a squeak, the following happens:
 Also,
 
 * The latest block height and block hash are fetched from the Bitcoin blockchain.
+* The hash of another squeak (to make a reply) can also be provided by the author.
 
 All of these values are used to populate the squeak header. After the header is created:
 
@@ -169,8 +170,19 @@ After a squeak is created, it can be shared and validated on any node.
 
 A validated squeak has the following properies:
 
-* The P2PKH address associated with the squeak belongs to the author of the squeak (proved by the signature).
+* The pubkey embedded in the squeak belongs to the author of the squeak (proved by the signature).
 * None of the fields in the header were modified after being signed by the author (the hash would change, and the signature would become invalid if that happened).
-* The encryped content field was not modified after being signed by the author (that would also result in the signature becoming invalid).
+* The encrypted content field was not modified after being signed by the author (that would also result in the signature becoming invalid).
 * The Bitcoin block hash and block height (if valid) prove that the squeak was created after that block was mined.
 
+### How a user interacts with a squeak
+
+As an example, if Alice creates a squeak, and Bob obtains a copy of the squeak:
+
+* Bob will know that the squeak was authored by Alice.
+* Bob will know that the squeak was created after a certain time (given by the block hash).
+* Bob will know if the squeak is a reply to another squeak.
+
+However, because Bob does not have the decryption key:
+
+* Bob will not be able to see the content of the squeak.
