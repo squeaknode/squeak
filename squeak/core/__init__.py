@@ -16,6 +16,8 @@ from squeak.core.script import VerifyScript
 from squeak.core.script import VerifyScriptError
 from squeak.core.signing import SqueakPrivateKey
 from squeak.core.signing import SqueakPublicKey
+from squeak.core.signing import PUB_KEY_LENGTH
+from squeak.core.signing import SIGNATURE_LENGTH
 from squeak.core.elliptic import generate_secret_key
 from squeak.core.elliptic import payment_point_bytes_from_scalar_bytes
 
@@ -27,8 +29,6 @@ HASH_LENGTH = 32
 SQUEAK_VERSION = 1
 PAYMENT_POINT_LENGTH = 33
 SECRET_KEY_LENGTH = 32
-PUB_KEY_LENGTH = 33
-SIGNATURE_LENGTH = 64
 
 
 class ValidationError(Exception):
@@ -254,7 +254,7 @@ class CheckSqueakDecryptionKeyError(CheckSqueakError):
 def SignSqueak(signing_key, squeak_header):
     """Generate a signature for the given squeak header.
 
-    signing_key (CSigningKey)
+    signing_key (SqueakPrivateKey)
     squeak_header (CSqueakHeader)
     """
     squeak_hash = squeak_header.GetHash()
@@ -320,11 +320,12 @@ def CheckSqueakHeader(squeak_header):
     Raises CSqueakHeaderError if squeak header is invalid.
     """
 
-    try:
-        # squeak_header.GetAddress()
-        assert len(squeak_header.pubKey) == PUB_KEY_LENGTH
-    except CSqueakAddressError:
-        raise CheckSqueakHeaderError("CheckSqueakError() : pubkey does not have a valid length.")
+    # try:
+    #     # squeak_header.GetAddress()
+    #     assert len(squeak_header.pubKey) == PUB_KEY_LENGTH
+    # except CSqueakAddressError:
+    #     raise CheckSqueakHeaderError("CheckSqueakError() : pubkey does not have a valid length.")
+    pass
 
 
 def CheckSqueak(squeak):

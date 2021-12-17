@@ -18,7 +18,7 @@ from secp256k1 import PrivateKey, PublicKey
 
 
 PUB_KEY_LENGTH = 33
-SIGNATURE_LENGTH = 64  # Only if the signature is compacted
+SIGNATURE_LENGTH = 64
 
 
 class SqueakPrivateKey:
@@ -57,6 +57,12 @@ class SqueakPrivateKey:
         priv_key = PrivateKey(privkey=priv_key_str, raw=False)
         return cls(priv_key)
 
+    def __eq__(self, other):
+        return other.to_bytes() == self.to_bytes()
+
+    def __ne__(self, other):
+        return other.to_bytes() != self.to_bytes()
+
 
 class SqueakPublicKey:
     """Represents a squeak public key.
@@ -76,3 +82,9 @@ class SqueakPublicKey:
     def from_bytes(cls, pub_key_bytes):
         pub_key = PublicKey(pubkey=pub_key_bytes, raw=True)
         return cls(pub_key)
+
+    def __eq__(self, other):
+        return other.to_bytes() == self.to_bytes()
+
+    def __ne__(self, other):
+        return other.to_bytes() != self.to_bytes()

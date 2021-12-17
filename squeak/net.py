@@ -10,6 +10,7 @@ from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import SqueakPublicKey
+from squeak.core.signing import PUB_KEY_LENGTH
 
 
 PROTO_VERSION = 60003
@@ -65,7 +66,7 @@ class CInterested(Serializable):
     @classmethod
     def stream_deserialize(cls, f):
         n = VarIntSerializer.stream_deserialize(f)
-        pubkeys = tuple(SqueakPublicKey.from_bytes(BytesSerializer.stream_deserialize(f)) for i in range(n))
+        pubkeys = tuple(SqueakPublicKey.from_bytes(ser_read(f, PUB_KEY_LENGTH)) for i in range(n))
         nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashReplySqk = ser_read(f, HASH_LENGTH)
@@ -74,7 +75,10 @@ class CInterested(Serializable):
     def stream_serialize(self, f):
         VarIntSerializer.stream_serialize(len(self.pubkeys), f)
         for pubkey in self.pubkeys:
-            BytesSerializer.stream_serialize(pubkey, f)
+            pubkey_bytes = pubkey.to_bytes()
+            assert len(pubkey_bytes) == PUB_KEY_LENGTH
+            f.write(pubkey_bytes)
+            # BytesSerializer.stream_serialize(pubkey, f)
         f.write(struct.pack(b"<i", self.nMinBlockHeight))
         f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
