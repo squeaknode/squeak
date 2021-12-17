@@ -31,7 +31,7 @@ Every node can act as a relay, and earn a profit by hosting content that is sold
 
 In order for this type of flat network to work, it must be possible for payments between nodes to work trustlessly. When a user makes a payment to another node to get a specific piece of content, they must have a guarantee they will get what they pay for.
 
-Without the ability to buy content trustlessly, a reputation system will be necessary, which will make everything more inefficient.
+Without the ability to buy content trustlessly, a reputation system would be necessary, which would make everything more inefficient.
 
 ## How trustless payments work
 The Squeak protocol uses primitives from elliptic curve cryptography to do trustless Bitcoin payments over Lightning.
