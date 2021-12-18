@@ -23,10 +23,13 @@ import hashlib
 
 import ecpy
 from ecpy.curves import Curve
-from ecpy.curves import Point
 from ecpy.ecdsa import ECDSA
 from ecpy.keys import ECPrivateKey
 from ecpy.keys import ECPublicKey
+
+from squeak.core.elliptic import bytes_to_payment_point
+from squeak.core.elliptic import payment_point_to_bytes
+
 
 CURVE_SECP256K1 = Curve.get_curve('secp256k1')
 SIGNER = ECDSA()
@@ -119,26 +122,27 @@ class SqueakPublicKey:
         # return payment_point_to_bytes(self.pub_key.W)
         # # return self.pub_key.W
 
-        pubkey = self.pub_key.W
-        out = b"\x04"
-        out += pubkey.x.to_bytes(32, 'big')
-        out += pubkey.y.to_bytes(32, 'big')
-        return out
+        # pubkey = self.pub_key.W
+        # out = b"\x04"
+        # out += pubkey.x.to_bytes(32, 'big')
+        # out += pubkey.y.to_bytes(32, 'big')
+        # return out
+
+        return payment_point_to_bytes(self.pub_key.W)
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
-        pubkey = pub_key_bytes[1:]
-        x = int.from_bytes(pubkey[0:32], 'big')
-        y = int.from_bytes(pubkey[32:], 'big')
-        pub_key = ECPublicKey(Point(x, y, CURVE_SECP256K1))
+        # pubkey = pub_key_bytes[1:]
+        # x = int.from_bytes(pubkey[0:32], 'big')
+        # y = int.from_bytes(pubkey[32:], 'big')
+        # pub_key = ECPublicKey(Point(x, y, CURVE_SECP256K1))
 
         # s = scalar_from_bytes(pub_key_bytes)
         # point = payment_point_from_scalar(s)
         # pub_key = ECPublicKey(point)
 
-        # s = scalar_from_bytes(pub_key_bytes)
-        # point = payment_point_from_scalar(s)
-        # pub_key = ECPublicKey(point)
+        point = bytes_to_payment_point(pub_key_bytes)
+        pub_key = ECPublicKey(point)
 
         return cls(pub_key)
 
