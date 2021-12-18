@@ -108,3 +108,8 @@ class TestSignVerify(object):
 
         with pytest.raises(InvalidPublicKeyError):
             SqueakPublicKey.from_bytes(invalid_public_key_bytes)
+
+        invalid_bytes = bytes.fromhex("aa5f3b031505bb157c9ce26bf36bea93535921dfd124e9361aee84db1f9abde199")
+
+        with pytest.raises(InvalidPublicKeyError):
+            SqueakPublicKey.from_bytes(invalid_bytes)

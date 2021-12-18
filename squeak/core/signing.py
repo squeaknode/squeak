@@ -22,6 +22,7 @@
 import hashlib
 
 import ecpy
+from ecpy.curves import ECPyException
 from ecpy.ecschnorr import ECSchnorr
 from ecpy.keys import ECPrivateKey
 from ecpy.keys import ECPublicKey
@@ -106,9 +107,12 @@ class SqueakPublicKey:
     def from_bytes(cls, pub_key_bytes):
         if len(pub_key_bytes) != PUB_KEY_LENGTH:
             raise InvalidPublicKeyError()
-        point = bytes_to_payment_point(pub_key_bytes)
-        pub_key = ECPublicKey(point)
-        return cls(pub_key)
+        try:
+            point = bytes_to_payment_point(pub_key_bytes)
+            pub_key = ECPublicKey(point)
+            return cls(pub_key)
+        except ECPyException:
+            raise InvalidPublicKeyError()
 
     def __eq__(self, other):
         return other.to_bytes() == self.to_bytes()
