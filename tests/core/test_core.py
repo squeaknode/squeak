@@ -247,6 +247,7 @@ class TestSerializeSqueak(object):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
+        assert len(serialized_squeak) == 1394
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
         assert squeak.GetDecryptedContent(decryption_key) == \
@@ -265,5 +266,6 @@ class TestSerializeSqueak(object):
         serialized_squeak_header = squeak_header.serialize()
         deserialized_squeak_header = CSqueakHeader.deserialize(serialized_squeak_header)
 
+        assert len(serialized_squeak_header) == 194
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)
