@@ -208,7 +208,7 @@ class CSqueak(CSqueakHeader):
         """Return the signature."""
         return self.sig
 
-    def SetScriptSigBytes(self, sig):
+    def SetSignature(self, sig):
         """Set the signature."""
         object.__setattr__(self, 'sig', sig)
 
@@ -360,7 +360,7 @@ def CheckSqueak(squeak):
     if not hash_enc_content == squeak.hashEncContent:
         raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
-    # Sig Script check
+    # Signature check
     CheckSqueakSignature(squeak)
 
 
@@ -397,8 +397,8 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nNonce=nonce,
         encContent=enc_content,
     )
-    sig_script = SignSqueak(signing_key, squeak)
-    squeak.SetScriptSigBytes(bytes(sig_script))
+    sig = SignSqueak(signing_key, squeak)
+    squeak.SetSignature(bytes(sig))
     return squeak, secret_key
 
 

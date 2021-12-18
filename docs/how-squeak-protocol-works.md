@@ -111,7 +111,7 @@ When a user creates a squeak, the following happens:
 * A hash is calculated over the encrypted ciphertext.
 * The payment point is calculated from the encryption key scalar value on an elliptic curve.
 * A new nonce is generated.
-* The private key of the author is used to create a P2PKH pubkey script.
+* The public key of the author is derived from their private key.
 
 Also,
 
