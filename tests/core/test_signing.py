@@ -25,6 +25,8 @@ import pytest
 
 from squeak.core import HASH_LENGTH
 from squeak.core.signing import SqueakPrivateKey
+from squeak.core.signing import SqueakPublicKey
+# from squeak.core.signing import PUB_KEY_LENGTH
 
 
 def make_hash():
@@ -55,17 +57,19 @@ class TestSignVerify(object):
         # assert len(signature) == SIGNATURE_LENGTH
         assert pub_key.verify(data, signature)
 
-    # def test_serialize_deserialize_public_key(self, priv_key, pub_key, data):
-    #     serialized = pub_key.to_bytes()
-    #     deserialized = SqueakPublicKey.from_bytes(serialized)
-    #     serialized2 = deserialized.to_bytes()
-    #     deserialized2 = SqueakPublicKey.from_bytes(serialized2)
+    def test_serialize_deserialize_public_key(self, priv_key, pub_key, data):
+        serialized = pub_key.to_bytes()
+        deserialized = SqueakPublicKey.from_bytes(serialized)
+        serialized2 = deserialized.to_bytes()
+        deserialized2 = SqueakPublicKey.from_bytes(serialized2)
 
-    #     signature = priv_key.sign(data)
+        assert deserialized.pub_key.W == pub_key.pub_key.W
 
-    #     assert pub_key.verify(data, signature)
-    #     assert deserialized2.verify(data, signature)
-    #     assert len(serialized2) == PUB_KEY_LENGTH
+        signature = priv_key.sign(data)
+
+        assert pub_key.verify(data, signature)
+        assert deserialized2.verify(data, signature)
+        # assert len(serialized2) == PUB_KEY_LENGTH
 
     def test_serialize_deserialize_private_key(self, priv_key, pub_key, data):
         serialized = priv_key.to_bytes()

@@ -20,7 +20,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import hashlib
-from builtins import int
 
 import ecpy
 from ecpy.curves import Curve
@@ -28,9 +27,6 @@ from ecpy.curves import Point
 from ecpy.ecdsa import ECDSA
 from ecpy.keys import ECPrivateKey
 from ecpy.keys import ECPublicKey
-
-from squeak.core.elliptic import payment_point_to_bytes
-
 
 CURVE_SECP256K1 = Curve.get_curve('secp256k1')
 SIGNER = ECDSA()
@@ -59,11 +55,14 @@ class SqueakPrivateKey:
         return SIGNER.sign(msg, self.priv_key, True)
 
     def get_public_key(self):
-        pubkey = self.priv_key.get_public_key().W
-        out = b"\x04"
-        out += pubkey.x.to_bytes(32, 'big')
-        out += pubkey.y.to_bytes(32, 'big')
-        return SqueakPublicKey.from_bytes(out)
+        # pubkey = self.priv_key.get_public_key().W
+        # out = b"\x04"
+        # out += pubkey.x.to_bytes(32, 'big')
+        # out += pubkey.y.to_bytes(32, 'big')
+        # return SqueakPublicKey.from_bytes(out)
+
+        pubkey = self.priv_key.get_public_key()
+        return SqueakPublicKey(pub_key=pubkey)
 
     def to_bytes(self):
         return self.priv_key.d
@@ -111,13 +110,20 @@ class SqueakPublicKey:
         # out += self.pub_key.W.x.to_bytes(32, 'big')
         # return out
 
-        print("self.pub_key.W:")
-        print(self.pub_key.W)
+        # print("self.pub_key.W:")
+        # print(self.pub_key.W)
 
-        print("self.pub_key:")
-        print(self.pub_key)
+        # print("self.pub_key:")
+        # print(self.pub_key)
 
-        return payment_point_to_bytes(self.pub_key.W)
+        # return payment_point_to_bytes(self.pub_key.W)
+        # # return self.pub_key.W
+
+        pubkey = self.pub_key.W
+        out = b"\x04"
+        out += pubkey.x.to_bytes(32, 'big')
+        out += pubkey.y.to_bytes(32, 'big')
+        return out
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
@@ -125,6 +131,10 @@ class SqueakPublicKey:
         x = int.from_bytes(pubkey[0:32], 'big')
         y = int.from_bytes(pubkey[32:], 'big')
         pub_key = ECPublicKey(Point(x, y, CURVE_SECP256K1))
+
+        # s = scalar_from_bytes(pub_key_bytes)
+        # point = payment_point_from_scalar(s)
+        # pub_key = ECPublicKey(point)
 
         # s = scalar_from_bytes(pub_key_bytes)
         # point = payment_point_from_scalar(s)
