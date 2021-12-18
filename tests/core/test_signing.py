@@ -24,6 +24,8 @@ import os
 import pytest
 
 from squeak.core import HASH_LENGTH
+from squeak.core.signing import InvalidPrivateKeyError
+from squeak.core.signing import InvalidPublicKeyError
 from squeak.core.signing import PRIV_KEY_LENGTH
 from squeak.core.signing import PUB_KEY_LENGTH
 from squeak.core.signing import SIGNATURE_LENGTH
@@ -94,3 +96,15 @@ class TestSignVerify(object):
         signature = priv_key.sign(data)
 
         assert not pub_key.verify(data2, signature)
+
+    def test_deserialize_invalid_private_key(self):
+        invalid_private_key_bytes = b""
+
+        with pytest.raises(InvalidPrivateKeyError):
+            SqueakPrivateKey.from_bytes(invalid_private_key_bytes)
+
+    def test_deserialize_invalid_public_key(self):
+        invalid_public_key_bytes = b""
+
+        with pytest.raises(InvalidPublicKeyError):
+            SqueakPublicKey.from_bytes(invalid_public_key_bytes)
