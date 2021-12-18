@@ -32,7 +32,6 @@ from squeak.core.elliptic import payment_point_to_bytes
 
 
 CURVE_SECP256K1 = Curve.get_curve('secp256k1')
-# SIGNER = ECSchnorr(hashlib.sha256)
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PUB_KEY_LENGTH = 33
