@@ -32,7 +32,8 @@ from squeak.core.elliptic import payment_point_to_bytes
 
 
 CURVE_SECP256K1 = Curve.get_curve('secp256k1')
-SIGNER = ECSchnorr(hashlib.sha256)
+# SIGNER = ECSchnorr(hashlib.sha256)
+SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64
@@ -53,7 +54,10 @@ class SqueakPrivateKey:
         return cls(priv_key=priv_key)
 
     def sign(self, msg):
-        return SIGNER.sign(msg, self.priv_key)
+        r, s = SIGNER.sign(msg, self.priv_key)
+        r = r.to_bytes(32, 'big')
+        s = s.to_bytes(32, 'big')
+        return r+s
 
     def get_public_key(self):
         pubkey = self.priv_key.get_public_key()
@@ -88,8 +92,11 @@ class SqueakPublicKey:
         self.pub_key = pub_key
 
     def verify(self, msg, sig):
-        raw_sig = bytearray(sig)
-        return SIGNER.verify(msg, raw_sig, self.pub_key)
+        r = int.from_bytes(sig[:32], "big")
+        s = int.from_bytes(sig[32:], "big")
+        sig_tuple = r, s
+        # raw_sig = bytearray(sig)
+        return SIGNER.verify(msg, sig_tuple, self.pub_key)
 
     def to_bytes(self):
         return payment_point_to_bytes(self.pub_key.W)
