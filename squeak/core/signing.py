@@ -19,8 +19,21 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from secp256k1 import PrivateKey
-from secp256k1 import PublicKey
+import hashlib
+from builtins import int
+
+import ecpy
+from ecpy.curves import Curve
+from ecpy.curves import Point
+from ecpy.ecdsa import ECDSA
+from ecpy.keys import ECPrivateKey
+from ecpy.keys import ECPublicKey
+
+from squeak.core.elliptic import payment_point_to_bytes
+
+
+CURVE_SECP256K1 = Curve.get_curve('secp256k1')
+SIGNER = ECDSA()
 
 
 PUB_KEY_LENGTH = 33
@@ -37,31 +50,36 @@ class SqueakPrivateKey:
 
     @classmethod
     def generate(cls):
-        priv_key = PrivateKey()
+        priv_key_bytes = ecpy.ecrand.rnd(CURVE_SECP256K1.order)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
         return cls(priv_key=priv_key)
 
     def sign(self, msg):
-        return self.priv_key.schnorr_sign(msg, '', raw=True)
+        hashlib.sha256
+        return SIGNER.sign(msg, self.priv_key, True)
 
     def get_public_key(self):
-        pub_key = self.priv_key.pubkey
-        return SqueakPublicKey(pub_key=pub_key)
+        pubkey = self.priv_key.get_public_key().W
+        out = b"\x04"
+        out += pubkey.x.to_bytes(32, 'big')
+        out += pubkey.y.to_bytes(32, 'big')
+        return SqueakPublicKey.from_bytes(out)
 
     def to_bytes(self):
-        return self.priv_key.private_key
+        return self.priv_key.d
 
-    def to_str(self):
-        return self.priv_key.serialize()
+    # def to_str(self):
+    #     return self.priv_key.serialize()
 
     @classmethod
     def from_bytes(cls, priv_key_bytes):
-        priv_key = PrivateKey(privkey=priv_key_bytes, raw=True)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
         return cls(priv_key)
 
-    @classmethod
-    def from_str(cls, priv_key_str):
-        priv_key = PrivateKey(privkey=priv_key_str, raw=False)
-        return cls(priv_key)
+    # @classmethod
+    # def from_str(cls, priv_key_str):
+    #     priv_key = PrivateKey(privkey=priv_key_str, raw=False)
+    #     return cls(priv_key)
 
     def __eq__(self, other):
         return other.to_bytes() == self.to_bytes()
@@ -84,14 +102,34 @@ class SqueakPublicKey:
         self.pub_key = pub_key
 
     def verify(self, msg, sig):
-        return self.pub_key.schnorr_verify(msg, sig, '', raw=True)
+        raw_sig = bytearray(sig)
+        # return self.pub_key.ecdsa_verify(msg, sig, '', raw=True)
+        return SIGNER.verify(msg, raw_sig, self.pub_key)
 
     def to_bytes(self):
-        return self.pub_key.serialize(compressed=True)
+        # out = b"\x03" if ((self.pub_key.W.y & 1) != 0) else b"\x02"
+        # out += self.pub_key.W.x.to_bytes(32, 'big')
+        # return out
+
+        print("self.pub_key.W:")
+        print(self.pub_key.W)
+
+        print("self.pub_key:")
+        print(self.pub_key)
+
+        return payment_point_to_bytes(self.pub_key.W)
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
-        pub_key = PublicKey(pubkey=pub_key_bytes, raw=True)
+        pubkey = pub_key_bytes[1:]
+        x = int.from_bytes(pubkey[0:32], 'big')
+        y = int.from_bytes(pubkey[32:], 'big')
+        pub_key = ECPublicKey(Point(x, y, CURVE_SECP256K1))
+
+        # s = scalar_from_bytes(pub_key_bytes)
+        # point = payment_point_from_scalar(s)
+        # pub_key = ECPublicKey(point)
+
         return cls(pub_key)
 
     def __eq__(self, other):

@@ -1,4 +1,3 @@
 cryptography
 ECPy
 python-bitcoinlib
-secp256k1
