@@ -1,15 +1,36 @@
+# MIT License
+#
+# Copyright (c) 2020 Jonathan Zernik
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 import struct
 
 from bitcoin.core import b2lx
-from bitcoin.core.serialize import BytesSerializer
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import Serializable
-from bitcoin.core.serialize import VectorSerializer
 from bitcoin.core.serialize import VarIntSerializer
+from bitcoin.core.serialize import VectorSerializer
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import CSqueakAddress
+from squeak.core.signing import PUB_KEY_LENGTH
+from squeak.core.signing import SqueakPublicKey
 
 
 PROTO_VERSION = 60003
@@ -51,13 +72,13 @@ class CInterested(Serializable):
 
     def __init__(
             self,
-            addresses=(),
+            pubkeys=(),
             nMinBlockHeight=-1,
             nMaxBlockHeight=-1,
             hashReplySqk=b'\x00'*HASH_LENGTH,
             protover=PROTO_VERSION,
     ):
-        self.addresses = addresses
+        self.pubkeys = pubkeys
         self.nMinBlockHeight = nMinBlockHeight
         self.nMaxBlockHeight = nMaxBlockHeight
         self.hashReplySqk = hashReplySqk
@@ -65,24 +86,27 @@ class CInterested(Serializable):
     @classmethod
     def stream_deserialize(cls, f):
         n = VarIntSerializer.stream_deserialize(f)
-        addresses = tuple(CSqueakAddress.from_bytes(BytesSerializer.stream_deserialize(f)) for i in range(n))
+        pubkeys = tuple(SqueakPublicKey.from_bytes(ser_read(f, PUB_KEY_LENGTH)) for i in range(n))
         nMinBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         nMaxBlockHeight = struct.unpack(b"<i", ser_read(f,4))[0]
         hashReplySqk = ser_read(f, HASH_LENGTH)
-        return cls(addresses, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
+        return cls(pubkeys, nMinBlockHeight, nMaxBlockHeight, hashReplySqk)
 
     def stream_serialize(self, f):
-        VarIntSerializer.stream_serialize(len(self.addresses), f)
-        for address in self.addresses:
-            BytesSerializer.stream_serialize(address, f)
+        VarIntSerializer.stream_serialize(len(self.pubkeys), f)
+        for pubkey in self.pubkeys:
+            pubkey_bytes = pubkey.to_bytes()
+            assert len(pubkey_bytes) == PUB_KEY_LENGTH
+            f.write(pubkey_bytes)
+            # BytesSerializer.stream_serialize(pubkey, f)
         f.write(struct.pack(b"<i", self.nMinBlockHeight))
         f.write(struct.pack(b"<i", self.nMaxBlockHeight))
         assert len(self.hashReplySqk) == HASH_LENGTH
         f.write(self.hashReplySqk)
 
     def __repr__(self):
-        return "CInterested(addresses=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
-            (self.addresses, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
+        return "CInterested(pubkeys=%r nMinBlockHeight=%s nMaxBlockHeight=%s hashReplySqk=%s)" % \
+            (self.pubkeys, repr(self.nMinBlockHeight), repr(self.nMaxBlockHeight), b2lx(self.hashReplySqk))
 
 
 class CInv(BitcoinCInv):

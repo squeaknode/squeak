@@ -1,11 +1,31 @@
+# MIT License
+#
+# Copyright (c) 2020 Jonathan Zernik
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 from io import BytesIO as _BytesIO
 
 import pytest
 from bitcoin.core import lx
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import CSigningKey
-from squeak.core.signing import CSqueakAddress
+from squeak.core.signing import SqueakPrivateKey
 from squeak.net import CInterested
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
@@ -13,12 +33,12 @@ from squeak.net import CSqueakLocator
 
 @pytest.fixture
 def signing_key():
-    return CSigningKey.generate()
+    return SqueakPrivateKey.generate()
 
 
 @pytest.fixture
 def verifying_key(signing_key):
-    return signing_key.get_verifying_key()
+    return signing_key.get_public_key()
 
 
 @pytest.fixture
@@ -42,10 +62,10 @@ class TestCInv(object):
 
 class TestCSqueakLocator(object):
     def test_serialization(self, verifying_key, fake_squeak_hash):
-        address = CSqueakAddress.from_verifying_key(verifying_key)
+        # pubkey_bytes = verifying_key.to_bytes()
         interested = [
-            CInterested([address, address, address], -1, 10, fake_squeak_hash),
-            CInterested([address], 30, 2000),
+            CInterested([verifying_key, verifying_key, verifying_key], -1, 10, fake_squeak_hash),
+            CInterested([verifying_key], 30, 2000),
             CInterested(
                 nMinBlockHeight=0,
                 nMaxBlockHeight=100,
@@ -60,8 +80,8 @@ class TestCSqueakLocator(object):
 
         assert deserialized == locator
         assert len(deserialized.vInterested) == 3
-        assert deserialized.vInterested[0].addresses == (address, address, address)
-        assert deserialized.vInterested[1].addresses == (address,)
-        assert deserialized.vInterested[2].addresses == ()
+        assert deserialized.vInterested[0].pubkeys == (verifying_key, verifying_key, verifying_key)
+        assert deserialized.vInterested[1].pubkeys == (verifying_key,)
+        assert deserialized.vInterested[2].pubkeys == ()
         assert deserialized.vInterested[1].hashReplySqk == b'\x00'*HASH_LENGTH
         assert deserialized.vInterested[2].hashReplySqk == fake_squeak_hash
