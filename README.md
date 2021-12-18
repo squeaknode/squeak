@@ -18,7 +18,7 @@ pip install squeakpy
 
 ### Examples
 
-Create a squeak, verify it with the signature script, and decrypt the content:
+Create a squeak, verify its signature with the public key, and decrypt the content:
 
 ```python
 import time
