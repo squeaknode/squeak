@@ -33,6 +33,7 @@ from squeak.core.elliptic import payment_point_to_bytes
 
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
+PRIV_KEY_LENGTH = 32
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64
 
@@ -62,11 +63,12 @@ class SqueakPrivateKey:
         return SqueakPublicKey(pub_key=pubkey)
 
     def to_bytes(self):
-        return self.priv_key.d
+        return self.priv_key.d.to_bytes(32, 'big')
 
     @classmethod
     def from_bytes(cls, priv_key_bytes):
-        priv_key = ECPrivateKey(priv_key_bytes, CURVE)
+        priv_key_int = int.from_bytes(priv_key_bytes, "big")
+        priv_key = ECPrivateKey(priv_key_int, CURVE)
         return cls(priv_key)
 
     def __eq__(self, other):

@@ -24,6 +24,7 @@ import os
 import pytest
 
 from squeak.core import HASH_LENGTH
+from squeak.core.signing import PRIV_KEY_LENGTH
 from squeak.core.signing import PUB_KEY_LENGTH
 from squeak.core.signing import SIGNATURE_LENGTH
 from squeak.core.signing import SqueakPrivateKey
@@ -77,6 +78,7 @@ class TestSignVerify(object):
 
         signature = deserialized_priv_key.sign(data)
 
+        assert len(serialized) == PRIV_KEY_LENGTH
         assert pub_key.verify(data, signature)
 
     # def test_serialize_deserialize_private_key_to_string(self, priv_key, pub_key, data):
