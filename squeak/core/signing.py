@@ -22,16 +22,16 @@
 import hashlib
 
 import ecpy
-from ecpy.curves import Curve
 from ecpy.ecschnorr import ECSchnorr
 from ecpy.keys import ECPrivateKey
 from ecpy.keys import ECPublicKey
 
 from squeak.core.elliptic import bytes_to_payment_point
+from squeak.core.elliptic import CURVE
 from squeak.core.elliptic import payment_point_to_bytes
 
 
-CURVE_SECP256K1 = Curve.get_curve('secp256k1')
+# CURVE_SECP256K1 = Curve.get_curve('secp256k1')
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PUB_KEY_LENGTH = 33
@@ -48,8 +48,8 @@ class SqueakPrivateKey:
 
     @classmethod
     def generate(cls):
-        priv_key_bytes = ecpy.ecrand.rnd(CURVE_SECP256K1.order)
-        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
+        priv_key_bytes = ecpy.ecrand.rnd(CURVE.order)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE)
         return cls(priv_key=priv_key)
 
     def sign(self, msg):
@@ -67,7 +67,7 @@ class SqueakPrivateKey:
 
     @classmethod
     def from_bytes(cls, priv_key_bytes):
-        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE)
         return cls(priv_key)
 
     def __eq__(self, other):
