@@ -44,7 +44,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | count | var_int | Number of addresses
 1+ | address length | var_int | Length of the address
-? | address | char[] | The bytes of the public address identifying a squeak author
+33 | pubkey | char[33] | The bytes of the public key identifying the squeak author
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
@@ -106,7 +106,7 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-? | squeak | char[?] | The full squeak struct
+1394 | squeak | char[1394] | The full squeak struct
 
 #### msg_getaddr
 #### msg_ping
