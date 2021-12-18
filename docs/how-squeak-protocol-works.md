@@ -160,8 +160,8 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nNonce=nonce,
         encContent=enc_content,
     )
-    sig_script = SignSqueak(signing_key, squeak)
-    squeak.SetScriptSigBytes(bytes(sig_script))
+    sig = SignSqueak(signing_key, squeak)
+    squeak.SetSignature(bytes(sig))
     return squeak, secret_key
 ```
 
