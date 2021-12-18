@@ -74,7 +74,7 @@ def fake_secret_key():
     return os.urandom(SECRET_KEY_LENGTH)
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def squeak_and_key(priv_key, prev_squeak_hash, block_height, block_hash):
     content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
     timestamp = int(time.time())
@@ -90,13 +90,13 @@ def squeak_and_key(priv_key, prev_squeak_hash, block_height, block_hash):
     return squeak
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def squeak(squeak_and_key):
     squeak, _ = squeak_and_key
     return squeak
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def decryption_key(squeak_and_key):
     _, decryption_key = squeak_and_key
     return decryption_key
