@@ -19,9 +19,20 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-from secp256k1 import PrivateKey
-from secp256k1 import PublicKey
+import hashlib
 
+import ecpy
+from ecpy.curves import Curve
+from ecpy.ecschnorr import ECSchnorr
+from ecpy.keys import ECPrivateKey
+from ecpy.keys import ECPublicKey
+
+from squeak.core.elliptic import bytes_to_payment_point
+from squeak.core.elliptic import payment_point_to_bytes
+
+
+CURVE_SECP256K1 = Curve.get_curve('secp256k1')
+SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64
@@ -37,30 +48,26 @@ class SqueakPrivateKey:
 
     @classmethod
     def generate(cls):
-        priv_key = PrivateKey()
+        priv_key_bytes = ecpy.ecrand.rnd(CURVE_SECP256K1.order)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
         return cls(priv_key=priv_key)
 
     def sign(self, msg):
-        return self.priv_key.schnorr_sign(msg, '', raw=True)
+        r, s = SIGNER.sign(msg, self.priv_key)
+        r = r.to_bytes(32, 'big')
+        s = s.to_bytes(32, 'big')
+        return r+s
 
     def get_public_key(self):
-        pub_key = self.priv_key.pubkey
-        return SqueakPublicKey(pub_key=pub_key)
+        pubkey = self.priv_key.get_public_key()
+        return SqueakPublicKey(pub_key=pubkey)
 
     def to_bytes(self):
-        return self.priv_key.private_key
-
-    def to_str(self):
-        return self.priv_key.serialize()
+        return self.priv_key.d
 
     @classmethod
     def from_bytes(cls, priv_key_bytes):
-        priv_key = PrivateKey(privkey=priv_key_bytes, raw=True)
-        return cls(priv_key)
-
-    @classmethod
-    def from_str(cls, priv_key_str):
-        priv_key = PrivateKey(privkey=priv_key_str, raw=False)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE_SECP256K1)
         return cls(priv_key)
 
     def __eq__(self, other):
@@ -84,14 +91,18 @@ class SqueakPublicKey:
         self.pub_key = pub_key
 
     def verify(self, msg, sig):
-        return self.pub_key.schnorr_verify(msg, sig, '', raw=True)
+        r = int.from_bytes(sig[:32], "big")
+        s = int.from_bytes(sig[32:], "big")
+        sig_tuple = r, s
+        return SIGNER.verify(msg, sig_tuple, self.pub_key)
 
     def to_bytes(self):
-        return self.pub_key.serialize(compressed=True)
+        return payment_point_to_bytes(self.pub_key.W)
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
-        pub_key = PublicKey(pubkey=pub_key_bytes, raw=True)
+        point = bytes_to_payment_point(pub_key_bytes)
+        pub_key = ECPublicKey(point)
         return cls(pub_key)
 
     def __eq__(self, other):

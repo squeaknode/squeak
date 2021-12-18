@@ -63,6 +63,8 @@ class TestSignVerify(object):
         serialized2 = deserialized.to_bytes()
         deserialized2 = SqueakPublicKey.from_bytes(serialized2)
 
+        assert deserialized.pub_key.W == pub_key.pub_key.W
+
         signature = priv_key.sign(data)
 
         assert pub_key.verify(data, signature)
@@ -77,13 +79,13 @@ class TestSignVerify(object):
 
         assert pub_key.verify(data, signature)
 
-    def test_serialize_deserialize_private_key_to_string(self, priv_key, pub_key, data):
-        priv_key_str = priv_key.to_str()
-        deserialized_priv_key = SqueakPrivateKey.from_str(priv_key_str)
+    # def test_serialize_deserialize_private_key_to_string(self, priv_key, pub_key, data):
+    #     priv_key_str = priv_key.to_str()
+    #     deserialized_priv_key = SqueakPrivateKey.from_str(priv_key_str)
 
-        signature = deserialized_priv_key.sign(data)
+    #     signature = deserialized_priv_key.sign(data)
 
-        assert pub_key.verify(data, signature)
+    #     assert pub_key.verify(data, signature)
 
     def test_sign_verify_other_data(self, priv_key, pub_key, data):
         data2 = make_hash()

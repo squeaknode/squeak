@@ -97,6 +97,10 @@ def payment_point_to_bytes(payment_point):
     return bytes(CURVE.encode_point(payment_point, compressed=True))
 
 
+def bytes_to_payment_point(point_bytes):
+    return CURVE.decode_point(point_bytes)
+
+
 def payment_point_bytes_from_scalar_bytes(s_bytes):
     s = scalar_from_bytes(s_bytes)
     payment_point = payment_point_from_scalar(s)
