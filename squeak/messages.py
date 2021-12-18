@@ -1,3 +1,24 @@
+# MIT License
+#
+# Copyright (c) 2020 Jonathan Zernik
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 import hashlib
 import random
 import struct
@@ -20,14 +41,13 @@ from bitcoin.messages import msg_version as bitcoin_msg_version
 from bitcoin.messages import MsgSerializable as BitcoinMsgSerializable
 from bitcoin.net import CAddress
 
-import squeak
 import squeak.params
 from squeak.core import CSqueak
+from squeak.core import HASH_LENGTH
+from squeak.core import SECRET_KEY_LENGTH
 from squeak.net import CInv
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
-from squeak.core import HASH_LENGTH
-from squeak.core import SECRET_KEY_LENGTH
 
 
 MSG_SQUEAK = 1
@@ -332,4 +352,4 @@ msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
 
 messagemap = {}
 for cls in msg_classes:
-    messagemap[cls.command] = cls
+    messagemap[cls.command] = cls  # type: ignore

@@ -7,12 +7,5 @@ clean:
 
 test:
 	tox
-	tox -e codechecks
 
-coverage:
-	tox -e coverage
-
-mypy:
-	tox -e mypy
-
-.PHONY: all clean test coverage
+.PHONY: all clean test

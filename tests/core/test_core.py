@@ -1,28 +1,47 @@
-import time
+# MIT License
+#
+# Copyright (c) 2020 Jonathan Zernik
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 import os
+import time
 
 import pytest
 from bitcoin.core import lx
 
 from squeak.core import CheckSqueak
-from squeak.core import CheckSqueakError
+from squeak.core import CheckSqueakDecryptionKey
 from squeak.core import CheckSqueakDecryptionKeyError
-from squeak.core import CheckSqueakHeaderError
+from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakSignatureError
 from squeak.core import CONTENT_LENGTH
-from squeak.core import SECRET_KEY_LENGTH
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import EncryptContent
 from squeak.core import InvalidContentLengthError
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
+from squeak.core import SECRET_KEY_LENGTH
 from squeak.core import SignSqueak
-from squeak.core import CheckSqueakDecryptionKey
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
 from squeak.core.signing import SqueakPrivateKey
-from squeak.core.signing import SqueakPublicKey
 
 
 @pytest.fixture
