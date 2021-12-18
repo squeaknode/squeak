@@ -48,8 +48,6 @@ squeak, secret_key = MakeSqueakFromStr(
 CheckSqueak(squeak)  # No exception raised
 
 print(squeak.GetHash())  # prints b"\x9e\xeb\xbc)N\x94\xe2\x85\x9b(d\x7f\x1e7\xb5{\xcbY\xef\xd4;\xf7P\xfe\x19'Q\xb7\x7f\xbda\xaf"
-b'\x1d\x05\xf1\x98\x00p\x9a(d\x0b\xbde#\x96\x1b\x13i\x92\xbbk\xa7\n\x02;\xab\r\x15\xe6\x83\\\x1d\xcc'
 print(squeak.GetPubKey())
-<squeak.core.signing.SqueakPublicKey object at 0x7f3a2224f130>
 print(squeak.GetDecryptedContentStr(secret_key))  # Hello world!
 ```
