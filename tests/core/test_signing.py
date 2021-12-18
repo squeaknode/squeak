@@ -27,6 +27,7 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import PUB_KEY_LENGTH
 from squeak.core.signing import SqueakPrivateKey
 from squeak.core.signing import SqueakPublicKey
+# from squeak.core.signing import SIGNATURE_LENGTH
 
 
 def make_hash():
