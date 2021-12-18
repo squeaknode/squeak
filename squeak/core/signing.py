@@ -67,6 +67,8 @@ class SqueakPrivateKey:
 
     @classmethod
     def from_bytes(cls, priv_key_bytes):
+        if len(priv_key_bytes) != PRIV_KEY_LENGTH:
+            raise InvalidPrivateKeyError()
         priv_key_int = int.from_bytes(priv_key_bytes, "big")
         priv_key = ECPrivateKey(priv_key_int, CURVE)
         return cls(priv_key)
@@ -102,6 +104,8 @@ class SqueakPublicKey:
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
+        if len(pub_key_bytes) != PUB_KEY_LENGTH:
+            raise InvalidPublicKeyError()
         point = bytes_to_payment_point(pub_key_bytes)
         pub_key = ECPublicKey(point)
         return cls(pub_key)
@@ -116,3 +120,13 @@ class SqueakPublicKey:
         return 'SqueakPublicKey(%r)' % (
             self.to_bytes().hex(),
         )
+
+
+class InvalidPrivateKeyError(Exception):
+    """ Invalid private key error.
+    """
+
+
+class InvalidPublicKeyError(Exception):
+    """ Invalid public key error.
+    """
