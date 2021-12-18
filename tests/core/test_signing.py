@@ -113,3 +113,11 @@ class TestSignVerify(object):
 
         with pytest.raises(InvalidPublicKeyError):
             SqueakPublicKey.from_bytes(invalid_bytes)
+
+    def test_hash_public_key(self, pub_key):
+
+        assert hash(pub_key) == hash(pub_key.to_bytes())
+
+    def test_hash_private_key(self, priv_key):
+
+        assert hash(priv_key) == hash(priv_key.to_bytes())

@@ -80,6 +80,9 @@ class SqueakPrivateKey:
     def __ne__(self, other):
         return other.to_bytes() != self.to_bytes()
 
+    def __hash__(self):
+        return hash(self.to_bytes())
+
     def __repr__(self):
         return 'SqueakPublicKey(%r)' % (
             self.to_bytes().hex(),
@@ -119,6 +122,9 @@ class SqueakPublicKey:
 
     def __ne__(self, other):
         return other.to_bytes() != self.to_bytes()
+
+    def __hash__(self):
+        return hash(self.to_bytes())
 
     def __repr__(self):
         return 'SqueakPublicKey(%r)' % (
