@@ -48,6 +48,6 @@ squeak, secret_key = MakeSqueakFromStr(
 CheckSqueak(squeak)  # No exception raised
 
 print(squeak.GetHash())  # prints b"\x9e\xeb\xbc)N\x94\xe2\x85\x9b(d\x7f\x1e7\xb5{\xcbY\xef\xd4;\xf7P\xfe\x19'Q\xb7\x7f\xbda\xaf"
-print(squeak.GetPubKey())
+print(squeak.GetPubKey())  # prints SqueakPublicKey('02d2fe30552bb5ec3b6822cec25b7dd7d4163974e28f2f4ef40d1f9d09086704c6')
 print(squeak.GetDecryptedContentStr(secret_key))  # Hello world!
 ```
