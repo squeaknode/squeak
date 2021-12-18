@@ -86,10 +86,9 @@ Field Size | Description | Data type | Comments
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes if squeak is not a reply
 32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
-1+ | script length | var_int | Length of the scriptPubKey
-? | scriptPubKey | char[] | Contains the public key as a script setting up conditions to claim authorship.
+33 | pubKey | char[33] | Contains the public key of the author
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
-16 | vchIv | char[16] | Random bytes used for the initialization vector
+16 | iv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
 
@@ -97,9 +96,8 @@ There are also external fields outside the header:
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-1136 | vchEncContent | char[1136] | Encrypted content
-1+ | script length | var_int | Length of the scriptSig
-? | scriptSig | char[] | Computational Script for confirming authorship
+1136 | encContent | char[1136] | Encrypted content
+64 | sig | char[64] | Signature over the squeak header by the author
 
 There is also a squeak hash, which is derived from the bytes of the squeak header using SHA256.
 
@@ -113,7 +111,7 @@ When a user creates a squeak, the following happens:
 * A hash is calculated over the encrypted ciphertext.
 * The payment point is calculated from the encryption key scalar value on an elliptic curve.
 * A new nonce is generated.
-* The private key of the author is used to create a P2PKH pubkey script.
+* The public key of the author is derived from their private key.
 
 Also,
 
@@ -131,7 +129,9 @@ The `MakeSqueak` function looks like this:
 ```
 def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak.
+
     Returns a tuple of (squeak, decryption_key)
+
     signing_key (CSigningkey)
     content (bytes)
     block_height (int)
@@ -147,23 +147,21 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
-    verifying_key = signing_key.get_verifying_key()
-    squeak_address = CSqueakAddress.from_verifying_key(verifying_key)
-    pubkey_script = squeak_address.to_scriptPubKey()
+    verifying_key = signing_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
         hashReplySqk=reply_to,
         hashBlock=block_hash,
         nBlockHeight=block_height,
-        vchScriptPubKey=bytes(pubkey_script),
+        pubKey=verifying_key.to_bytes(),
         paymentPoint=payment_point_encoded,
         iv=initialization_vector,
         nTime=timestamp,
         nNonce=nonce,
         encContent=enc_content,
     )
-    sig_script = SignSqueak(signing_key, squeak)
-    squeak.SetScriptSigBytes(bytes(sig_script))
+    sig = SignSqueak(signing_key, squeak)
+    squeak.SetSignature(bytes(sig))
     return squeak, secret_key
 ```
 
