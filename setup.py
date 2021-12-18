@@ -27,7 +27,7 @@ from setuptools import setup
 from squeak import __version__
 
 setup(
-    name='squeakpy',
+    name='squeaklib',
     version=__version__,
     author='Jonathan Zernik',
     description='Squeak library',
