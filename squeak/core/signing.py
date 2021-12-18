@@ -94,7 +94,6 @@ class SqueakPublicKey:
         r = int.from_bytes(sig[:32], "big")
         s = int.from_bytes(sig[32:], "big")
         sig_tuple = r, s
-        # raw_sig = bytearray(sig)
         return SIGNER.verify(msg, sig_tuple, self.pub_key)
 
     def to_bytes(self):
