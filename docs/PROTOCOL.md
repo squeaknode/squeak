@@ -28,7 +28,7 @@ Field Size | Description | Data type | Comments
 1136 | vchEncContent | char[1136] | Encrypted content
 64 | sig | char[64] | Signature over the squeak header by the author
 
-Add these two fields to the squeak header, and the total size of a squeak is 1394.
+Add these two fields to the squeak header, and the total size of a squeak is 1394 bytes.
 
 #### squeak locator
 
