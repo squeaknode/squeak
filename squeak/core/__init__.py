@@ -137,6 +137,11 @@ class CSqueakHeader(ImmutableSerializable):
         """Return True if the squeak is a reply to another squeak."""
         return self.recipientPubKey != b'\x00'*PUB_KEY_LENGTH
 
+    def is_secret_key_valid(self, secret_key: bytes):
+        """Return True if the secret key is valid."""
+        payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
+        return payment_point_encoded == self.paymentPoint
+
     def GetPubKey(self):
         """Return the squeak author pub key."""
         return SqueakPublicKey.from_bytes(self.pubKey)
@@ -324,8 +329,7 @@ def CheckSqueakSecretKey(squeak, secret_key):
     if secret_key is None:
         raise CheckSqueakSecretKeyError("CheckSqueakSecretKey() : invalid secret key for the given squeak")
 
-    payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
-    if not payment_point_encoded == squeak.paymentPoint:
+    if not squeak.is_secret_key_valid(secret_key):
         raise CheckSqueakSecretKeyError("CheckSqueakSecretKey() : invalid secret key for the given squeak")
 
 
