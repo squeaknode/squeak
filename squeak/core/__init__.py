@@ -391,7 +391,15 @@ def CheckSqueak(squeak):
     CheckSqueakSignature(squeak)
 
 
-def MakeSqueak(signing_key: SqueakPrivateKey, content, block_height, block_hash, timestamp, reply_to=None, recipient: SqueakPublicKey = None):
+def MakeSqueak(
+        signing_key: SqueakPrivateKey,
+        content: bytes,
+        block_height: int,
+        block_hash: bytes,
+        timestamp: int,
+        reply_to: bytes = None,
+        recipient: SqueakPublicKey = None,
+):
     """Create a new squeak.
 
     Returns a tuple of (squeak, decryption_key)
@@ -447,7 +455,15 @@ def DecodeContent(data: bytes):
     return content
 
 
-def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timestamp, reply_to=None):
+def MakeSqueakFromStr(
+        signing_key: SqueakPrivateKey,
+        content_str: str,
+        block_height: int,
+        block_hash: bytes,
+        timestamp: int,
+        reply_to: bytes = None,
+        recipient: SqueakPublicKey = None,
+):
     """Create a new squeak from a string of content.
 
     Returns a tuple of (squeak, decryption_key)
@@ -458,6 +474,7 @@ def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timest
     block_hash (bytes)
     timestamp (int)
     reply_to (bytes)
+    recipient (SqueakPublickey)
     """
     reply_to = reply_to or b'\x00'*HASH_LENGTH
     content = EncodeContent(content_str)
@@ -468,6 +485,7 @@ def MakeSqueakFromStr(signing_key, content_str, block_height, block_hash, timest
         block_hash,
         timestamp,
         reply_to=reply_to,
+        recipient=recipient,
     )
 
 
