@@ -25,6 +25,7 @@ from bitcoin.core import b2lx
 from bitcoin.core.serialize import ser_read
 from bitcoin.core.serialize import Serializable
 from bitcoin.core.serialize import VarIntSerializer
+from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.net import CInv as BitcoinCInv
 
@@ -120,3 +121,41 @@ class CInv(BitcoinCInv):
         super(CInv, self).__init__()
         self.type = type
         self.hash = hash
+
+
+class COffer(Serializable):
+    """An offer that can be used to buy a secret key.
+
+    """
+
+    def __init__(
+            self,
+            nonce=b'\x00'*HASH_LENGTH,
+            strPaymentInfo=b'',
+            host=b'',
+            port=0,
+            protover=PROTO_VERSION,
+    ):
+        self.nonce = nonce
+        self.strPaymentInfo = strPaymentInfo
+        self.host = host
+        self.port = port
+
+    @classmethod
+    def stream_deserialize(cls, f):
+        nonce = ser_read(f, HASH_LENGTH)
+        strPaymentInfo = VarStringSerializer.stream_deserialize(f)
+        host = VarStringSerializer.stream_deserialize(f)
+        port = struct.unpack(b">H", ser_read(f, 2))[0]
+        return cls(nonce, strPaymentInfo, host, port)
+
+    def stream_serialize(self, f):
+        assert len(self.nonce) == HASH_LENGTH
+        f.write(self.nonce)
+        VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
+        VarStringSerializer.stream_serialize(self.host, f)
+        f.write(struct.pack(b">H", self.port))
+
+    def __repr__(self):
+        return "COffer(nonce=lx(%s) strPaymentInfo=%s host=%s port=%i)" % \
+            (b2lx(self.nonce), self.strPaymentInfo, self.host, self.port)

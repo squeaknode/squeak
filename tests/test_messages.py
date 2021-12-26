@@ -29,7 +29,6 @@ from squeak.messages import msg_getdata
 from squeak.messages import msg_getsqueaks
 from squeak.messages import msg_inv
 from squeak.messages import msg_notfound
-from squeak.messages import msg_offer
 from squeak.messages import msg_ping
 from squeak.messages import msg_pong
 from squeak.messages import MSG_SECRET_KEY
@@ -40,6 +39,7 @@ from squeak.messages import msg_subscribe
 from squeak.messages import msg_verack
 from squeak.messages import msg_version
 from squeak.messages import MsgSerializable
+from squeak.net import COffer
 
 
 class MessageTestCase(unittest.TestCase):
@@ -125,14 +125,38 @@ class Test_msg_alert(MessageTestCase):
         super(Test_msg_alert, self).serialization_test(msg_alert)
 
 
-class Test_msg_offer(MessageTestCase):
-    def test_serialization(self):
-        super(Test_msg_offer, self).serialization_test(msg_offer)
+# class Test_msg_offer(MessageTestCase):
+#     def test_serialization(self):
+#         super(Test_msg_offer, self).serialization_test(msg_offer)
 
 
 class Test_msg_secretkey(MessageTestCase):
     def test_serialization(self):
         super(Test_msg_secretkey, self).serialization_test(msg_secretkey)
+
+    def test_serialization_with_offer(self):
+        fake_payment_str = "fakepaymentstr".encode('utf-8')
+        fake_host = "foo.com".encode('utf-8')
+        port = 5678
+        offer = COffer(
+            strPaymentInfo=fake_payment_str,
+            host=fake_host,
+            port=port,
+        )
+        m = msg_secretkey(
+            offer=offer,
+        )
+        b = m.to_bytes()
+        m2 = MsgSerializable.from_bytes(b)
+        self.assertEqual(m, m2)
+        self.assertEqual(m2.offer, offer)
+
+    def test_serialization_without_offer(self):
+        m = msg_secretkey()
+        b = m.to_bytes()
+        m2 = MsgSerializable.from_bytes(b)
+        self.assertEqual(m, m2)
+        self.assertIsNone(m2.offer)
 
 
 class Test_messages(unittest.TestCase):
