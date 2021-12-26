@@ -34,10 +34,10 @@ from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import xor_bytes
 from squeak.core.hashing import sha256
-from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.signing import SIGNATURE_LENGTH
-from squeak.core.signing import SqueakPrivateKey
-from squeak.core.signing import SqueakPublicKey
+from squeak.core.keys import PUB_KEY_LENGTH
+from squeak.core.keys import SIGNATURE_LENGTH
+from squeak.core.keys import SqueakPrivateKey
+from squeak.core.keys import SqueakPublicKey
 
 
 # Core definitions

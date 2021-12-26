@@ -41,7 +41,7 @@ from squeak.core import SECRET_KEY_LENGTH
 from squeak.core import SignSqueak
 from squeak.core.encryption import generate_data_key
 from squeak.core.encryption import generate_initialization_vector
-from squeak.core.signing import SqueakPrivateKey
+from squeak.core.keys import SqueakPrivateKey
 
 
 @pytest.fixture

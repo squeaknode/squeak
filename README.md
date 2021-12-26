@@ -27,7 +27,7 @@ from bitcoin.core import lx
 
 from squeak.core import CheckSqueak
 from squeak.core import MakeSqueakFromStr
-from squeak.core.signing import SqueakPrivateKey
+from squeak.core.keys import SqueakPrivateKey
 
 private_key = SqueakPrivateKey.generate()
 

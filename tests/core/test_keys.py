@@ -24,13 +24,13 @@ import os
 import pytest
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import InvalidPrivateKeyError
-from squeak.core.signing import InvalidPublicKeyError
-from squeak.core.signing import PRIV_KEY_LENGTH
-from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.signing import SIGNATURE_LENGTH
-from squeak.core.signing import SqueakPrivateKey
-from squeak.core.signing import SqueakPublicKey
+from squeak.core.keys import InvalidPrivateKeyError
+from squeak.core.keys import InvalidPublicKeyError
+from squeak.core.keys import PRIV_KEY_LENGTH
+from squeak.core.keys import PUB_KEY_LENGTH
+from squeak.core.keys import SIGNATURE_LENGTH
+from squeak.core.keys import SqueakPrivateKey
+from squeak.core.keys import SqueakPublicKey
 
 
 def make_hash():
