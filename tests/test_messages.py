@@ -158,6 +158,10 @@ class Test_msg_secretkey(MessageTestCase):
         self.assertEqual(m, m2)
         self.assertIsNone(m2.offer)
 
+    def test_repr(self):
+        m = msg_secretkey()
+        self.assertIsInstance(str(m), str)
+
 
 class Test_messages(unittest.TestCase):
     verackbytes = b'\xb4n\x83\xfeverack\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00]\xf6\xe0\xe2'

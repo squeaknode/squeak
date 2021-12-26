@@ -313,8 +313,8 @@ class msg_secretkey(MsgSerializable, BitcoinMsgSerializable):
             self.offer.stream_serialize(f)
 
     def __repr__(self):
-        return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s))" % \
-            (b2lx(self.hashSqk), b2lx(self.secretKey))
+        return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s) offer=%s)" % \
+            (b2lx(self.hashSqk), b2lx(self.secretKey), self.offer)
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
