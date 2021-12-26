@@ -48,6 +48,16 @@ def pub_key(priv_key):
 
 
 @pytest.fixture
+def other_priv_key():
+    yield SqueakPrivateKey.generate()
+
+
+@pytest.fixture
+def other_pub_key(other_priv_key):
+    yield other_priv_key.get_public_key()
+
+
+@pytest.fixture
 def data():
     return make_hash()
 
@@ -121,3 +131,13 @@ class TestSignVerify(object):
     def test_hash_private_key(self, priv_key):
 
         assert hash(priv_key) == hash(priv_key.to_bytes())
+
+
+class TestSharedSecret(object):
+
+    def test_get_shared_secret(self, priv_key, pub_key, other_priv_key, other_pub_key):
+        shared_secret_1 = priv_key.get_shared_secret(other_pub_key)
+        shared_secret_2 = other_priv_key.get_shared_secret(pub_key)
+
+        assert shared_secret_1 == shared_secret_2
+        assert len(shared_secret_1) == 32

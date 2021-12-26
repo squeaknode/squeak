@@ -39,56 +39,6 @@ PUB_KEY_LENGTH = 33
 SIGNATURE_LENGTH = 64
 
 
-class SqueakPrivateKey:
-    """Represents a squeak private key.
-
-    """
-
-    def __init__(self, priv_key):
-        self.priv_key = priv_key
-
-    @classmethod
-    def generate(cls):
-        priv_key_bytes = ecpy.ecrand.rnd(CURVE.order)
-        priv_key = ECPrivateKey(priv_key_bytes, CURVE)
-        return cls(priv_key=priv_key)
-
-    def sign(self, msg):
-        r, s = SIGNER.sign(msg, self.priv_key)
-        r = r.to_bytes(32, 'big')
-        s = s.to_bytes(32, 'big')
-        return r+s
-
-    def get_public_key(self):
-        pubkey = self.priv_key.get_public_key()
-        return SqueakPublicKey(pub_key=pubkey)
-
-    def to_bytes(self):
-        return self.priv_key.d.to_bytes(32, 'big')
-
-    @classmethod
-    def from_bytes(cls, priv_key_bytes):
-        if len(priv_key_bytes) != PRIV_KEY_LENGTH:
-            raise InvalidPrivateKeyError()
-        priv_key_int = int.from_bytes(priv_key_bytes, "big")
-        priv_key = ECPrivateKey(priv_key_int, CURVE)
-        return cls(priv_key)
-
-    def __eq__(self, other):
-        return other.to_bytes() == self.to_bytes()
-
-    def __ne__(self, other):
-        return other.to_bytes() != self.to_bytes()
-
-    def __hash__(self):
-        return hash(self.to_bytes())
-
-    def __repr__(self):
-        return 'SqueakPublicKey(%r)' % (
-            self.to_bytes().hex(),
-        )
-
-
 class SqueakPublicKey:
     """Represents a squeak public key.
 
@@ -128,6 +78,60 @@ class SqueakPublicKey:
 
     def __repr__(self):
         return 'SqueakPublicKey(%r)' % (
+            self.to_bytes().hex(),
+        )
+
+
+class SqueakPrivateKey:
+    """Represents a squeak private key.
+
+    """
+
+    def __init__(self, priv_key):
+        self.priv_key = priv_key
+
+    @classmethod
+    def generate(cls):
+        priv_key_bytes = ecpy.ecrand.rnd(CURVE.order)
+        priv_key = ECPrivateKey(priv_key_bytes, CURVE)
+        return cls(priv_key=priv_key)
+
+    def sign(self, msg):
+        r, s = SIGNER.sign(msg, self.priv_key)
+        r = r.to_bytes(32, 'big')
+        s = s.to_bytes(32, 'big')
+        return r+s
+
+    def get_public_key(self):
+        pubkey = self.priv_key.get_public_key()
+        return SqueakPublicKey(pub_key=pubkey)
+
+    def get_shared_secret(self, public_key: SqueakPublicKey) -> bytes:
+        point = self.priv_key.d * public_key.pub_key.W
+        return point.x.to_bytes(32, 'big')
+
+    def to_bytes(self):
+        return self.priv_key.d.to_bytes(32, 'big')
+
+    @classmethod
+    def from_bytes(cls, priv_key_bytes):
+        if len(priv_key_bytes) != PRIV_KEY_LENGTH:
+            raise InvalidPrivateKeyError()
+        priv_key_int = int.from_bytes(priv_key_bytes, "big")
+        priv_key = ECPrivateKey(priv_key_int, CURVE)
+        return cls(priv_key)
+
+    def __eq__(self, other):
+        return other.to_bytes() == self.to_bytes()
+
+    def __ne__(self, other):
+        return other.to_bytes() != self.to_bytes()
+
+    def __hash__(self):
+        return hash(self.to_bytes())
+
+    def __repr__(self):
+        return 'SqueakPrivateKey(%r)' % (
             self.to_bytes().hex(),
         )
 
