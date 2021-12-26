@@ -55,6 +55,16 @@ def pub_key(priv_key):
 
 
 @pytest.fixture
+def other_priv_key():
+    yield SqueakPrivateKey.generate()
+
+
+@pytest.fixture
+def other_pub_key(other_priv_key):
+    yield other_priv_key.get_public_key()
+
+
+@pytest.fixture
 def block_height():
     return 0
 
@@ -85,7 +95,7 @@ def squeak_and_key(priv_key, prev_squeak_hash, block_height, block_hash):
         block_height,
         block_hash,
         timestamp,
-        prev_squeak_hash,
+        reply_to=prev_squeak_hash,
     )
     return squeak
 
@@ -114,7 +124,7 @@ class TestMakeSqueak(object):
             block_height,
             block_hash,
             timestamp,
-            prev_squeak_hash,
+            reply_to=prev_squeak_hash,
         )
 
         CheckSqueak(squeak)
@@ -148,6 +158,32 @@ class TestMakeSqueak(object):
         assert squeak.GetPubKey().to_bytes() == pub_key.to_bytes()
         assert decrypted_content.rstrip(b"\00") == b"Hello world!"
 
+    def test_make_squeak_is_private_message(self, priv_key, pub_key, other_priv_key, other_pub_key, block_height, block_hash):
+        content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
+        timestamp = int(time.time())
+
+        squeak, decryption_key = MakeSqueak(
+            priv_key,
+            content,
+            block_height,
+            block_hash,
+            timestamp,
+            recipient=other_pub_key,
+        )
+
+        CheckSqueak(squeak)
+
+        with pytest.raises(Exception):
+            squeak.GetDecryptedContent(decryption_key)
+
+        decrypted_content = squeak.GetDecryptedContent(decryption_key, recipientPrivKey=other_priv_key)
+
+        assert squeak.GetHash() == squeak.get_header().GetHash()
+        assert not squeak.is_reply
+        assert squeak.is_private_message
+        assert squeak.GetPubKey().to_bytes() == pub_key.to_bytes()
+        assert decrypted_content.rstrip(b"\00") == b"Hello world!"
+
     def test_make_squeak_content_too_short(self, priv_key, prev_squeak_hash, block_height, block_hash):
         content = b"Hello world!"
         timestamp = int(time.time())
@@ -159,7 +195,7 @@ class TestMakeSqueak(object):
                 block_height,
                 block_hash,
                 timestamp,
-                prev_squeak_hash,
+                reply_to=prev_squeak_hash,
             )
 
 
@@ -247,7 +283,7 @@ class TestSerializeSqueak(object):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
-        assert len(serialized_squeak) == 1394
+        assert len(serialized_squeak) == 1427
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
         assert squeak.GetDecryptedContent(decryption_key) == \
@@ -266,6 +302,6 @@ class TestSerializeSqueak(object):
         serialized_squeak_header = squeak_header.serialize()
         deserialized_squeak_header = CSqueakHeader.deserialize(serialized_squeak_header)
 
-        assert len(serialized_squeak_header) == 194
+        assert len(serialized_squeak_header) == 227
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)

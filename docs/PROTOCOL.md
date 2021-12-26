@@ -12,6 +12,7 @@ Field Size | Description | Data type | Comments
 32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
 33 | pubKey | char[33] | Contains the public key of the author
+33 | recipientPubKey | char[33] | Contains the public key of the recipient if squeak is a private message
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | iv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
@@ -28,7 +29,7 @@ Field Size | Description | Data type | Comments
 1136 | encContent | char[1136] | Encrypted content
 64 | sig | char[64] | Signature over the squeak header by the author
 
-Add these two fields to the squeak header, and the total size of a squeak is 1394 bytes.
+Add these two fields to the squeak header, and the total size of a squeak is 1427 bytes.
 
 #### squeak locator
 
@@ -106,7 +107,7 @@ Field Size | Description | Data type | Comments
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
-1394 | squeak | char[1394] | The full squeak struct
+1427 | squeak | char[1427] | The full squeak struct
 
 #### msg_getaddr
 #### msg_ping
