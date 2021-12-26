@@ -33,13 +33,13 @@ from squeak.net import CSqueakLocator
 
 
 @pytest.fixture
-def signing_key():
+def private_key():
     return SqueakPrivateKey.generate()
 
 
 @pytest.fixture
-def verifying_key(signing_key):
-    return signing_key.get_public_key()
+def verifying_key(private_key):
+    return private_key.get_public_key()
 
 
 @pytest.fixture

@@ -128,12 +128,12 @@ All of these values are used to populate the squeak header. After the header is 
 The `MakeSqueak` function looks like this:
 
 ```
-def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_to=None):
+def MakeSqueak(private_key, content, block_height, block_hash, timestamp, reply_to=None):
     """Create a new squeak.
 
     Returns a tuple of (squeak, decryption_key)
 
-    signing_key (CSigningkey)
+    private_key (CSigningkey)
     content (bytes)
     block_height (int)
     block_hash (bytes)
@@ -148,7 +148,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
     hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
-    verifying_key = signing_key.get_public_key()
+    verifying_key = private_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
         hashReplySqk=reply_to,
@@ -161,7 +161,7 @@ def MakeSqueak(signing_key, content, block_height, block_hash, timestamp, reply_
         nNonce=nonce,
         encContent=enc_content,
     )
-    sig = SignSqueak(signing_key, squeak)
+    sig = SignSqueak(private_key, squeak)
     squeak.SetSignature(bytes(sig))
     return squeak, secret_key
 ```
