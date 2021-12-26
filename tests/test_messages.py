@@ -150,13 +150,21 @@ class Test_msg_secretkey(MessageTestCase):
         m2 = MsgSerializable.from_bytes(b)
         self.assertEqual(m, m2)
         self.assertEqual(m2.offer, offer)
+        self.assertTrue(m2.has_offer())
+        self.assertFalse(m2.has_secret_key())
 
     def test_serialization_without_offer(self):
-        m = msg_secretkey()
+        from squeak.core.elliptic import generate_secret_key
+
+        m = msg_secretkey(
+            secretKey=generate_secret_key(),
+        )
         b = m.to_bytes()
         m2 = MsgSerializable.from_bytes(b)
         self.assertEqual(m, m2)
         self.assertIsNone(m2.offer)
+        self.assertFalse(m2.has_offer())
+        self.assertTrue(m2.has_secret_key())
 
     def test_repr(self):
         m = msg_secretkey()

@@ -312,6 +312,14 @@ class msg_secretkey(MsgSerializable, BitcoinMsgSerializable):
             f.write(b'\x01')  # Flag
             self.offer.stream_serialize(f)
 
+    def has_secret_key(self):
+        """True if secret key is included."""
+        return self.secretKey != b'\x00'*SECRET_KEY_LENGTH
+
+    def has_offer(self):
+        """True if offer is included."""
+        return self.offer is not None
+
     def __repr__(self):
         return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s) offer=%s)" % \
             (b2lx(self.hashSqk), b2lx(self.secretKey), self.offer)
