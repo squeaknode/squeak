@@ -265,13 +265,13 @@ class TestCheckSqueakSignature(object):
             CheckSqueak(fake_squeak)
 
 
-class TestCheckSqueakDataKey(object):
+class TestCheckSqueakSecreKey(object):
 
-    def test_verify_squeak_data_key_check(self, squeak, secret_key):
+    def test_verify_squeak_secret_key_check(self, squeak, secret_key):
         CheckSqueak(squeak)
         CheckSqueakSecretKey(squeak, secret_key)
 
-    def test_verify_squeak_data_key_check_fails(self, squeak, fake_secret_key):
+    def test_verify_squeak_secret_key_check_fails(self, squeak, fake_secret_key):
         CheckSqueak(squeak)
         with pytest.raises(CheckSqueakSecretKeyError):
             CheckSqueakSecretKey(squeak, fake_secret_key)
