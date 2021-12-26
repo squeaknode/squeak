@@ -233,10 +233,10 @@ class CSqueak(CSqueakHeader):
         """Set the signature."""
         object.__setattr__(self, 'sig', sig)
 
-    def GetDecryptedContent(self, decryption_key, recipientPrivKey: SqueakPrivateKey = None):
+    def GetDecryptedContent(self, secret_key, recipientPrivKey: SqueakPrivateKey = None):
         """Return the decrypted content."""
-        CheckSqueakDecryptionKey(self, decryption_key)
-        data_key = sha256(decryption_key)
+        CheckSqueakSecretKey(self, secret_key)
+        data_key = sha256(secret_key)
         if self.is_private_message:
             if recipientPrivKey is None:
                 raise Exception("Recipient private key required to get decrypted content of private squeak")
@@ -246,9 +246,9 @@ class CSqueak(CSqueakHeader):
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
 
-    def GetDecryptedContentStr(self, decryption_key):
+    def GetDecryptedContentStr(self, secret_key):
         """Return the decrypted content."""
-        content = self.GetDecryptedContent(decryption_key)
+        content = self.GetDecryptedContent(secret_key)
         return DecodeContent(content)
 
 
@@ -289,7 +289,7 @@ class CheckSqueakSignatureError(CheckSqueakError):
     pass
 
 
-class CheckSqueakDecryptionKeyError(CheckSqueakError):
+class CheckSqueakSecretKeyError(CheckSqueakError):
     pass
 
 
@@ -315,18 +315,18 @@ def CheckSqueakSignature(squeak):
         raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
-def CheckSqueakDecryptionKey(squeak, decryption_key):
-    """Check if the given squeak has a valid decryption key
+def CheckSqueakSecretKey(squeak, secret_key):
+    """Check if the given squeak has a valid secret key
 
     squeak (CSqueak)
-    decryption_key (bytes)
+    secret_key (bytes)
     """
-    if decryption_key is None:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
+    if secret_key is None:
+        raise CheckSqueakSecretKeyError("CheckSqueakSecretKey() : invalid secret key for the given squeak")
 
-    payment_point_encoded = payment_point_bytes_from_scalar_bytes(decryption_key)
+    payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     if not payment_point_encoded == squeak.paymentPoint:
-        raise CheckSqueakDecryptionKeyError("CheckSqueakDecryptionKey() : invalid decryption key for the given squeak")
+        raise CheckSqueakSecretKeyError("CheckSqueakSecretKey() : invalid secret key for the given squeak")
 
 
 class InvalidContentLengthError(ValidationError):
@@ -401,7 +401,7 @@ def MakeSqueak(
 ):
     """Create a new squeak.
 
-    Returns a tuple of (squeak, decryption_key)
+    Returns a tuple of (squeak, secret_key)
 
     private_key (SqueakPrivatekey)
     content (bytes)
@@ -465,7 +465,7 @@ def MakeSqueakFromStr(
 ):
     """Create a new squeak from a string of content.
 
-    Returns a tuple of (squeak, decryption_key)
+    Returns a tuple of (squeak, secret_key)
 
     private_key (CSigningkey)
     content_str (str)

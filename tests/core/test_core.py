@@ -26,9 +26,9 @@ import pytest
 from bitcoin.core import lx
 
 from squeak.core import CheckSqueak
-from squeak.core import CheckSqueakDecryptionKey
-from squeak.core import CheckSqueakDecryptionKeyError
 from squeak.core import CheckSqueakError
+from squeak.core import CheckSqueakSecretKey
+from squeak.core import CheckSqueakSecretKeyError
 from squeak.core import CheckSqueakSignatureError
 from squeak.core import CONTENT_LENGTH
 from squeak.core import CSqueak
@@ -107,9 +107,9 @@ def squeak(squeak_and_key):
 
 
 @pytest.fixture
-def decryption_key(squeak_and_key):
-    _, decryption_key = squeak_and_key
-    return decryption_key
+def secret_key(squeak_and_key):
+    _, secret_key = squeak_and_key
+    return secret_key
 
 
 class TestMakeSqueak(object):
@@ -118,7 +118,7 @@ class TestMakeSqueak(object):
         content = "Hello world!"
         timestamp = int(time.time())
 
-        squeak, decryption_key = MakeSqueakFromStr(
+        squeak, secret_key = MakeSqueakFromStr(
             priv_key,
             content,
             block_height,
@@ -130,7 +130,7 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         # pub_key = priv_key.get_public_key()
-        decrypted_content = squeak.GetDecryptedContentStr(decryption_key)
+        decrypted_content = squeak.GetDecryptedContentStr(secret_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert squeak.is_reply
@@ -141,7 +141,7 @@ class TestMakeSqueak(object):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
-        squeak, decryption_key = MakeSqueak(
+        squeak, secret_key = MakeSqueak(
             priv_key,
             content,
             block_height,
@@ -151,7 +151,7 @@ class TestMakeSqueak(object):
 
         CheckSqueak(squeak)
 
-        decrypted_content = squeak.GetDecryptedContent(decryption_key)
+        decrypted_content = squeak.GetDecryptedContent(secret_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply
@@ -162,7 +162,7 @@ class TestMakeSqueak(object):
         content = b"Hello world!".ljust(CONTENT_LENGTH, b"\x00")
         timestamp = int(time.time())
 
-        squeak, decryption_key = MakeSqueak(
+        squeak, secret_key = MakeSqueak(
             priv_key,
             content,
             block_height,
@@ -174,9 +174,9 @@ class TestMakeSqueak(object):
         CheckSqueak(squeak)
 
         with pytest.raises(Exception):
-            squeak.GetDecryptedContent(decryption_key)
+            squeak.GetDecryptedContent(secret_key)
 
-        decrypted_content = squeak.GetDecryptedContent(decryption_key, recipientPrivKey=other_priv_key)
+        decrypted_content = squeak.GetDecryptedContent(secret_key, recipientPrivKey=other_priv_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply
@@ -267,27 +267,27 @@ class TestCheckSqueakSignature(object):
 
 class TestCheckSqueakDataKey(object):
 
-    def test_verify_squeak_data_key_check(self, squeak, decryption_key):
+    def test_verify_squeak_data_key_check(self, squeak, secret_key):
         CheckSqueak(squeak)
-        CheckSqueakDecryptionKey(squeak, decryption_key)
+        CheckSqueakSecretKey(squeak, secret_key)
 
     def test_verify_squeak_data_key_check_fails(self, squeak, fake_secret_key):
         CheckSqueak(squeak)
-        with pytest.raises(CheckSqueakDecryptionKeyError):
-            CheckSqueakDecryptionKey(squeak, fake_secret_key)
+        with pytest.raises(CheckSqueakSecretKeyError):
+            CheckSqueakSecretKey(squeak, fake_secret_key)
 
 
 class TestSerializeSqueak(object):
 
-    def test_serialize_squeak(self, squeak, decryption_key):
+    def test_serialize_squeak(self, squeak, secret_key):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
         assert len(serialized_squeak) == 1427
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
-        assert squeak.GetDecryptedContent(decryption_key) == \
-            deserialized_squeak.GetDecryptedContent(decryption_key)
+        assert squeak.GetDecryptedContent(secret_key) == \
+            deserialized_squeak.GetDecryptedContent(secret_key)
 
     def test_serialize_squeak_null(self):
         squeak = CSqueak()
