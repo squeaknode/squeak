@@ -429,7 +429,7 @@ def MakeSqueak(signing_key: SqueakPrivateKey, content, block_height, block_hash,
         encContent=enc_content,
     )
     sig = SignSqueak(signing_key, squeak)
-    squeak.SetSignature(bytes(sig))
+    squeak.SetSignature(sig)
     return squeak, secret_key
 
 
