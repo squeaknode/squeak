@@ -180,6 +180,7 @@ class TestMakeSqueak(object):
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply
+        assert squeak.is_private_message
         assert squeak.GetPubKey().to_bytes() == pub_key.to_bytes()
         assert decrypted_content.rstrip(b"\00") == b"Hello world!"
 
