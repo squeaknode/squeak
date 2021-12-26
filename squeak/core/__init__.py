@@ -34,10 +34,10 @@ from squeak.core.encryption import generate_initialization_vector
 from squeak.core.encryption import generate_nonce
 from squeak.core.encryption import xor_bytes
 from squeak.core.hashing import sha256
-from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.signing import SIGNATURE_LENGTH
-from squeak.core.signing import SqueakPrivateKey
-from squeak.core.signing import SqueakPublicKey
+from squeak.core.keys import PUB_KEY_LENGTH
+from squeak.core.keys import SIGNATURE_LENGTH
+from squeak.core.keys import SqueakPrivateKey
+from squeak.core.keys import SqueakPublicKey
 
 
 # Core definitions
@@ -293,14 +293,14 @@ class CheckSqueakDecryptionKeyError(CheckSqueakError):
     pass
 
 
-def SignSqueak(signing_key, squeak_header):
+def SignSqueak(private_key, squeak_header):
     """Generate a signature for the given squeak header.
 
-    signing_key (SqueakPrivateKey)
+    private_key (SqueakPrivateKey)
     squeak_header (CSqueakHeader)
     """
     squeak_hash = squeak_header.GetHash()
-    return signing_key.sign(squeak_hash)
+    return private_key.sign(squeak_hash)
 
 
 def CheckSqueakSignature(squeak):
@@ -391,7 +391,7 @@ def CheckSqueak(squeak):
 
 
 def MakeSqueak(
-        signing_key: SqueakPrivateKey,
+        private_key: SqueakPrivateKey,
         content: bytes,
         block_height: int,
         block_hash: bytes,
@@ -403,7 +403,7 @@ def MakeSqueak(
 
     Returns a tuple of (squeak, decryption_key)
 
-    signing_key (SqueakPrivatekey)
+    private_key (SqueakPrivatekey)
     content (bytes)
     block_height (int)
     block_hash (bytes)
@@ -414,14 +414,14 @@ def MakeSqueak(
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
     if recipient:
-        shared_secret = signing_key.get_shared_secret(recipient)
+        shared_secret = private_key.get_shared_secret(recipient)
         data_key = xor_bytes(data_key, shared_secret)
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
     hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
-    verifying_key = signing_key.get_public_key()
+    verifying_key = private_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
         hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
@@ -435,7 +435,7 @@ def MakeSqueak(
         nNonce=nonce,
         encContent=enc_content,
     )
-    sig = SignSqueak(signing_key, squeak)
+    sig = SignSqueak(private_key, squeak)
     squeak.SetSignature(sig)
     return squeak, secret_key
 
@@ -455,7 +455,7 @@ def DecodeContent(data: bytes):
 
 
 def MakeSqueakFromStr(
-        signing_key: SqueakPrivateKey,
+        private_key: SqueakPrivateKey,
         content_str: str,
         block_height: int,
         block_hash: bytes,
@@ -467,7 +467,7 @@ def MakeSqueakFromStr(
 
     Returns a tuple of (squeak, decryption_key)
 
-    signing_key (CSigningkey)
+    private_key (CSigningkey)
     content_str (str)
     block_height (int)
     block_hash (bytes)
@@ -478,7 +478,7 @@ def MakeSqueakFromStr(
     reply_to = reply_to or b'\x00'*HASH_LENGTH
     content = EncodeContent(content_str)
     return MakeSqueak(
-        signing_key,
+        private_key,
         content,
         block_height,
         block_hash,

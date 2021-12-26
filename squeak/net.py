@@ -30,8 +30,8 @@ from bitcoin.core.serialize import VectorSerializer
 from bitcoin.net import CInv as BitcoinCInv
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import PUB_KEY_LENGTH
-from squeak.core.signing import SqueakPublicKey
+from squeak.core.keys import PUB_KEY_LENGTH
+from squeak.core.keys import SqueakPublicKey
 
 
 PROTO_VERSION = 60003

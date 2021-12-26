@@ -25,7 +25,7 @@ import pytest
 from bitcoin.core import lx
 
 from squeak.core import HASH_LENGTH
-from squeak.core.signing import SqueakPrivateKey
+from squeak.core.keys import SqueakPrivateKey
 from squeak.net import CInterested
 from squeak.net import CInv
 from squeak.net import COffer
@@ -33,13 +33,13 @@ from squeak.net import CSqueakLocator
 
 
 @pytest.fixture
-def signing_key():
+def private_key():
     return SqueakPrivateKey.generate()
 
 
 @pytest.fixture
-def verifying_key(signing_key):
-    return signing_key.get_public_key()
+def verifying_key(private_key):
+    return private_key.get_public_key()
 
 
 @pytest.fixture
