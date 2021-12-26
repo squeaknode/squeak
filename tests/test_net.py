@@ -28,6 +28,7 @@ from squeak.core import HASH_LENGTH
 from squeak.core.signing import SqueakPrivateKey
 from squeak.net import CInterested
 from squeak.net import CInv
+from squeak.net import COffer
 from squeak.net import CSqueakLocator
 
 
@@ -85,3 +86,26 @@ class TestCSqueakLocator(object):
         assert deserialized.vInterested[2].pubkeys == ()
         assert deserialized.vInterested[1].hashReplySqk == b'\x00'*HASH_LENGTH
         assert deserialized.vInterested[2].hashReplySqk == fake_squeak_hash
+
+
+class TestCOffer(object):
+    def test_serialization(self):
+        fake_payment_str = "fakepaymentstr".encode('utf-8')
+        fake_host = "foo.com".encode('utf-8')
+        port = 5678
+
+        offer = COffer(
+            strPaymentInfo=fake_payment_str,
+            host=fake_host,
+            port=port,
+        )
+        stream = _BytesIO()
+
+        offer.stream_serialize(stream)
+        serialized = _BytesIO(stream.getvalue())
+
+        deserialized = COffer.stream_deserialize(serialized)
+
+        # assert deserialized.typemap[deserialized.type] == "Squeak"
+        assert deserialized.strPaymentInfo == fake_payment_str
+        assert deserialized == offer

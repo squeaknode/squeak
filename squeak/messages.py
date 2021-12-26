@@ -29,7 +29,6 @@ import bitcoin  # noqa: F401
 from bitcoin.core import b2lx
 from bitcoin.core import b2x
 from bitcoin.core.serialize import ser_read
-from bitcoin.core.serialize import VarStringSerializer
 from bitcoin.core.serialize import VectorSerializer
 from bitcoin.messages import msg_addr as bitcoin_msg_addr
 from bitcoin.messages import msg_alert as bitcoin_msg_alert
@@ -46,6 +45,7 @@ from squeak.core import CSqueak
 from squeak.core import HASH_LENGTH
 from squeak.core import SECRET_KEY_LENGTH
 from squeak.net import CInv
+from squeak.net import COffer
 from squeak.net import CSqueakLocator
 from squeak.net import PROTO_VERSION
 
@@ -278,77 +278,49 @@ class msg_alert(MsgSerializable, bitcoin_msg_alert):
     pass
 
 
-class msg_offer(MsgSerializable, BitcoinMsgSerializable):
-    command = b"offer"
-
-    def __init__(
-            self,
-            hashSqk=b'\x00'*HASH_LENGTH,
-            nonce=b'\x00'*HASH_LENGTH,
-            strPaymentInfo=b'',
-            host=b'',
-            port=0,
-            protover=PROTO_VERSION,
-    ):
-        super(msg_offer, self).__init__(protover)
-        self.hashSqk = hashSqk
-        self.nonce = nonce
-        self.strPaymentInfo = strPaymentInfo
-        self.host = host
-        self.port = port
-
-    @classmethod
-    def msg_deser(cls, f, protover=PROTO_VERSION):
-        hashSqk = ser_read(f, HASH_LENGTH)
-        nonce = ser_read(f, HASH_LENGTH)
-        strPaymentInfo = VarStringSerializer.stream_deserialize(f)
-        host = VarStringSerializer.stream_deserialize(f)
-        port = struct.unpack(b"<i", ser_read(f, 4))[0]
-        return cls(hashSqk, nonce, strPaymentInfo, host, port)
-
-    def msg_ser(self, f):
-        assert len(self.hashSqk) == HASH_LENGTH
-        f.write(self.hashSqk)
-        assert len(self.nonce) == HASH_LENGTH
-        f.write(self.nonce)
-        VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
-        VarStringSerializer.stream_serialize(self.host, f)
-        f.write(struct.pack(b"<i", self.port))
-
-    def __repr__(self):
-        return "msg_offer(hashSqk=lx(%s) nonce=lx(%s) strPaymentInfo=%s host=%s port=%i)" % \
-            (b2lx(self.hashSqk), b2lx(self.nonce), self.strPaymentInfo, self.host, self.port)
-
-
 class msg_secretkey(MsgSerializable, BitcoinMsgSerializable):
     command = b"secretkey"
 
-    def __init__(self, hashSqk=None, secretKey=None, protover=PROTO_VERSION):
+    def __init__(self, hashSqk=None, secretKey=None, offer=None, protover=PROTO_VERSION):
         super(msg_secretkey, self).__init__(protover)
         self.hashSqk = hashSqk or b'\x00'*HASH_LENGTH
         self.secretKey = secretKey or b'\x00'*SECRET_KEY_LENGTH
+        self.offer = offer
 
     @classmethod
     def msg_deser(cls, f, protover=PROTO_VERSION):
         hashSqk = ser_read(f, HASH_LENGTH)
         secretKey = ser_read(f, SECRET_KEY_LENGTH)
-        return cls(hashSqk, secretKey)
+        markerbyte = struct.unpack(b'B', ser_read(f, 1))[0]
+        flagbyte = struct.unpack(b'B', ser_read(f, 1))[0]
+        if markerbyte == 0 and flagbyte == 1:
+            offer = COffer.stream_deserialize(f)
+        else:
+            offer = None
+        return cls(hashSqk, secretKey, offer)
 
     def msg_ser(self, f):
         assert len(self.hashSqk) == HASH_LENGTH
         f.write(self.hashSqk)
         assert len(self.secretKey) == SECRET_KEY_LENGTH
         f.write(self.secretKey)
+        if self.offer is None:
+            f.write(b'\x00')  # Marker
+            f.write(b'\x00')  # Flag
+        else:
+            f.write(b'\x00')  # Marker
+            f.write(b'\x01')  # Flag
+            self.offer.stream_serialize(f)
 
     def __repr__(self):
-        return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s))" % \
-            (b2lx(self.hashSqk), b2lx(self.secretKey))
+        return "msg_secretkey(hashSqk=lx(%s) secretKey=lx(%s) offer=%s)" % \
+            (b2lx(self.hashSqk), b2lx(self.secretKey), self.offer)
 
 
 msg_classes = [msg_version, msg_verack, msg_addr, msg_inv, msg_getdata,
                msg_notfound, msg_getsqueaks, msg_subscribe,
                msg_squeak, msg_getaddr, msg_ping, msg_pong, msg_alert,
-               msg_offer, msg_secretkey]
+               msg_secretkey]
 
 messagemap = {}
 for cls in msg_classes:
