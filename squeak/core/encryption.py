@@ -155,3 +155,7 @@ def generate_initialization_vector():
 def generate_nonce():
     data = os.urandom(4)
     return struct.unpack(b"<I", data)[0]
+
+
+def xor_bytes(lst1, lst2):
+    return bytes(a ^ b for a, b in zip(lst1, lst2))
