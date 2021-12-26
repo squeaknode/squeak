@@ -128,21 +128,32 @@ All of these values are used to populate the squeak header. After the header is 
 The `MakeSqueak` function looks like this:
 
 ```
-def MakeSqueak(private_key, content, block_height, block_hash, timestamp, reply_to=None):
+def MakeSqueak(
+        private_key: SqueakPrivateKey,
+        content: bytes,
+        block_height: int,
+        block_hash: bytes,
+        timestamp: int,
+        reply_to: bytes = None,
+        recipient: SqueakPublicKey = None,
+):
     """Create a new squeak.
 
     Returns a tuple of (squeak, decryption_key)
 
-    private_key (CSigningkey)
+    private_key (SqueakPrivatekey)
     content (bytes)
     block_height (int)
     block_hash (bytes)
     timestamp (int)
     reply_to (bytes)
+    recipient (SqueakPublickey)
     """
-    reply_to = reply_to or b'\x00'*HASH_LENGTH
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
+    if recipient:
+        shared_secret = private_key.get_shared_secret(recipient)
+        data_key = xor_bytes(data_key, shared_secret)
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
     hash_enc_content = HashEncryptedContent(enc_content)
@@ -151,10 +162,11 @@ def MakeSqueak(private_key, content, block_height, block_hash, timestamp, reply_
     verifying_key = private_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
-        hashReplySqk=reply_to,
+        hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
         hashBlock=block_hash,
         nBlockHeight=block_height,
         pubKey=verifying_key.to_bytes(),
+        recipientPubKey=recipient.to_bytes() if recipient else b'\x00'*PUB_KEY_LENGTH,
         paymentPoint=payment_point_encoded,
         iv=initialization_vector,
         nTime=timestamp,
@@ -162,7 +174,7 @@ def MakeSqueak(private_key, content, block_height, block_hash, timestamp, reply_
         encContent=enc_content,
     )
     sig = SignSqueak(private_key, squeak)
-    squeak.SetSignature(bytes(sig))
+    squeak.SetSignature(sig)
     return squeak, secret_key
 ```
 
