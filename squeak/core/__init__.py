@@ -238,7 +238,7 @@ class CSqueak(CSqueakHeader):
         """Set the signature."""
         object.__setattr__(self, 'sig', sig)
 
-    def GetDecryptedContent(self, secret_key, recipientPrivKey: SqueakPrivateKey = None):
+    def GetDecryptedContent(self, secret_key: bytes, recipientPrivKey: SqueakPrivateKey = None):
         """Return the decrypted content."""
         CheckSqueakSecretKey(self, secret_key)
         data_key = sha256(secret_key)
@@ -251,7 +251,7 @@ class CSqueak(CSqueakHeader):
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
 
-    def GetDecryptedContentStr(self, secret_key):
+    def GetDecryptedContentStr(self, secret_key: bytes):
         """Return the decrypted content."""
         content = self.GetDecryptedContent(secret_key)
         return DecodeContent(content)
@@ -298,7 +298,7 @@ class CheckSqueakSecretKeyError(CheckSqueakError):
     pass
 
 
-def SignSqueak(private_key, squeak_header):
+def SignSqueak(private_key: SqueakPrivateKey, squeak_header: CSqueakHeader):
     """Generate a signature for the given squeak header.
 
     private_key (SqueakPrivateKey)
@@ -308,7 +308,7 @@ def SignSqueak(private_key, squeak_header):
     return private_key.sign(squeak_hash)
 
 
-def CheckSqueakSignature(squeak):
+def CheckSqueakSignature(squeak: CSqueak):
     """Check if the given squeak has a valid signature.
 
     squeak (CSqueak)
@@ -320,7 +320,7 @@ def CheckSqueakSignature(squeak):
         raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
-def CheckSqueakSecretKey(squeak, secret_key):
+def CheckSqueakSecretKey(squeak: CSqueak, secret_key: bytes):
     """Check if the given squeak has a valid secret key
 
     squeak (CSqueak)
@@ -337,7 +337,7 @@ class InvalidContentLengthError(ValidationError):
     pass
 
 
-def EncryptContent(data_key, iv, content):
+def EncryptContent(data_key: bytes, iv: bytes, content: bytes):
     """Return the ciphertext from the given content.
 
     data_key (bytes)
@@ -350,7 +350,7 @@ def EncryptContent(data_key, iv, content):
     return encrypt_content(data_key, iv, content)
 
 
-def HashEncryptedContent(enc_content):
+def HashEncryptedContent(enc_content: bytes):
     """Return the hash of the encrypted content.
 
     enc_content (bytes)
@@ -359,7 +359,7 @@ def HashEncryptedContent(enc_content):
     return squeak_enc_content.GetHash()
 
 
-def CheckSqueakHeader(squeak_header):
+def CheckSqueakHeader(squeak_header: CSqueakHeader):
     """Context independent CSqueakHeader checks.
     Raises CSqueakHeaderError if squeak header is invalid.
     """
@@ -371,7 +371,7 @@ def CheckSqueakHeader(squeak_header):
     #     raise CheckSqueakHeaderError("CheckSqueakError() : pubkey does not have a valid length.")
 
 
-def CheckSqueak(squeak):
+def CheckSqueak(squeak: CSqueak):
     """Context independent CSqueak checks.
 
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
