@@ -278,48 +278,6 @@ class msg_alert(MsgSerializable, bitcoin_msg_alert):
     pass
 
 
-# class msg_offer(MsgSerializable, BitcoinMsgSerializable):
-#     command = b"offer"
-
-#     def __init__(
-#             self,
-#             hashSqk=b'\x00'*HASH_LENGTH,
-#             nonce=b'\x00'*HASH_LENGTH,
-#             strPaymentInfo=b'',
-#             host=b'',
-#             port=0,
-#             protover=PROTO_VERSION,
-#     ):
-#         super(msg_offer, self).__init__(protover)
-#         self.hashSqk = hashSqk
-#         self.nonce = nonce
-#         self.strPaymentInfo = strPaymentInfo
-#         self.host = host
-#         self.port = port
-
-#     @classmethod
-#     def msg_deser(cls, f, protover=PROTO_VERSION):
-#         hashSqk = ser_read(f, HASH_LENGTH)
-#         nonce = ser_read(f, HASH_LENGTH)
-#         strPaymentInfo = VarStringSerializer.stream_deserialize(f)
-#         host = VarStringSerializer.stream_deserialize(f)
-#         port = struct.unpack(b"<i", ser_read(f, 4))[0]
-#         return cls(hashSqk, nonce, strPaymentInfo, host, port)
-
-#     def msg_ser(self, f):
-#         assert len(self.hashSqk) == HASH_LENGTH
-#         f.write(self.hashSqk)
-#         assert len(self.nonce) == HASH_LENGTH
-#         f.write(self.nonce)
-#         VarStringSerializer.stream_serialize(self.strPaymentInfo, f)
-#         VarStringSerializer.stream_serialize(self.host, f)
-#         f.write(struct.pack(b"<i", self.port))
-
-#     def __repr__(self):
-#         return "msg_offer(hashSqk=lx(%s) nonce=lx(%s) strPaymentInfo=%s host=%s port=%i)" % \
-#             (b2lx(self.hashSqk), b2lx(self.nonce), self.strPaymentInfo, self.host, self.port)
-
-
 class msg_secretkey(MsgSerializable, BitcoinMsgSerializable):
     command = b"secretkey"
 
