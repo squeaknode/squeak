@@ -240,9 +240,8 @@ class CSqueak(CSqueakHeader):
         if self.is_private_message:
             if recipientPrivKey is None:
                 raise Exception("Recipient private key required to get decrypted content of private squeak")
-            else:
-                shared_secret = recipientPrivKey.get_shared_secret(self.GetPubKey())
-                data_key = xor_bytes(data_key, shared_secret)
+            shared_secret = recipientPrivKey.get_shared_secret(self.GetPubKey())
+            data_key = xor_bytes(data_key, shared_secret)
         iv = self.iv
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
