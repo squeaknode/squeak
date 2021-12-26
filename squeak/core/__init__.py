@@ -404,7 +404,6 @@ def MakeSqueak(signing_key: SqueakPrivateKey, content, block_height, block_hash,
     reply_to (bytes)
     recipient (SqueakPublickey)
     """
-    reply_to = reply_to or b'\x00'*HASH_LENGTH
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
     if recipient:
@@ -418,7 +417,7 @@ def MakeSqueak(signing_key: SqueakPrivateKey, content, block_height, block_hash,
     verifying_key = signing_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
-        hashReplySqk=reply_to,
+        hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
         hashBlock=block_hash,
         nBlockHeight=block_height,
         pubKey=verifying_key.to_bytes(),
