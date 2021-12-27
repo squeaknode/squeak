@@ -148,7 +148,7 @@ class CSqueakHeader(ImmutableSerializable):
 
     def GetRecipientPubKey(self):
         """Return the recipient pub key."""
-        if self.is_private_message:
+        if not self.is_private_message:
             return None
         return SqueakPublicKey.from_bytes(self.recipientPubKey)
 
