@@ -76,7 +76,7 @@ class TestSignVerify(object):
         serialized2 = deserialized.to_bytes()
         deserialized2 = SqueakPublicKey.from_bytes(serialized2)
 
-        assert deserialized.pub_key.W == pub_key.pub_key.W
+        assert deserialized == pub_key
 
         signature = priv_key.sign(data)
 
@@ -87,6 +87,8 @@ class TestSignVerify(object):
     def test_serialize_deserialize_private_key(self, priv_key, pub_key, data):
         serialized = priv_key.to_bytes()
         deserialized_priv_key = SqueakPrivateKey.from_bytes(serialized)
+
+        assert deserialized_priv_key == priv_key
 
         signature = deserialized_priv_key.sign(data)
 
