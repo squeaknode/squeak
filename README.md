@@ -1,5 +1,9 @@
 # squeak
 
+[![codecov](https://codecov.io/gh/squeaknode/squeak/branch/master/graph/badge.svg?token=R4MAF14FYN)](https://codecov.io/gh/squeaknode/squeak)
+
+Python library for Squeak protocol.
+
 ### Requirements
 
 * python3
