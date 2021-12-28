@@ -176,14 +176,16 @@ class TestMakeSqueak(object):
         with pytest.raises(Exception):
             squeak.GetDecryptedContent(secret_key)
 
-        decrypted_content = squeak.GetDecryptedContent(secret_key, recipientPrivKey=other_priv_key)
+        recipient_decrypted_content = squeak.GetDecryptedContent(secret_key, recipientPrivKey=other_priv_key)
+        author_decrypted_content = squeak.GetDecryptedContent(secret_key, authorPrivKey=priv_key)
 
         assert squeak.GetHash() == squeak.get_header().GetHash()
         assert not squeak.is_reply
         assert squeak.is_private_message
         assert squeak.GetRecipientPubKey() == other_pub_key
         assert squeak.GetPubKey().to_bytes() == pub_key.to_bytes()
-        assert decrypted_content.rstrip(b"\00") == b"Hello world!"
+        assert recipient_decrypted_content.rstrip(b"\00") == b"Hello world!"
+        assert author_decrypted_content.rstrip(b"\00") == b"Hello world!"
 
     def test_make_squeak_content_too_short(self, priv_key, prev_squeak_hash, block_height, block_hash):
         content = b"Hello world!"
