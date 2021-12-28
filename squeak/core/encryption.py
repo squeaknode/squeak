@@ -29,9 +29,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers import modes
 
 
-KEY_SIZE = 1024
 DATA_KEY_LENGTH = 32
-ENCRYPTED_DATA_KEY_LENGTH = 128
 CIPHER_BLOCK_LENGTH = 16
 
 
