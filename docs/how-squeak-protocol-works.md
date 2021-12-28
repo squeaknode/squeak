@@ -36,7 +36,7 @@ Without the ability to buy content trustlessly, users would be less willing to m
 ## How trustless payments work
 The Squeak protocol uses primitives from elliptic curve cryptography to do trustless Bitcoin payments over Lightning in exchange for content.
 
-### Elliptic curve distributive property
+### Elliptic curve linearity
 
 We can take advantage of the distributive property of points on elliptic curves:
 
