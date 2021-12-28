@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import struct
+from typing import Optional
 
 from bitcoin.core import b2lx
 from bitcoin.core.serialize import ImmutableSerializable
@@ -238,22 +239,39 @@ class CSqueak(CSqueakHeader):
         """Set the signature."""
         object.__setattr__(self, 'sig', sig)
 
-    def GetDecryptedContent(self, secret_key: bytes, recipientPrivKey: SqueakPrivateKey = None):
+    def GetDecryptedContent(
+            self,
+            secret_key: bytes,
+            authorPrivKey: Optional[SqueakPrivateKey] = None,
+            recipientPrivKey: Optional[SqueakPrivateKey] = None,
+    ):
         """Return the decrypted content."""
         CheckSqueakSecretKey(self, secret_key)
         data_key = sha256(secret_key)
         if self.is_private_message:
-            if recipientPrivKey is None:
-                raise Exception("Recipient private key required to get decrypted content of private squeak")
-            shared_secret = recipientPrivKey.get_shared_secret(self.GetPubKey())
+            if recipientPrivKey:
+                shared_secret = recipientPrivKey.get_shared_secret(self.GetPubKey())
+            elif authorPrivKey:
+                shared_secret = authorPrivKey.get_shared_secret(self.GetRecipientPubKey())
+            else:
+                raise Exception("Author or Recipient private key required to get decrypted content of private squeak")
             data_key = xor_bytes(data_key, shared_secret)
         iv = self.iv
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
 
-    def GetDecryptedContentStr(self, secret_key: bytes):
+    def GetDecryptedContentStr(
+            self,
+            secret_key: bytes,
+            authorPrivKey: Optional[SqueakPrivateKey] = None,
+            recipientPrivKey: Optional[SqueakPrivateKey] = None,
+    ):
         """Return the decrypted content."""
-        content = self.GetDecryptedContent(secret_key)
+        content = self.GetDecryptedContent(
+            secret_key,
+            authorPrivKey=authorPrivKey,
+            recipientPrivKey=recipientPrivKey,
+        )
         return DecodeContent(content)
 
 
