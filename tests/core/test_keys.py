@@ -62,13 +62,7 @@ def data():
     return make_hash()
 
 
-class TestSignVerify(object):
-
-    def test_sign_verify(self, priv_key, pub_key, data):
-        signature = priv_key.sign(data)
-
-        assert len(signature) == SIGNATURE_LENGTH
-        assert pub_key.verify(data, signature)
+class TestSerialization(object):
 
     def test_serialize_deserialize_public_key(self, priv_key, pub_key, data):
         serialized = pub_key.to_bytes()
@@ -95,20 +89,6 @@ class TestSignVerify(object):
         assert len(serialized) == PRIV_KEY_LENGTH
         assert pub_key.verify(data, signature)
 
-    # def test_serialize_deserialize_private_key_to_string(self, priv_key, pub_key, data):
-    #     priv_key_str = priv_key.to_str()
-    #     deserialized_priv_key = SqueakPrivateKey.from_str(priv_key_str)
-
-    #     signature = deserialized_priv_key.sign(data)
-
-    #     assert pub_key.verify(data, signature)
-
-    def test_sign_verify_other_data(self, priv_key, pub_key, data):
-        data2 = make_hash()
-        signature = priv_key.sign(data)
-
-        assert not pub_key.verify(data2, signature)
-
     def test_deserialize_invalid_private_key(self):
         invalid_private_key_bytes = b""
 
@@ -133,6 +113,29 @@ class TestSignVerify(object):
     def test_hash_private_key(self, priv_key):
 
         assert hash(priv_key) == hash(priv_key.to_bytes())
+
+    def test_compare_public_key(self, pub_key, other_pub_key):
+
+        assert pub_key != other_pub_key
+
+    def test_compare_private_key(self, priv_key, other_priv_key):
+
+        assert priv_key != other_priv_key
+
+
+class TestSignVerify(object):
+
+    def test_sign_verify(self, priv_key, pub_key, data):
+        signature = priv_key.sign(data)
+
+        assert len(signature) == SIGNATURE_LENGTH
+        assert pub_key.verify(data, signature)
+
+    def test_sign_verify_other_data(self, priv_key, pub_key, data):
+        data2 = make_hash()
+        signature = priv_key.sign(data)
+
+        assert not pub_key.verify(data2, signature)
 
 
 class TestSharedSecret(object):
