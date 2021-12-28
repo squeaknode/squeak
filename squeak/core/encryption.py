@@ -23,86 +23,16 @@ import os
 import struct
 
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import padding as data_padding
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import algorithms
 from cryptography.hazmat.primitives.ciphers import Cipher
 from cryptography.hazmat.primitives.ciphers import modes
-from cryptography.hazmat.primitives.serialization import load_der_private_key
-from cryptography.hazmat.primitives.serialization import load_der_public_key
 
 
 KEY_SIZE = 1024
 DATA_KEY_LENGTH = 32
 ENCRYPTED_DATA_KEY_LENGTH = 128
 CIPHER_BLOCK_LENGTH = 16
-
-
-def _generate_assymetric_decryption_key():
-    return rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=KEY_SIZE,
-        backend=default_backend(),
-    )
-
-
-def _get_assymetric_encryption_key(private_key):
-    return private_key.public_key()
-
-
-def _encrypt_assymetric(message, public_key):
-    return public_key.encrypt(
-        message,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None,
-        ),
-    )
-
-
-def _decrypt_assymetric(ciphertext, private_key):
-    return private_key.decrypt(
-        ciphertext,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None,
-        ),
-    )
-
-
-def _serialize_public_key(public_key):
-    return public_key.public_bytes(
-        encoding=serialization.Encoding.DER,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo,
-    )
-
-
-def _deserialize_public_key(public_der_data):
-    return load_der_public_key(
-        public_der_data,
-        backend=default_backend(),
-    )
-
-
-def _serialize_private_key(private_key):
-    return private_key.private_bytes(
-        encoding=serialization.Encoding.DER,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
-
-
-def _deserialize_private_key(private_der_data):
-    return load_der_private_key(
-        private_der_data,
-        backend=default_backend(),
-        password=None,
-    )
 
 
 def _create_data_cipher(key, iv):
