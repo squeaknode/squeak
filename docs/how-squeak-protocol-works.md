@@ -123,7 +123,7 @@ All of these values are used to populate the squeak header. After the header is 
 
 * The squeak hash is calculated from the header.
 * The private key of the author is used to sign the squeak hash.
-* The signature is then turned into a degenerate (SIGHASH_ALL) sig script, and attached to the squeak.
+* The signature is then attached to the squeak.
 
 The `MakeSqueak` function looks like this:
 
