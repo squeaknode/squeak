@@ -443,13 +443,13 @@ def MakeSqueak(
     hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
-    verifying_key = private_key.get_public_key()
+    author_public_key = private_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
         hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
         hashBlock=block_hash,
         nBlockHeight=block_height,
-        pubKey=verifying_key.to_bytes(),
+        pubKey=author_public_key.to_bytes(),
         recipientPubKey=recipient.to_bytes() if recipient else b'\x00'*PUB_KEY_LENGTH,
         paymentPoint=payment_point_encoded,
         iv=initialization_vector,
