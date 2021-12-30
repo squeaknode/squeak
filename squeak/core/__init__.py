@@ -418,8 +418,8 @@ def MakeSqueak(
         block_height: int,
         block_hash: bytes,
         timestamp: int,
-        reply_to: bytes = None,
-        recipient: SqueakPublicKey = None,
+        reply_to: Optional[bytes] = None,
+        recipient: Optional[SqueakPublicKey] = None,
 ):
     """Create a new squeak.
 
@@ -430,8 +430,8 @@ def MakeSqueak(
     block_height (int)
     block_hash (bytes)
     timestamp (int)
-    reply_to (bytes)
-    recipient (SqueakPublickey)
+    reply_to (Optional[bytes])
+    recipient (Optional[SqueakPublickey])
     """
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
@@ -443,13 +443,13 @@ def MakeSqueak(
     hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
-    verifying_key = private_key.get_public_key()
+    author_public_key = private_key.get_public_key()
     squeak = CSqueak(
         hashEncContent=hash_enc_content,
         hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
         hashBlock=block_hash,
         nBlockHeight=block_height,
-        pubKey=verifying_key.to_bytes(),
+        pubKey=author_public_key.to_bytes(),
         recipientPubKey=recipient.to_bytes() if recipient else b'\x00'*PUB_KEY_LENGTH,
         paymentPoint=payment_point_encoded,
         iv=initialization_vector,
@@ -482,8 +482,8 @@ def MakeSqueakFromStr(
         block_height: int,
         block_hash: bytes,
         timestamp: int,
-        reply_to: bytes = None,
-        recipient: SqueakPublicKey = None,
+        reply_to: Optional[bytes] = None,
+        recipient: Optional[SqueakPublicKey] = None,
 ):
     """Create a new squeak from a string of content.
 
@@ -494,8 +494,8 @@ def MakeSqueakFromStr(
     block_height (int)
     block_hash (bytes)
     timestamp (int)
-    reply_to (bytes)
-    recipient (SqueakPublickey)
+    reply_to (Optional[bytes])
+    recipient (Optional[SqueakPublickey])
     """
     reply_to = reply_to or b'\x00'*HASH_LENGTH
     content = EncodeContent(content_str)
