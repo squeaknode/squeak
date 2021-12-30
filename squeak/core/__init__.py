@@ -419,7 +419,7 @@ def MakeSqueak(
         block_hash: bytes,
         timestamp: int,
         reply_to: bytes = None,
-        recipient: SqueakPublicKey = None,
+        recipient: Optional[SqueakPublicKey] = None,
 ):
     """Create a new squeak.
 
@@ -431,7 +431,7 @@ def MakeSqueak(
     block_hash (bytes)
     timestamp (int)
     reply_to (bytes)
-    recipient (SqueakPublickey)
+    recipient (Optional[SqueakPublickey])
     """
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
@@ -483,7 +483,7 @@ def MakeSqueakFromStr(
         block_hash: bytes,
         timestamp: int,
         reply_to: bytes = None,
-        recipient: SqueakPublicKey = None,
+        recipient: Optional[SqueakPublicKey] = None,
 ):
     """Create a new squeak from a string of content.
 
@@ -495,7 +495,7 @@ def MakeSqueakFromStr(
     block_hash (bytes)
     timestamp (int)
     reply_to (bytes)
-    recipient (SqueakPublickey)
+    recipient (Optional[SqueakPublickey])
     """
     reply_to = reply_to or b'\x00'*HASH_LENGTH
     content = EncodeContent(content_str)
