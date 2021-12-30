@@ -1,5 +1,6 @@
 # squeak
 
+[![GitHub release](https://img.shields.io/github/release/squeaknode/squeak.svg)](https://github.com/squeaknode/squeak/releases)
 [![codecov](https://codecov.io/gh/squeaknode/squeak/branch/master/graph/badge.svg?token=R4MAF14FYN)](https://codecov.io/gh/squeaknode/squeak)
 
 Python library for Squeak protocol.
