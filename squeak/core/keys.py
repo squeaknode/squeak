@@ -107,7 +107,7 @@ class SqueakPrivateKey:
         pubkey = self.priv_key.get_public_key()
         return SqueakPublicKey(pub_key=pubkey)
 
-    def get_shared_keys(self, public_key: SqueakPublicKey) -> bytes:
+    def get_shared_key(self, public_key: SqueakPublicKey) -> bytes:
         point = self.priv_key.d * public_key.pub_key.W
         x_bytes = point.x.to_bytes(32, 'big')
         return sha256(x_bytes)
