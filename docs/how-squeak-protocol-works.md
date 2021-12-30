@@ -152,7 +152,7 @@ def MakeSqueak(
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
     if recipient:
-        shared_secret = private_key.get_shared_secret(recipient)
+        shared_secret = private_key.get_shared_keys(recipient)
         data_key = xor_bytes(data_key, shared_secret)
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)

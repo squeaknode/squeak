@@ -140,9 +140,9 @@ class TestSignVerify(object):
 
 class TestSharedSecret(object):
 
-    def test_get_shared_secret(self, priv_key, pub_key, other_priv_key, other_pub_key):
-        shared_secret_1 = priv_key.get_shared_secret(other_pub_key)
-        shared_secret_2 = other_priv_key.get_shared_secret(pub_key)
+    def test_get_shared_keys(self, priv_key, pub_key, other_priv_key, other_pub_key):
+        shared_secret_1 = priv_key.get_shared_keys(other_pub_key)
+        shared_secret_2 = other_priv_key.get_shared_keys(pub_key)
 
         assert shared_secret_1 == shared_secret_2
         assert len(shared_secret_1) == 32
