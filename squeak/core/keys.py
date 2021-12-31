@@ -30,6 +30,7 @@ from ecpy.keys import ECPublicKey
 from squeak.core.elliptic import bytes_to_payment_point
 from squeak.core.elliptic import CURVE
 from squeak.core.elliptic import payment_point_to_bytes
+from squeak.core.hashing import sha256
 
 
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
@@ -106,9 +107,10 @@ class SqueakPrivateKey:
         pubkey = self.priv_key.get_public_key()
         return SqueakPublicKey(pub_key=pubkey)
 
-    def get_shared_secret(self, public_key: SqueakPublicKey) -> bytes:
+    def get_shared_key(self, public_key: SqueakPublicKey) -> bytes:
         point = self.priv_key.d * public_key.pub_key.W
-        return point.x.to_bytes(32, 'big')
+        x_bytes = point.x.to_bytes(32, 'big')
+        return sha256(x_bytes)
 
     def to_bytes(self):
         return self.priv_key.d.to_bytes(32, 'big')
