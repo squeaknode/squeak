@@ -250,12 +250,12 @@ class CSqueak(CSqueakHeader):
         data_key = sha256(secret_key)
         if self.is_private_message:
             if recipientPrivKey:
-                shared_secret = recipientPrivKey.get_shared_key(self.GetPubKey())
+                shared_key = recipientPrivKey.get_shared_key(self.GetPubKey())
             elif authorPrivKey:
-                shared_secret = authorPrivKey.get_shared_key(self.GetRecipientPubKey())
+                shared_key = authorPrivKey.get_shared_key(self.GetRecipientPubKey())
             else:
                 raise Exception("Author or Recipient private key required to get decrypted content of private squeak")
-            data_key = xor_bytes(data_key, shared_secret)
+            data_key = xor_bytes(data_key, shared_key)
         iv = self.iv
         ciphertext = self.encContent
         return decrypt_content(data_key, iv, ciphertext)
@@ -436,8 +436,8 @@ def MakeSqueak(
     secret_key = generate_secret_key()
     data_key = sha256(secret_key)
     if recipient:
-        shared_secret = private_key.get_shared_key(recipient)
-        data_key = xor_bytes(data_key, shared_secret)
+        shared_key = private_key.get_shared_key(recipient)
+        data_key = xor_bytes(data_key, shared_key)
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
     hash_enc_content = HashEncryptedContent(enc_content)
