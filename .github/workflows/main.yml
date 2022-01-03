@@ -14,13 +14,6 @@ on:
   pull_request:
 
 jobs:
-  Timestamp-Tags:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v2
-      - name: Run OpenTimestamps github action
-        uses: yzernik/open-timestamps-github-action@v1
   build-n-publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     runs-on: ubuntu-18.04
