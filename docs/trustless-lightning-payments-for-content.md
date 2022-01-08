@@ -1,25 +1,7 @@
----
+# Trustless Lightning Payments for Content
 
-title: "Trustless Lightning Payments for Content"
-subtitle: "How PTLC payment channels in Lightning enable decentralized social media."
-date: 2022-01-07T00:00:00+00:00
-authors:
-  - name: Jonathan Zernik
-    github: yzernik
-    twitter: yzernik
-tags:
-  - "Lightning"
-  - "PTLC"
-  - "Bitcoin"
+## How PTLC payment channels in Lightning enable decentralized social media
 
-images:
-  - "/post-data/trustless-lightning-payments/ptlc-example-1.png"
-
-appearedfirston:
-    label: "squeaknode.org"
-    url: "TODO"
-
----
 
 The existence of the Lightning Network enables new types of online communities
 where participation and access to content is dependent on individual users making
