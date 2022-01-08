@@ -135,17 +135,19 @@ elliptic curve point.
 After these properties have been verified, the consumer can request an invoice from
 the seller that will unlock the decrypted content of the squeak (after payment):
 
-{{< center-figure src="/post-data/trustless-lightning-payments/locked-squeak.png" caption="" height=600 width=600 >}}
+![Locked Squeak](images/locked-squeak.png)
+
 
 If the consumer then clicks the "buy" button, they will be presented with an offer
 that they received from the seller:
 
-{{< center-figure src="/post-data/trustless-lightning-payments/received-offer.png" caption="" height=600 width=600 >}}
+![Received Offer](images/received-offer.png)
+
 
 Then, if the consumer decides that the squeak is worth the price, they can pay the
 invoice to unlock the squeak:
 
-{{< center-figure src="/post-data/trustless-lightning-payments/unlocked-squeak.png" caption="" height=600 width=600 >}}
+![Received Offer](images/unlocked-squeak.png)
 
 The consumer now has a copy of the unlocked squeak on their own node, and
 they can now re-sell the squeak to other nodes in the network.
