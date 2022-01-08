@@ -1,6 +1,6 @@
 # Trustless Lightning Payments for Content
 
-## How PTLC payment channels in Lightning enable decentralized social media
+### How PTLC payment channels in Lightning enable decentralized social media
 
 
 The existence of the Lightning Network enables new types of online communities
