@@ -31,6 +31,7 @@ from squeak.core.elliptic import bytes_to_payment_point
 from squeak.core.elliptic import CURVE
 from squeak.core.elliptic import payment_point_to_bytes
 from squeak.core.hashing import sha256
+from squeak.core.seed import private_key_from_mnemonic
 
 
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
@@ -96,6 +97,11 @@ class SqueakPrivateKey:
         priv_key_bytes = ecpy.ecrand.rnd(CURVE.order)
         priv_key = ECPrivateKey(priv_key_bytes, CURVE)
         return cls(priv_key=priv_key)
+
+    @classmethod
+    def from_seed_words(cls, mnemonic: str):
+        priv_key = private_key_from_mnemonic(mnemonic)
+        return cls.from_bytes(priv_key)
 
     def sign(self, msg):
         r, s = SIGNER.sign(msg, self.priv_key)

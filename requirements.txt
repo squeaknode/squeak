@@ -1,3 +1,4 @@
+bip_utils
 cryptography
 ECPy
 python-bitcoinlib

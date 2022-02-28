@@ -38,6 +38,16 @@ def make_hash():
 
 
 @pytest.fixture
+def seed_words():
+    return "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
+
+
+@pytest.fixture
+def pubkey_from_seed_hex():
+    return ""
+
+
+@pytest.fixture
 def priv_key():
     yield SqueakPrivateKey.generate()
 
@@ -136,6 +146,16 @@ class TestSignVerify(object):
         signature = priv_key.sign(data)
 
         assert not pub_key.verify(data2, signature)
+
+
+class TestSeedWords(object):
+
+    def test_public_key_from_seed(self, seed_words, pubkey_from_seed_hex):
+        private_key = SqueakPrivateKey.from_seed_words(seed_words)
+        public_key = private_key.get_public_key()
+
+        # assert pubkey_from_seed_hex == public_key.to_bytes()
+        assert len(public_key.to_bytes()) == 33
 
 
 class TestSharedSecret(object):
