@@ -49,10 +49,17 @@ class SqueakPublicKey:
         self.pub_key = pub_key
 
     def verify(self, msg, sig):
+        return self.verify_with_zeroth(msg, sig, b'\x02') or \
+            self.verify_with_zeroth(msg, sig, b'\x03')
+
+    def verify_with_zeroth(self, msg, sig, zeroth):
+        point_bytes = self.to_bytes()
+        pub_key_with_zeroth = self.pub_key_from_bytes_with_zeroth(point_bytes, zeroth)
+
         r = int.from_bytes(sig[:32], "big")
         s = int.from_bytes(sig[32:], "big")
         sig_tuple = r, s
-        return SIGNER.verify(msg, sig_tuple, self.pub_key)
+        return SIGNER.verify(msg, sig_tuple, pub_key_with_zeroth)
 
     def to_bytes(self):
         point_bytes = payment_point_to_bytes(self.pub_key.W)
@@ -67,6 +74,14 @@ class SqueakPublicKey:
             point = bytes_to_payment_point(point_bytes)
             pub_key = ECPublicKey(point)
             return cls(pub_key)
+        except ECPyException:
+            raise InvalidPublicKeyError()
+
+    def pub_key_from_bytes_with_zeroth(self, pub_key_bytes, zeroth):
+        try:
+            point_bytes = zeroth + pub_key_bytes
+            point = bytes_to_payment_point(point_bytes)
+            return ECPublicKey(point)
         except ECPyException:
             raise InvalidPublicKeyError()
 
