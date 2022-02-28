@@ -36,7 +36,7 @@ from squeak.core.hashing import sha256
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PRIV_KEY_LENGTH = 32
-PUB_KEY_LENGTH = 33
+PUB_KEY_LENGTH = 32
 SIGNATURE_LENGTH = 64
 
 
@@ -49,22 +49,39 @@ class SqueakPublicKey:
         self.pub_key = pub_key
 
     def verify(self, msg, sig):
+        return self.verify_with_zeroth(msg, sig, b'\x02') or \
+            self.verify_with_zeroth(msg, sig, b'\x03')
+
+    def verify_with_zeroth(self, msg, sig, zeroth):
+        point_bytes = self.to_bytes()
+        pub_key_with_zeroth = self.pub_key_from_bytes_with_zeroth(point_bytes, zeroth)
+
         r = int.from_bytes(sig[:32], "big")
         s = int.from_bytes(sig[32:], "big")
         sig_tuple = r, s
-        return SIGNER.verify(msg, sig_tuple, self.pub_key)
+        return SIGNER.verify(msg, sig_tuple, pub_key_with_zeroth)
 
     def to_bytes(self):
-        return payment_point_to_bytes(self.pub_key.W)
+        point_bytes = payment_point_to_bytes(self.pub_key.W)
+        return point_bytes[1:]
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
         if len(pub_key_bytes) != PUB_KEY_LENGTH:
             raise InvalidPublicKeyError()
         try:
-            point = bytes_to_payment_point(pub_key_bytes)
+            point_bytes = b'\x02' + pub_key_bytes
+            point = bytes_to_payment_point(point_bytes)
             pub_key = ECPublicKey(point)
             return cls(pub_key)
+        except ECPyException:
+            raise InvalidPublicKeyError()
+
+    def pub_key_from_bytes_with_zeroth(self, pub_key_bytes, zeroth):
+        try:
+            point_bytes = zeroth + pub_key_bytes
+            point = bytes_to_payment_point(point_bytes)
+            return ECPublicKey(point)
         except ECPyException:
             raise InvalidPublicKeyError()
 
