@@ -36,7 +36,7 @@ from squeak.core.hashing import sha256
 SIGNER = ECSchnorr(hashlib.sha256,"LIBSECP","ITUPLE")
 
 PRIV_KEY_LENGTH = 32
-PUB_KEY_LENGTH = 33
+PUB_KEY_LENGTH = 32
 SIGNATURE_LENGTH = 64
 
 
@@ -55,14 +55,16 @@ class SqueakPublicKey:
         return SIGNER.verify(msg, sig_tuple, self.pub_key)
 
     def to_bytes(self):
-        return payment_point_to_bytes(self.pub_key.W)
+        point_bytes = payment_point_to_bytes(self.pub_key.W)
+        return point_bytes[1:]
 
     @classmethod
     def from_bytes(cls, pub_key_bytes):
         if len(pub_key_bytes) != PUB_KEY_LENGTH:
             raise InvalidPublicKeyError()
         try:
-            point = bytes_to_payment_point(pub_key_bytes)
+            point_bytes = b'\x02' + pub_key_bytes
+            point = bytes_to_payment_point(point_bytes)
             pub_key = ECPublicKey(point)
             return cls(pub_key)
         except ECPyException:
