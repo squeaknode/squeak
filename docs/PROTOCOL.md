@@ -11,8 +11,8 @@ Field Size | Description | Data type | Comments
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes if squeak is not a reply
 32 | hashBlock | char[32] | The hash value of the latest block in the blockchain
 4 | nBlockHeight | int32_t | The height of the latest block in the blockchain
-32 | pubKey | char[33] | Contains the public key of the author
-32 | recipientPubKey | char[33] | Contains the public key of the recipient if squeak is a private message
+32 | pubKey | char[32] | Contains the public key of the author
+32 | recipientPubKey | char[32] | Contains the public key of the recipient if squeak is a private message
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | iv | char[16] | Random bytes used for the initialization vector
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
@@ -45,7 +45,7 @@ Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 ? | count | var_int | Number of addresses
 1+ | address length | var_int | Length of the address
-33 | pubkey | char[33] | The bytes of the public key identifying the squeak author
+32 | pubkey | char[32] | The bytes of the public key identifying the squeak author
 4 | nMinBlockHeight | int32_t | The minimum block height or -1 to use no minimum
 4 | nMaxBlockHeight | int32_t | The maximum block height or -1 to use no maximum
 32 | hashReplySqk | char[32] | The hash value of the previous squeak in the conversation thread or null bytes
