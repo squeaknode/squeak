@@ -202,6 +202,41 @@ class CSqueakHeader(CBaseSqueakHeader):
             return None
         return SqueakPublicKey.from_bytes(self.recipientPubKey)
 
+    def GetDecryptedContent(
+            self,
+            secret_key: bytes,
+            authorPrivKey: Optional[SqueakPrivateKey] = None,
+            recipientPrivKey: Optional[SqueakPrivateKey] = None,
+    ):
+        """Return the decrypted content."""
+        CheckSqueakSecretKey(self, secret_key)
+        data_key = sha256(secret_key)
+        if self.is_private_message:
+            if recipientPrivKey:
+                shared_key = recipientPrivKey.get_shared_key(self.GetPubKey())
+            elif authorPrivKey:
+                shared_key = authorPrivKey.get_shared_key(self.GetRecipientPubKey())
+            else:
+                raise Exception("Author or Recipient private key required to get decrypted content of private squeak")
+            data_key = xor_bytes(data_key, shared_key)
+        iv = self.iv
+        ciphertext = self.encContent
+        return decrypt_content(data_key, iv, ciphertext)
+
+    def GetDecryptedContentStr(
+            self,
+            secret_key: bytes,
+            authorPrivKey: Optional[SqueakPrivateKey] = None,
+            recipientPrivKey: Optional[SqueakPrivateKey] = None,
+    ):
+        """Return the decrypted content."""
+        content = self.GetDecryptedContent(
+            secret_key,
+            authorPrivKey=authorPrivKey,
+            recipientPrivKey=recipientPrivKey,
+        )
+        return DecodeContent(content)
+
     def __repr__(self):
         return "%s(nVersion: %i, encContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, pubKey: %r, recipientPubKey: %r, paymentPoint: b2lx(%s), iv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
             (self.__class__.__name__, self.nVersion, b2lx(self.encContent), b2lx(self.hashReplySqk),
@@ -278,66 +313,6 @@ class CSqueak(CSqueakHeader):
     def SetSignature(self, sig):
         """Set the signature."""
         object.__setattr__(self, 'sig', sig)
-
-    def GetDecryptedContent(
-            self,
-            secret_key: bytes,
-            authorPrivKey: Optional[SqueakPrivateKey] = None,
-            recipientPrivKey: Optional[SqueakPrivateKey] = None,
-    ):
-        """Return the decrypted content."""
-        CheckSqueakSecretKey(self, secret_key)
-        data_key = sha256(secret_key)
-        if self.is_private_message:
-            if recipientPrivKey:
-                shared_key = recipientPrivKey.get_shared_key(self.GetPubKey())
-            elif authorPrivKey:
-                shared_key = authorPrivKey.get_shared_key(self.GetRecipientPubKey())
-            else:
-                raise Exception("Author or Recipient private key required to get decrypted content of private squeak")
-            data_key = xor_bytes(data_key, shared_key)
-        iv = self.iv
-        ciphertext = self.encContent
-        return decrypt_content(data_key, iv, ciphertext)
-
-    def GetDecryptedContentStr(
-            self,
-            secret_key: bytes,
-            authorPrivKey: Optional[SqueakPrivateKey] = None,
-            recipientPrivKey: Optional[SqueakPrivateKey] = None,
-    ):
-        """Return the decrypted content."""
-        content = self.GetDecryptedContent(
-            secret_key,
-            authorPrivKey=authorPrivKey,
-            recipientPrivKey=recipientPrivKey,
-        )
-        return DecodeContent(content)
-
-
-class CSqueakEncContent(ImmutableSerializable):
-    """Squeak encrypted content"""
-    __slots__ = ['encContent']
-
-    def __init__(self, encContent=b'\x00'*ENC_CONTENT_LENGTH):
-        assert len(encContent) == ENC_CONTENT_LENGTH
-        object.__setattr__(self, 'encContent', encContent)
-
-    @classmethod
-    def stream_deserialize(cls, f):
-        encContent = ser_read(f,ENC_CONTENT_LENGTH)
-        return cls(encContent)
-
-    def stream_serialize(self, f):
-        assert len(self.encContent) == ENC_CONTENT_LENGTH
-        f.write(self.encContent)
-
-    def get_bytes(self):
-        return self.encContent
-
-    def __repr__(self):
-        return "%s(lx(%s))" % \
-            (self.__class__.__name__, b2lx(self.encContent))
 
 
 class CResqueakHeader(ImmutableSerializable):
