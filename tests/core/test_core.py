@@ -211,7 +211,7 @@ class TestCheckSqueak(object):
             b"This is fake!".ljust(CONTENT_LENGTH, b"\x00"),
         )
         fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
+            encContent=fake_enc_content,
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
@@ -220,7 +220,6 @@ class TestCheckSqueak(object):
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
-            encContent=fake_enc_content,
         )
 
         with pytest.raises(CheckSqueakError):
@@ -251,7 +250,7 @@ class TestCheckSqueakSignature(object):
         fake_sig = SignSqueak(fake_priv_key, squeak_header)
 
         fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
+            encContent=squeak.encContent,
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
@@ -260,7 +259,6 @@ class TestCheckSqueakSignature(object):
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
-            encContent=squeak.encContent,
             sig=fake_sig,
         )
 
@@ -286,7 +284,7 @@ class TestSerializeSqueak(object):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
-        assert len(serialized_squeak) == 1425
+        assert len(serialized_squeak) == 1393
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
         assert squeak.GetDecryptedContent(secret_key) == \
@@ -305,6 +303,6 @@ class TestSerializeSqueak(object):
         serialized_squeak_header = squeak_header.serialize()
         deserialized_squeak_header = CSqueakHeader.deserialize(serialized_squeak_header)
 
-        assert len(serialized_squeak_header) == 225
+        assert len(serialized_squeak_header) == 1329
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)

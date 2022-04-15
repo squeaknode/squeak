@@ -121,9 +121,9 @@ class CBaseSqueakHeader(ImmutableSerializable):
 
 class CSqueakHeader(CBaseSqueakHeader):
     """A squeak header"""
-    __slots__ = ['hashEncContent', 'recipientPubKey', 'paymentPoint', 'iv']
+    __slots__ = ['encContent', 'recipientPubKey', 'paymentPoint', 'iv']
 
-    def __init__(self, nVersion=SQUEAK_VERSION, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashEncContent=b'\x00'*HASH_LENGTH, recipientPubKey=b'\x00'*PUB_KEY_LENGTH, paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH):
+    def __init__(self, nVersion=SQUEAK_VERSION, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, encContent=b'\x00'*ENC_CONTENT_LENGTH, recipientPubKey=b'\x00'*PUB_KEY_LENGTH, paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH):
         super(CSqueakHeader, self).__init__(
             nVersion=nVersion,
             hashReplySqk=hashReplySqk,
@@ -133,8 +133,8 @@ class CSqueakHeader(CBaseSqueakHeader):
             nTime=nTime,
             nNonce=nNonce,
         )
-        assert len(hashEncContent) == HASH_LENGTH
-        object.__setattr__(self, 'hashEncContent', hashEncContent)
+        assert len(encContent) == ENC_CONTENT_LENGTH
+        object.__setattr__(self, 'encContent', encContent)
         assert len(recipientPubKey) == PUB_KEY_LENGTH
         object.__setattr__(self, 'recipientPubKey', recipientPubKey)
         assert len(paymentPoint) == PAYMENT_POINT_LENGTH
@@ -152,7 +152,7 @@ class CSqueakHeader(CBaseSqueakHeader):
         nTime = struct.unpack(b"<I", ser_read(f,4))[0]
         nNonce = struct.unpack(b"<I", ser_read(f,4))[0]
         # Extra fields below.
-        hashEncContent = ser_read(f,HASH_LENGTH)
+        encContent = ser_read(f,ENC_CONTENT_LENGTH)
         recipientPubKey = ser_read(f, PUB_KEY_LENGTH)
         paymentPoint = ser_read(f,PAYMENT_POINT_LENGTH)
         iv = ser_read(f,CIPHER_BLOCK_LENGTH)
@@ -164,7 +164,7 @@ class CSqueakHeader(CBaseSqueakHeader):
             pubKey=pubKey,
             nTime=nTime,
             nNonce=nNonce,
-            hashEncContent=hashEncContent,
+            encContent=encContent,
             recipientPubKey=recipientPubKey,
             paymentPoint=paymentPoint,
             iv=iv,
@@ -172,8 +172,8 @@ class CSqueakHeader(CBaseSqueakHeader):
 
     def stream_serialize(self, f):
         super(CSqueakHeader, self).stream_serialize(f)
-        assert len(self.hashEncContent) == HASH_LENGTH
-        f.write(self.hashEncContent)
+        assert len(self.encContent) == ENC_CONTENT_LENGTH
+        f.write(self.encContent)
         assert len(self.recipientPubKey) == PUB_KEY_LENGTH
         f.write(self.recipientPubKey)
         assert len(self.paymentPoint) == PAYMENT_POINT_LENGTH
@@ -203,20 +203,20 @@ class CSqueakHeader(CBaseSqueakHeader):
         return SqueakPublicKey.from_bytes(self.recipientPubKey)
 
     def __repr__(self):
-        return "%s(nVersion: %i, hashEncContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, pubKey: %r, recipientPubKey: %r, paymentPoint: b2lx(%s), iv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
-            (self.__class__.__name__, self.nVersion, b2lx(self.hashEncContent), b2lx(self.hashReplySqk),
+        return "%s(nVersion: %i, encContent: lx(%s), hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, pubKey: %r, recipientPubKey: %r, paymentPoint: b2lx(%s), iv: lx(%s), nTime: %s, nNonce: 0x%08x)" % \
+            (self.__class__.__name__, self.nVersion, b2lx(self.encContent), b2lx(self.hashReplySqk),
              b2lx(self.hashBlock), self.nBlockHeight, b2lx(self.pubKey), b2lx(self.pubKey), b2lx(self.paymentPoint), b2lx(self.iv), self.nTime, self.nNonce)
 
 
 class CSqueak(CSqueakHeader):
     """A squeak including the encrypted content in it"""
-    __slots__ = ['encContent', 'sig']
+    __slots__ = ['sig']
 
-    def __init__(self, nVersion=1, hashEncContent=b'\x00'*HASH_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, recipientPubKey=b'\x00'*PUB_KEY_LENGTH, paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, encContent=b'\x00'*ENC_CONTENT_LENGTH, sig=b'\x00'*SIGNATURE_LENGTH):
+    def __init__(self, nVersion=1, encContent=b'\x00'*ENC_CONTENT_LENGTH, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, recipientPubKey=b'\x00'*PUB_KEY_LENGTH, paymentPoint=b'\x00'*PAYMENT_POINT_LENGTH, iv=b'\x00'*CIPHER_BLOCK_LENGTH, nTime=0, nNonce=0, sig=b'\x00'*SIGNATURE_LENGTH):
         """Create a new squeak"""
         super(CSqueak, self).__init__(
             nVersion=nVersion,
-            hashEncContent=hashEncContent,
+            encContent=encContent,
             hashReplySqk=hashReplySqk,
             hashBlock=hashBlock,
             nBlockHeight=nBlockHeight,
@@ -227,22 +227,17 @@ class CSqueak(CSqueakHeader):
             nTime=nTime,
             nNonce=nNonce,
         )
-        object.__setattr__(self, 'encContent', encContent)
         object.__setattr__(self, 'sig', sig)
 
     @classmethod
     def stream_deserialize(cls, f):
         self = super(CSqueak, cls).stream_deserialize(f)
-        encContent = ser_read(f, ENC_CONTENT_LENGTH)
-        object.__setattr__(self, 'encContent', encContent)
         sig = ser_read(f, SIGNATURE_LENGTH)
         object.__setattr__(self, 'sig', sig)
         return self
 
     def stream_serialize(self, f):
         super(CSqueak, self).stream_serialize(f)
-        assert len(self.encContent) == ENC_CONTENT_LENGTH
-        f.write(self.encContent)
         assert len(self.sig) == SIGNATURE_LENGTH
         f.write(self.sig)
 
@@ -252,7 +247,7 @@ class CSqueak(CSqueakHeader):
         """
         return CSqueakHeader(
             nVersion=self.nVersion,
-            hashEncContent=self.hashEncContent,
+            encContent=self.encContent,
             hashReplySqk=self.hashReplySqk,
             hashBlock=self.hashBlock,
             nBlockHeight=self.nBlockHeight,
@@ -275,10 +270,6 @@ class CSqueak(CSqueakHeader):
             _cached_GetHash = self.get_header().GetHash()
             object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
             return _cached_GetHash
-
-    def GetEncContentHash(self):
-        """Return the hash of the encContent."""
-        return HashEncryptedContent(self.encContent)
 
     def GetSignature(self):
         """Return the signature."""
@@ -437,101 +428,97 @@ class CResqueakHeader(ImmutableSerializable):
              b2lx(self.hashReplySqk))
 
 
-class CResqueak(CResqueakHeader):
-    """A resqueak including the signature"""
-    __slots__ = ['sig']
+# class CResqueak(CResqueakHeader):
+#     """A resqueak including the signature"""
+#     __slots__ = ['sig']
 
-    def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH, sig=b'\x00'*SIGNATURE_LENGTH):
-        """Create a new squeak"""
-        super(CSqueak, self).__init__(
-            nVersion=nVersion,
-            hashReplySqk=hashReplySqk,
-            hashBlock=hashBlock,
-            nBlockHeight=nBlockHeight,
-            pubKey=pubKey,
-            nTime=nTime,
-            nNonce=nNonce,
-            hashResqueakSqk=hashResqueakSqk
-        )
-        object.__setattr__(self, 'sig', sig)
+#     def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH, sig=b'\x00'*SIGNATURE_LENGTH):
+#         """Create a new squeak"""
+#         super(CSqueak, self).__init__(
+#             nVersion=nVersion,
+#             hashReplySqk=hashReplySqk,
+#             hashBlock=hashBlock,
+#             nBlockHeight=nBlockHeight,
+#             pubKey=pubKey,
+#             nTime=nTime,
+#             nNonce=nNonce,
+#             hashResqueakSqk=hashResqueakSqk
+#         )
+#         object.__setattr__(self, 'sig', sig)
 
-    @classmethod
-    def stream_deserialize(cls, f):
-        self = super(CResqueak, cls).stream_deserialize(f)
-        sig = ser_read(f, SIGNATURE_LENGTH)
-        object.__setattr__(self, 'sig', sig)
-        return self
+#     @classmethod
+#     def stream_deserialize(cls, f):
+#         self = super(CResqueak, cls).stream_deserialize(f)
+#         sig = ser_read(f, SIGNATURE_LENGTH)
+#         object.__setattr__(self, 'sig', sig)
+#         return self
 
-    def stream_serialize(self, f):
-        super(CResqueak, self).stream_serialize(f)
-        assert len(self.sig) == SIGNATURE_LENGTH
-        f.write(self.sig)
+#     def stream_serialize(self, f):
+#         super(CResqueak, self).stream_serialize(f)
+#         assert len(self.sig) == SIGNATURE_LENGTH
+#         f.write(self.sig)
 
-    def get_header(self):
-        """Return the resqueak header
-        Returned header is a new object.
-        """
-        return CResqueakHeader(
-            nVersion=self.nVersion,
-            hashEncContent=self.hashEncContent,
-            hashReplySqk=self.hashReplySqk,
-            hashBlock=self.hashBlock,
-            nBlockHeight=self.nBlockHeight,
-            pubKey=self.pubKey,
-            recipientPubKey=self.recipientPubKey,
-            paymentPoint=self.paymentPoint,
-            iv=self.iv,
-            nTime=self.nTime,
-            nNonce=self.nNonce,
-            hashResqueakSqk=self.hashResqueakSqk
-        )
+#     def get_header(self):
+#         """Return the resqueak header
+#         Returned header is a new object.
+#         """
+#         return CResqueakHeader(
+#             nVersion=self.nVersion,
+#             hashEncContent=self.hashEncContent,
+#             hashReplySqk=self.hashReplySqk,
+#             hashBlock=self.hashBlock,
+#             nBlockHeight=self.nBlockHeight,
+#             pubKey=self.pubKey,
+#             recipientPubKey=self.recipientPubKey,
+#             paymentPoint=self.paymentPoint,
+#             iv=self.iv,
+#             nTime=self.nTime,
+#             nNonce=self.nNonce,
+#             hashResqueakSqk=self.hashResqueakSqk
+#         )
 
-    def GetHash(self):
-        """Return the squeak hash
-        Note that this is the hash of the header, not the entire serialized
-        squeak.
-        """
-        try:
-            return self._cached_GetHash
-        except AttributeError:
-            _cached_GetHash = self.get_header().GetHash()
-            object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
-            return _cached_GetHash
+#     def GetHash(self):
+#         """Return the squeak hash
+#         Note that this is the hash of the header, not the entire serialized
+#         squeak.
+#         """
+#         try:
+#             return self._cached_GetHash
+#         except AttributeError:
+#             _cached_GetHash = self.get_header().GetHash()
+#             object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
+#             return _cached_GetHash
 
-    def GetEncContentHash(self):
-        """Return the hash of the encContent."""
-        raise Exception('Resqueak does not have encrypted content.')
+#     def GetSignature(self):
+#         """Return the signature."""
+#         return self.sig
 
-    def GetSignature(self):
-        """Return the signature."""
-        return self.sig
+#     def SetSignature(self, sig):
+#         """Set the signature."""
+#         object.__setattr__(self, 'sig', sig)
 
-    def SetSignature(self, sig):
-        """Set the signature."""
-        object.__setattr__(self, 'sig', sig)
+#     def GetDecryptedContent(
+#             self,
+#             secret_key: bytes,
+#             authorPrivKey: Optional[SqueakPrivateKey] = None,
+#             recipientPrivKey: Optional[SqueakPrivateKey] = None,
+#     ):
+#         """Return the decrypted content."""
+#         raise Exception('Resqueak does not have encrypted content.')
 
-    def GetDecryptedContent(
-            self,
-            secret_key: bytes,
-            authorPrivKey: Optional[SqueakPrivateKey] = None,
-            recipientPrivKey: Optional[SqueakPrivateKey] = None,
-    ):
-        """Return the decrypted content."""
-        raise Exception('Resqueak does not have encrypted content.')
+#     def GetDecryptedContentStr(
+#             self,
+#             secret_key: bytes,
+#             authorPrivKey: Optional[SqueakPrivateKey] = None,
+#             recipientPrivKey: Optional[SqueakPrivateKey] = None,
+#     ):
+#         """Return the decrypted content."""
+#         raise Exception('Resqueak does not have encrypted content.')
 
-    def GetDecryptedContentStr(
-            self,
-            secret_key: bytes,
-            authorPrivKey: Optional[SqueakPrivateKey] = None,
-            recipientPrivKey: Optional[SqueakPrivateKey] = None,
-    ):
-        """Return the decrypted content."""
-        raise Exception('Resqueak does not have encrypted content.')
-
-    def GetResqueakedSqueakHash(self):
-        """Return the squeak hash of the resqueaked squeak.
-        """
-        return self.hashResqueakSqk
+#     def GetResqueakedSqueakHash(self):
+#         """Return the squeak hash of the resqueaked squeak.
+#         """
+#         return self.hashResqueakSqk
 
 
 class CheckSqueakHeaderError(ValidationError):
@@ -602,13 +589,13 @@ def EncryptContent(data_key: bytes, iv: bytes, content: bytes):
     return encrypt_content(data_key, iv, content)
 
 
-def HashEncryptedContent(enc_content: bytes):
-    """Return the hash of the encrypted content.
+# def HashEncryptedContent(enc_content: bytes):
+#     """Return the hash of the encrypted content.
 
-    enc_content (bytes)
-    """
-    squeak_enc_content = CSqueakEncContent(enc_content)
-    return squeak_enc_content.GetHash()
+#     enc_content (bytes)
+#     """
+#     squeak_enc_content = CSqueakEncContent(enc_content)
+#     return squeak_enc_content.GetHash()
 
 
 def CheckSqueakHeader(squeak_header: CSqueakHeader):
@@ -636,11 +623,6 @@ def CheckSqueak(squeak: CSqueak):
     # Content length check
     if not len(squeak.encContent) == ENC_CONTENT_LENGTH:
         raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
-
-    # Content hash check
-    hash_enc_content = squeak.GetEncContentHash()
-    if not hash_enc_content == squeak.hashEncContent:
-        raise CheckSqueakError("CheckSqueak() : hashEncContent does not match hash of encContent")
 
     # Signature check
     CheckSqueakSignature(squeak)
@@ -674,12 +656,11 @@ def MakeSqueak(
         data_key = xor_bytes(data_key, shared_key)
     initialization_vector = generate_initialization_vector()
     enc_content = EncryptContent(data_key, initialization_vector, content)
-    hash_enc_content = HashEncryptedContent(enc_content)
     payment_point_encoded = payment_point_bytes_from_scalar_bytes(secret_key)
     nonce = generate_nonce()
     author_public_key = private_key.get_public_key()
     squeak = CSqueak(
-        hashEncContent=hash_enc_content,
+        encContent=enc_content,
         hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
         hashBlock=block_hash,
         nBlockHeight=block_height,
@@ -689,7 +670,6 @@ def MakeSqueak(
         iv=initialization_vector,
         nTime=timestamp,
         nNonce=nonce,
-        encContent=enc_content,
     )
     sig = SignSqueak(private_key, squeak)
     squeak.SetSignature(sig)
