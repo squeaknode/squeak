@@ -317,20 +317,19 @@ class CSqueak(CSqueakHeader):
 
 class CResqueakHeader(ImmutableSerializable):
     """A resqueak including the hash of the resqueaked squeak."""
-    __slots__ = ['nVersion', 'hashReplySqk', 'hashBlock', 'nBlockHeight', 'pubKey', 'nTime', 'nNonce', 'hashResqueakSqk']
+    __slots__ = ['hashResqueakSqk']
 
     def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH):
         """Create a new resqueak"""
-        object.__setattr__(self, 'nVersion', nVersion)
-        assert len(hashReplySqk) == HASH_LENGTH
-        object.__setattr__(self, 'hashReplySqk', hashReplySqk)
-        assert len(hashBlock) == HASH_LENGTH
-        object.__setattr__(self, 'hashBlock', hashBlock)
-        object.__setattr__(self, 'nBlockHeight', nBlockHeight)
-        assert len(pubKey) == PUB_KEY_LENGTH
-        object.__setattr__(self, 'pubKey', pubKey)
-        object.__setattr__(self, 'nTime', nTime)
-        object.__setattr__(self, 'nNonce', nNonce)
+        super(CSqueakHeader, self).__init__(
+            nVersion=nVersion,
+            hashReplySqk=hashReplySqk,
+            hashBlock=hashBlock,
+            nBlockHeight=nBlockHeight,
+            pubKey=pubKey,
+            nTime=nTime,
+            nNonce=nNonce,
+        )
         assert len(hashResqueakSqk) == HASH_LENGTH
         object.__setattr__(self, 'hashResqueakSqk', hashResqueakSqk)
 
@@ -356,45 +355,14 @@ class CResqueakHeader(ImmutableSerializable):
         )
 
     def stream_serialize(self, f):
-        f.write(struct.pack(b"<i", self.nVersion))
-        assert len(self.hashReplySqk) == HASH_LENGTH
-        f.write(self.hashReplySqk)
-        assert len(self.hashBlock) == HASH_LENGTH
-        f.write(self.hashBlock)
-        f.write(struct.pack(b"<i", self.nBlockHeight))
-        assert len(self.pubKey) == PUB_KEY_LENGTH
-        f.write(self.pubKey)
-        f.write(struct.pack(b"<I", self.nTime))
-        f.write(struct.pack(b"<I", self.nNonce))
+        super(CSqueakHeader, self).stream_serialize(f)
         assert len(self.hashResqueakSqk) == HASH_LENGTH
         f.write(self.hashResqueakSqk)
-
-    @property
-    def is_reply(self):
-        """Return True if the squeak is a reply to another squeak."""
-        return not self.hashReplySqk == b'\x00'*HASH_LENGTH
 
     @property
     def is_resqueak(self):
         """Return True if the squeak is a resqueak."""
         return True
-
-    @property
-    def is_private_message(self):
-        """Return True if the squeak is a reply to another squeak."""
-        return False
-
-    def is_secret_key_valid(self, secret_key: bytes):
-        """Return True if the secret key is valid."""
-        return False
-
-    def GetPubKey(self):
-        """Return the squeak author pub key."""
-        return SqueakPublicKey.from_bytes(self.pubKey)
-
-    def GetRecipientPubKey(self):
-        """Return the recipient pub key."""
-        return None
 
     def __repr__(self):
         return "%s(nVersion: %i, hashReplySqk: lx(%s), hashBlock: lx(%s), nBlockHeight: %s, pubKey: %r, nTime: %s, nNonce: 0x%08x, hashReplySqk: lx(%s))" % \
@@ -403,97 +371,70 @@ class CResqueakHeader(ImmutableSerializable):
              b2lx(self.hashReplySqk))
 
 
-# class CResqueak(CResqueakHeader):
-#     """A resqueak including the signature"""
-#     __slots__ = ['sig']
+class CResqueak(CResqueakHeader):
+    """A resqueak including the signature"""
+    __slots__ = ['sig']
 
-#     def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH, sig=b'\x00'*SIGNATURE_LENGTH):
-#         """Create a new squeak"""
-#         super(CSqueak, self).__init__(
-#             nVersion=nVersion,
-#             hashReplySqk=hashReplySqk,
-#             hashBlock=hashBlock,
-#             nBlockHeight=nBlockHeight,
-#             pubKey=pubKey,
-#             nTime=nTime,
-#             nNonce=nNonce,
-#             hashResqueakSqk=hashResqueakSqk
-#         )
-#         object.__setattr__(self, 'sig', sig)
+    def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH, sig=b'\x00'*SIGNATURE_LENGTH):
+        """Create a new resqueak"""
+        super(CResqueak, self).__init__(
+            nVersion=nVersion,
+            hashReplySqk=hashReplySqk,
+            hashBlock=hashBlock,
+            nBlockHeight=nBlockHeight,
+            pubKey=pubKey,
+            nTime=nTime,
+            nNonce=nNonce,
+            hashResqueakSqk=hashResqueakSqk
+        )
+        object.__setattr__(self, 'sig', sig)
 
-#     @classmethod
-#     def stream_deserialize(cls, f):
-#         self = super(CResqueak, cls).stream_deserialize(f)
-#         sig = ser_read(f, SIGNATURE_LENGTH)
-#         object.__setattr__(self, 'sig', sig)
-#         return self
+    @classmethod
+    def stream_deserialize(cls, f):
+        self = super(CResqueak, cls).stream_deserialize(f)
+        sig = ser_read(f, SIGNATURE_LENGTH)
+        object.__setattr__(self, 'sig', sig)
+        return self
 
-#     def stream_serialize(self, f):
-#         super(CResqueak, self).stream_serialize(f)
-#         assert len(self.sig) == SIGNATURE_LENGTH
-#         f.write(self.sig)
+    def stream_serialize(self, f):
+        super(CResqueak, self).stream_serialize(f)
+        assert len(self.sig) == SIGNATURE_LENGTH
+        f.write(self.sig)
 
-#     def get_header(self):
-#         """Return the resqueak header
-#         Returned header is a new object.
-#         """
-#         return CResqueakHeader(
-#             nVersion=self.nVersion,
-#             hashEncContent=self.hashEncContent,
-#             hashReplySqk=self.hashReplySqk,
-#             hashBlock=self.hashBlock,
-#             nBlockHeight=self.nBlockHeight,
-#             pubKey=self.pubKey,
-#             recipientPubKey=self.recipientPubKey,
-#             paymentPoint=self.paymentPoint,
-#             iv=self.iv,
-#             nTime=self.nTime,
-#             nNonce=self.nNonce,
-#             hashResqueakSqk=self.hashResqueakSqk
-#         )
+    def get_header(self):
+        """Return the resqueak header
+        Returned header is a new object.
+        """
+        return CResqueakHeader(
+            nVersion=self.nVersion,
+            hashReplySqk=self.hashReplySqk,
+            hashBlock=self.hashBlock,
+            nBlockHeight=self.nBlockHeight,
+            pubKey=self.pubKey,
+            nTime=self.nTime,
+            nNonce=self.nNonce,
+            hashResqueakSqk=self.hashResqueakSqk
+        )
 
-#     def GetHash(self):
-#         """Return the squeak hash
-#         Note that this is the hash of the header, not the entire serialized
-#         squeak.
-#         """
-#         try:
-#             return self._cached_GetHash
-#         except AttributeError:
-#             _cached_GetHash = self.get_header().GetHash()
-#             object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
-#             return _cached_GetHash
+    def GetHash(self):
+        """Return the squeak hash
+        Note that this is the hash of the header, not the entire serialized
+        squeak.
+        """
+        try:
+            return self._cached_GetHash
+        except AttributeError:
+            _cached_GetHash = self.get_header().GetHash()
+            object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
+            return _cached_GetHash
 
-#     def GetSignature(self):
-#         """Return the signature."""
-#         return self.sig
+    def GetSignature(self):
+        """Return the signature."""
+        return self.sig
 
-#     def SetSignature(self, sig):
-#         """Set the signature."""
-#         object.__setattr__(self, 'sig', sig)
-
-#     def GetDecryptedContent(
-#             self,
-#             secret_key: bytes,
-#             authorPrivKey: Optional[SqueakPrivateKey] = None,
-#             recipientPrivKey: Optional[SqueakPrivateKey] = None,
-#     ):
-#         """Return the decrypted content."""
-#         raise Exception('Resqueak does not have encrypted content.')
-
-#     def GetDecryptedContentStr(
-#             self,
-#             secret_key: bytes,
-#             authorPrivKey: Optional[SqueakPrivateKey] = None,
-#             recipientPrivKey: Optional[SqueakPrivateKey] = None,
-#     ):
-#         """Return the decrypted content."""
-#         raise Exception('Resqueak does not have encrypted content.')
-
-#     def GetResqueakedSqueakHash(self):
-#         """Return the squeak hash of the resqueaked squeak.
-#         """
-#         return self.hashResqueakSqk
+    def SetSignature(self, sig):
+        """Set the signature."""
+        object.__setattr__(self, 'sig', sig)
 
 
 class CheckSqueakHeaderError(ValidationError):
