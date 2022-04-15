@@ -315,13 +315,13 @@ class CSqueak(CSqueakHeader):
         object.__setattr__(self, 'sig', sig)
 
 
-class CResqueakHeader(ImmutableSerializable):
+class CResqueakHeader(CBaseSqueakHeader):
     """A resqueak including the hash of the resqueaked squeak."""
     __slots__ = ['hashResqueakSqk']
 
     def __init__(self, nVersion=1, hashReplySqk=b'\x00'*HASH_LENGTH, hashBlock=b'\x00'*HASH_LENGTH, nBlockHeight=-1, pubKey=b'\x00'*PUB_KEY_LENGTH, nTime=0, nNonce=0, hashResqueakSqk=b'\x00'*HASH_LENGTH):
         """Create a new resqueak"""
-        super(CSqueakHeader, self).__init__(
+        super(CResqueakHeader, self).__init__(
             nVersion=nVersion,
             hashReplySqk=hashReplySqk,
             hashBlock=hashBlock,
@@ -355,9 +355,13 @@ class CResqueakHeader(ImmutableSerializable):
         )
 
     def stream_serialize(self, f):
-        super(CSqueakHeader, self).stream_serialize(f)
+        super(CResqueakHeader, self).stream_serialize(f)
         assert len(self.hashResqueakSqk) == HASH_LENGTH
         f.write(self.hashResqueakSqk)
+
+    def GetResqueakHash(self):
+        """Return the signature."""
+        return self.hashResqueakSqk
 
     @property
     def is_resqueak(self):
@@ -536,9 +540,10 @@ def CheckSqueak(squeak: CSqueak):
     # Squeak header checks
     CheckSqueakHeader(squeak)
 
-    # Content length check
-    if not len(squeak.encContent) == ENC_CONTENT_LENGTH:
-        raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
+    if not squeak.is_resqueak:
+        # Content length check
+        if not len(squeak.encContent) == ENC_CONTENT_LENGTH:
+            raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
 
     # Signature check
     CheckSqueakSignature(squeak)
@@ -638,6 +643,41 @@ def MakeSqueakFromStr(
         reply_to=reply_to,
         recipient=recipient,
     )
+
+
+def MakeResqueak(
+        private_key: SqueakPrivateKey,
+        resqueak_hash: bytes,
+        block_height: int,
+        block_hash: bytes,
+        timestamp: int,
+        reply_to: Optional[bytes] = None,
+):
+    """Create a new resqueak.
+
+    Returns a resqueak
+
+    private_key (SqueakPrivatekey)
+    resqueak_hash (bytes)
+    block_height (int)
+    block_hash (bytes)
+    timestamp (int)
+    reply_to (Optional[bytes])
+    """
+    nonce = generate_nonce()
+    author_public_key = private_key.get_public_key()
+    resqueak = CResqueak(
+        hashReplySqk=reply_to or b'\x00'*HASH_LENGTH,
+        hashBlock=block_hash,
+        nBlockHeight=block_height,
+        pubKey=author_public_key.to_bytes(),
+        nTime=timestamp,
+        nNonce=nonce,
+        hashResqueakSqk=resqueak_hash,
+    )
+    sig = SignSqueak(private_key, resqueak)
+    resqueak.SetSignature(sig)
+    return resqueak
 
 
 __all__ = (
