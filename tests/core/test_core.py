@@ -35,6 +35,7 @@ from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import EncryptContent
 from squeak.core import InvalidContentLengthError
+from squeak.core import MakeResqueak
 from squeak.core import MakeSqueak
 from squeak.core import MakeSqueakFromStr
 from squeak.core import SECRET_KEY_LENGTH
@@ -110,6 +111,20 @@ def squeak(squeak_and_key):
 def secret_key(squeak_and_key):
     _, secret_key = squeak_and_key
     return secret_key
+
+
+@pytest.fixture
+def resqueak(priv_key, block_height, block_hash, squeak):
+    timestamp = int(time.time())
+
+    squeak = MakeResqueak(
+        priv_key,
+        squeak.GetHash(),
+        block_height,
+        block_hash,
+        timestamp,
+    )
+    return squeak
 
 
 class TestMakeSqueak(object):
@@ -211,7 +226,7 @@ class TestCheckSqueak(object):
             b"This is fake!".ljust(CONTENT_LENGTH, b"\x00"),
         )
         fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
+            encContent=fake_enc_content,
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
@@ -220,7 +235,6 @@ class TestCheckSqueak(object):
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
-            encContent=fake_enc_content,
         )
 
         with pytest.raises(CheckSqueakError):
@@ -251,7 +265,7 @@ class TestCheckSqueakSignature(object):
         fake_sig = SignSqueak(fake_priv_key, squeak_header)
 
         fake_squeak = CSqueak(
-            hashEncContent=squeak.hashEncContent,
+            encContent=squeak.encContent,
             hashReplySqk=squeak.hashReplySqk,
             hashBlock=squeak.hashBlock,
             nBlockHeight=squeak.nBlockHeight,
@@ -260,7 +274,6 @@ class TestCheckSqueakSignature(object):
             iv=squeak.iv,
             nTime=squeak.nTime,
             nNonce=squeak.nNonce,
-            encContent=squeak.encContent,
             sig=fake_sig,
         )
 
@@ -286,7 +299,7 @@ class TestSerializeSqueak(object):
         serialized_squeak = squeak.serialize()
         deserialized_squeak = CSqueak.deserialize(serialized_squeak)
 
-        assert len(serialized_squeak) == 1425
+        assert len(serialized_squeak) == 1393
         assert deserialized_squeak == squeak
         assert isinstance(squeak, CSqueak)
         assert squeak.GetDecryptedContent(secret_key) == \
@@ -305,6 +318,28 @@ class TestSerializeSqueak(object):
         serialized_squeak_header = squeak_header.serialize()
         deserialized_squeak_header = CSqueakHeader.deserialize(serialized_squeak_header)
 
-        assert len(serialized_squeak_header) == 225
+        assert len(serialized_squeak_header) == 1329
         assert deserialized_squeak_header == squeak_header
         assert isinstance(squeak_header, CSqueakHeader)
+
+
+class TestMakeResqueak(object):
+
+    def test_make_resqueak(self, priv_key, pub_key, prev_squeak_hash, block_height, block_hash, squeak):
+        timestamp = int(time.time())
+
+        resqueak = MakeResqueak(
+            priv_key,
+            squeak.GetHash(),
+            block_height,
+            block_hash,
+            timestamp,
+            reply_to=prev_squeak_hash,
+        )
+
+        CheckSqueak(resqueak)
+
+        assert resqueak.GetHash() == resqueak.get_header().GetHash()
+        assert resqueak.is_reply
+        assert resqueak.GetPubKey().to_bytes() == pub_key.to_bytes()
+        assert resqueak.GetResqueakHash() == squeak.GetHash()
