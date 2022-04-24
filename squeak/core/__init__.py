@@ -23,6 +23,7 @@ import struct
 from abc import ABC
 from abc import abstractmethod
 from typing import Optional
+from typing import Tuple
 
 from bitcoin.core import b2lx
 from bitcoin.core.serialize import ImmutableSerializable
@@ -545,7 +546,7 @@ def MakeSqueak(
         timestamp: int,
         reply_to: Optional[bytes] = None,
         recipient: Optional[SqueakPublicKey] = None,
-):
+) -> Tuple[CSqueak, bytes]:
     """Create a new squeak.
 
     Returns a tuple of (squeak, secret_key)
@@ -607,7 +608,7 @@ def MakeSqueakFromStr(
         timestamp: int,
         reply_to: Optional[bytes] = None,
         recipient: Optional[SqueakPublicKey] = None,
-):
+) -> Tuple[CSqueak, bytes]:
     """Create a new squeak from a string of content.
 
     Returns a tuple of (squeak, secret_key)
@@ -640,7 +641,7 @@ def MakeResqueak(
         block_hash: bytes,
         timestamp: int,
         reply_to: Optional[bytes] = None,
-):
+) -> CResqueak:
     """Create a new resqueak.
 
     Returns a resqueak
