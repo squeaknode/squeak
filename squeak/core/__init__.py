@@ -279,7 +279,7 @@ class CSqueakHeader(CBaseSqueakHeader):
              b2lx(self.hashBlock), self.nBlockHeight, b2lx(self.pubKey), b2lx(self.pubKey), b2lx(self.paymentPoint), b2lx(self.iv), self.nTime, self.nNonce)
 
 
-class CSqueak(CSqueakHeader):
+class CSqueak(CBaseSqueak, CSqueakHeader):
     """A squeak including the encrypted content in it"""
     __slots__ = ['sig']
 
@@ -329,18 +329,6 @@ class CSqueak(CSqueakHeader):
             nTime=self.nTime,
             nNonce=self.nNonce,
         )
-
-    def GetHash(self):
-        """Return the squeak hash
-        Note that this is the hash of the header, not the entire serialized
-        squeak.
-        """
-        try:
-            return self._cached_GetHash
-        except AttributeError:
-            _cached_GetHash = self.get_header().GetHash()
-            object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
-            return _cached_GetHash
 
     def GetSignature(self):
         """Return the signature."""
@@ -411,7 +399,7 @@ class CResqueakHeader(CBaseSqueakHeader):
              b2lx(self.hashReplySqk))
 
 
-class CResqueak(CResqueakHeader):
+class CResqueak(CBaseSqueak, CResqueakHeader):
     """A resqueak including the signature"""
     __slots__ = ['sig']
 
@@ -456,18 +444,6 @@ class CResqueak(CResqueakHeader):
             hashResqueakSqk=self.hashResqueakSqk
         )
 
-    def GetHash(self):
-        """Return the squeak hash
-        Note that this is the hash of the header, not the entire serialized
-        squeak.
-        """
-        try:
-            return self._cached_GetHash
-        except AttributeError:
-            _cached_GetHash = self.get_header().GetHash()
-            object.__setattr__(self, '_cached_GetHash', _cached_GetHash)
-            return _cached_GetHash
-
     def GetSignature(self):
         """Return the signature."""
         return self.sig
@@ -493,26 +469,22 @@ class CheckSqueakSecretKeyError(CheckSqueakError):
     pass
 
 
-def SignSqueak(private_key: SqueakPrivateKey, squeak_header: CSqueakHeader):
-    """Generate a signature for the given squeak header.
+def SignSqueak(private_key: SqueakPrivateKey, base_squeak_header: CBaseSqueakHeader):
+    """Generate a signature for the given base squeak header.
 
     private_key (SqueakPrivateKey)
-    squeak_header (CSqueakHeader)
+    base_squeak_header (CBaseSQueakheader)
     """
-    squeak_hash = squeak_header.GetHash()
+    squeak_hash = base_squeak_header.GetHash()
     return private_key.sign(squeak_hash)
 
 
-def CheckSqueakSignature(squeak: CSqueak):
+def CheckSqueakSignature(base_squeak: CBaseSqueak):
     """Check if the given squeak has a valid signature.
 
-    squeak (CSqueak)
+    base_squeak (CBaseSqueak)
     """
-    sig = squeak.GetSignature()
-    squeak_hash = squeak.GetHash()
-    pubkey = squeak.GetPubKey()
-    if not pubkey.verify(squeak_hash, sig):
-        raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
+    return base_squeak.CheckSignature()
 
 
 def CheckSqueakSecretKey(squeak: CSqueak, secret_key: bytes):
@@ -554,30 +526,15 @@ def EncryptContent(data_key: bytes, iv: bytes, content: bytes):
 #     return squeak_enc_content.GetHash()
 
 
-def CheckSqueakHeader(squeak_header: CSqueakHeader):
-    """Context independent CSqueakHeader checks.
-    Raises CSqueakHeaderError if squeak header is invalid.
-    """
-
-    # try:
-    #     # squeak_header.GetAddress()
-    #     assert len(squeak_header.pubKey) == PUB_KEY_LENGTH
-    # except CSqueakAddressError:
-    #     raise CheckSqueakHeaderError("CheckSqueakError() : pubkey does not have a valid length.")
-
-
-def CheckSqueak(squeak: CSqueak):
-    """Context independent CSqueak checks.
+def CheckSqueak(base_squeak: CBaseSqueak):
+    """Context independent CBaseSqueak checks.
 
     CheckSqueakHeader() is called first, which may raise a CheckSqueakHeader
     exception, followed by the squeak tests.
     """
 
-    # Squeak header checks
-    CheckSqueakHeader(squeak)
-
     # Signature check
-    CheckSqueakSignature(squeak)
+    CheckSqueakSignature(base_squeak)
 
 
 def MakeSqueak(
