@@ -540,11 +540,6 @@ def CheckSqueak(squeak: CSqueak):
     # Squeak header checks
     CheckSqueakHeader(squeak)
 
-    if not squeak.is_resqueak:
-        # Content length check
-        if not len(squeak.encContent) == ENC_CONTENT_LENGTH:
-            raise CheckSqueakError("CheckSqueak() : encContent length does not match the required length")
-
     # Signature check
     CheckSqueakSignature(squeak)
 
