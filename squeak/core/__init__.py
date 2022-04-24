@@ -20,6 +20,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import struct
+from abc import ABC
+from abc import abstractmethod
 from typing import Optional
 
 from bitcoin.core import b2lx
@@ -55,6 +57,40 @@ class ValidationError(Exception):
     Everything that is related to validating the squeak,
     content, signature, etc. is derived from this class.
     """
+
+
+class CBaseSqueak(ABC):
+    """The base of a squeak (for both squeak and resqueak)"""
+
+    @abstractmethod
+    def get_header(self) -> ImmutableSerializable:
+        """Return the header
+        """
+
+    @abstractmethod
+    def GetSignature(self):
+        """Return the signature."""
+
+    @abstractmethod
+    def SetSignature(self, sig):
+        """Set the signature."""
+
+    def GetHash(self) -> bytes:
+        """Return the hash
+        Note that this is the hash of the header.
+        """
+        return self.get_header().GetHash()
+
+    def CheckSignature(self):
+        """Check if the given squeak has a valid signature.
+
+        squeak (CSqueak)
+        """
+        sig = self.GetSignature()
+        squeak_hash = self.GetHash()
+        pubkey = self.GetPubKey()
+        if not pubkey.verify(squeak_hash, sig):
+            raise CheckSqueakSignatureError("CheckSqueakSignature() : invalid signature for the given squeak")
 
 
 class CBaseSqueakHeader(ImmutableSerializable):
