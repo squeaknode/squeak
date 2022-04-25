@@ -2,7 +2,7 @@
 
 ### Structures
 
-#### squeak header
+#### Squeak header
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
@@ -18,19 +18,21 @@ Field Size | Description | Data type | Comments
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | iv | char[16] | Random bytes used for the initialization vector
 
-Therefore, the total size of a squeak header is 1329 bytes.
+Therefore, the total size of a `squeak header` is 1329 bytes.
 
-#### squeak
+#### Squeak
 
-A squeak has all of the fields of a squeak header plus the following:
+A `squeak` has all of the fields of a `squeak header` plus the following:
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 64 | sig | char[64] | Signature over the squeak header by the author
 
-Therefore, the total size of a squeak is 1393 bytes.
+Therefore, the total size of a `squeak` is 1393 bytes.
 
-#### resqueak header
+The hash of a `squeak` is calculated by taking the double SHA256 of the header bytes.
+
+#### Resqueak header
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
@@ -43,14 +45,16 @@ Field Size | Description | Data type | Comments
 4 | nNonce | uint32_t | The nonce used to generate this squeak
 32 | hashResqueak | char[32] | The hash of the resqueaked squeak
 
-Therefore, the total size of a resqueak header is 144 bytes.
+Therefore, the total size of a `resqueak header` is 144 bytes.
 
-#### resqueak
+#### Resqueak
 
-A resqueak has all of the fields of a resqueak header plus the following:
+A `resqueak` has all of the fields of a `resqueak header` plus the following:
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 64 | sig | char[64] | Signature over the resqueak header by the author
 
-Therefore, the total size of a resqueak is 208 bytes.
+Therefore, the total size of a `resqueak` is 208 bytes.
+
+The hash of a `resqueak` is calculated by taking the double SHA256 of the header bytes.
