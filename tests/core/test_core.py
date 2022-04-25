@@ -25,12 +25,16 @@ import time
 import pytest
 from bitcoin.core import lx
 
+from squeak.core import CBaseSqueak
+from squeak.core import CBaseSqueakHeader
 from squeak.core import CheckSqueak
 from squeak.core import CheckSqueakError
 from squeak.core import CheckSqueakSecretKey
 from squeak.core import CheckSqueakSecretKeyError
 from squeak.core import CheckSqueakSignatureError
 from squeak.core import CONTENT_LENGTH
+from squeak.core import CResqueak
+from squeak.core import CResqueakHeader
 from squeak.core import CSqueak
 from squeak.core import CSqueakHeader
 from squeak.core import EncryptContent
@@ -343,3 +347,36 @@ class TestMakeResqueak(object):
         assert resqueak.is_reply
         assert resqueak.GetPubKey().to_bytes() == pub_key.to_bytes()
         assert resqueak.GetResqueakHash() == squeak.GetHash()
+
+
+class TestSerializeResqueak(object):
+
+    def test_serialize_resqueak(self, resqueak, secret_key):
+        serialized_resqueak = resqueak.serialize()
+        deserialized_resqueak = CResqueak.deserialize(serialized_resqueak)
+
+        assert len(serialized_resqueak) == 208
+        assert deserialized_resqueak == resqueak
+        assert isinstance(resqueak, CBaseSqueak)
+        assert isinstance(resqueak, CResqueak)
+        assert resqueak.GetResqueakHash() == \
+            deserialized_resqueak.GetResqueakHash()
+
+    def test_serialize_resqueak_null(self):
+        resqueak = CResqueak()
+        serialized_resqueak = resqueak.serialize()
+        deserialized_resqueak = CResqueak.deserialize(serialized_resqueak)
+
+        assert deserialized_resqueak == resqueak
+        assert isinstance(resqueak, CBaseSqueak)
+        assert isinstance(resqueak, CResqueak)
+
+    def test_serialize_resqueak_header(self, resqueak):
+        resqueak_header = resqueak.get_header()
+        serialized_resqueak_header = resqueak_header.serialize()
+        deserialized_resqueak_header = CResqueakHeader.deserialize(serialized_resqueak_header)
+
+        assert len(serialized_resqueak_header) == 144
+        assert deserialized_resqueak_header == resqueak_header
+        assert isinstance(resqueak_header, CBaseSqueakHeader)
+        assert isinstance(resqueak_header, CResqueakHeader)
