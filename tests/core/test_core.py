@@ -355,7 +355,7 @@ class TestSerializeResqueak(object):
         serialized_resqueak = resqueak.serialize()
         deserialized_resqueak = CResqueak.deserialize(serialized_resqueak)
 
-        # assert len(serialized_resqueak) == 1393
+        assert len(serialized_resqueak) == 208
         assert deserialized_resqueak == resqueak
         assert isinstance(resqueak, CBaseSqueak)
         assert isinstance(resqueak, CResqueak)
@@ -376,7 +376,7 @@ class TestSerializeResqueak(object):
         serialized_resqueak_header = resqueak_header.serialize()
         deserialized_resqueak_header = CResqueakHeader.deserialize(serialized_resqueak_header)
 
-        # assert len(serialized_resqueak_header) == 1329
+        assert len(serialized_resqueak_header) == 144
         assert deserialized_resqueak_header == resqueak_header
         assert isinstance(resqueak_header, CBaseSqueakHeader)
         assert isinstance(resqueak_header, CResqueakHeader)
