@@ -11,5 +11,4 @@
 
 * Use the same cryptography primitives as Bitcoin wherever possible.
 * Squeak content is 1120 bytes. This is enough for 280 UTF-8 characters.
-* Hash of the AES-encrypted content is used to keep the size of squeak header small.
 * Buyer only sends payment after seller proves validity of a squeak and ownership of its decryption key.
