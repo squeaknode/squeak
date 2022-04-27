@@ -13,7 +13,7 @@ Field Size | Description | Data type | Comments
 32 | pubKey | char[32] | Contains the public key of the author
 4 | nTime | uint32_t | A timestamp recording when this squeak was created
 4 | nNonce | uint32_t | The nonce used to generate this squeak
-32 | encContent | char[1136] | The encrypted ciphertext of the content of the squeak
+1136 | encContent | char[1136] | The encrypted ciphertext of the content of the squeak
 32 | recipientPubKey | char[32] | Contains the public key of the recipient if squeak is a private message
 33 | paymentPoint | char[33] | The payment point of the squeak derived from the decryption key on the secp256k1 curve.
 16 | iv | char[16] | Random bytes used for the initialization vector
