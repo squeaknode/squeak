@@ -4,6 +4,8 @@
 
 #### Squeak header
 
+[Source](https://github.com/squeaknode/squeak/blob/c079ae321a455a6858018ebd77ef10f68dfdc4b5/squeak/core/__init__.py#L159)
+
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
 4 | nVersion | int32_t | Squeak version information
@@ -22,6 +24,8 @@ Therefore, the total size of a `squeak header` is 1329 bytes.
 
 #### Squeak
 
+[Source](https://github.com/squeaknode/squeak/blob/c079ae321a455a6858018ebd77ef10f68dfdc4b5/squeak/core/__init__.py#L283)
+
 A `squeak` has all of the fields of a `squeak header` plus the following:
 
 Field Size | Description | Data type | Comments
@@ -33,6 +37,8 @@ Therefore, the total size of a `squeak` is 1393 bytes.
 The hash of a `squeak` is calculated by taking the double SHA256 of the header bytes.
 
 #### Resqueak header
+
+[Source](https://github.com/squeaknode/squeak/blob/c079ae321a455a6858018ebd77ef10f68dfdc4b5/squeak/core/__init__.py#L343)
 
 Field Size | Description | Data type | Comments
 --- | --- | --- | ---
@@ -48,6 +54,8 @@ Field Size | Description | Data type | Comments
 Therefore, the total size of a `resqueak header` is 144 bytes.
 
 #### Resqueak
+
+[Source](https://github.com/squeaknode/squeak/blob/c079ae321a455a6858018ebd77ef10f68dfdc4b5/squeak/core/__init__.py#L403)
 
 A `resqueak` has all of the fields of a `resqueak header` plus the following:
 
